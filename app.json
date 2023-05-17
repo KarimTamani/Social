@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Social",
+    "slug": "Social",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/f631f27f-c32e-4b5b-a97e-c2102dfc35fa"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      "react-native-compressor"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "social",
+     
+      "runtimeVersion": {
+        "policy": "sdkVersion"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.tamani_karim.Social",
+      "runtimeVersion": {
+        "policy": "sdkVersion"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f631f27f-c32e-4b5b-a97e-c2102dfc35fa"
+      }
+    }
+  }
+}

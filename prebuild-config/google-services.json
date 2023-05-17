@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "482147710452",
+    "project_id": "social-media-e9906",
+    "storage_bucket": "social-media-e9906.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:482147710452:android:f24e516edbee9cda1535a1",
+        "android_client_info": {
+          "package_name": "com.tamani_karim.Social"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "482147710452-4f4jrhvco15sqf15spdpkhj9vnu6cmp6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tamani_karim.Social",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "482147710452-bu1tri793ia9qcqh9h014p8a3dsmov63.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBj1LXC58Ha-_Qh9q4iiYFwbk_gigsrrAQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "482147710452-bu1tri793ia9qcqh9h014p8a3dsmov63.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,74 @@
+- background actions 
+
+copy to manifest.xml 
+
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<service android:name="com.asterinet.react.bgactions.RNBackgroundActionsTask" />
+
+- push notifications 
+
+add : 
+    classpath 'com.google.gms:google-services:4.3.15'
+
+to android/build.gradle
+
+add : 
+    apply plugin: 'com.google.gms.google-services'
+    implementation platform('com.google.firebase:firebase-bom:31.5.0')
+    
+to android/app/build.gradle
+
+Push Notification : 
+
+add : 
+    googlePlayServicesVersion = "+" // default: "+"
+    firebaseMessagingVersion = "+" // default: "21.1.0"
+
+to : 
+    android/build.gradle 
+    ext {
+
+    }
+
+
+add : 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+to : 
+    manifestXml
+
+add : 
+      <meta-data  android:name="com.dieam.reactnativepushnotification.notification_foreground"
+                    android:value="false"/>
+        <!-- Change the resource name to your App's accent color - or any other color you want -->
+        <meta-data  android:name="com.dieam.reactnativepushnotification.notification_color"
+                    android:resource="@color/white"/> <!-- or @android:color/{name} to use a standard color -->
+
+        <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions" />
+        <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher" />
+        <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationBootEventReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+to : 
+    manifestXml inside application tag 
+
+
+add : 
+        <color name="white">#FFF</color>
+
+to : 
+    values/colors
