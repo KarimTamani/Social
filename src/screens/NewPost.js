@@ -7,7 +7,8 @@ import {
     TextInput,
     Keyboard,
     TouchableOpacity,
-    Dimensions
+    Dimensions,
+    FlatList
 } from "react-native";
 import Header from "../components/Cards/Header";
 import NewPostUploader from "../components/Cards/NewPostUploader";
@@ -31,6 +32,7 @@ import { useEvent } from "../providers/EventProvider";
 import { compreessImage, createRNUploadableFile } from "../providers/MediaProvider";
 
 const WIDTH = Dimensions.get("screen").width;
+const HASHTAG_REGEX = /#+([ا-يa-zA-Z0-9_]+)/ig;
 
 export default function NewPost({ navigation }) {
 
@@ -42,7 +44,10 @@ export default function NewPost({ navigation }) {
     const [user, setUser] = useState(null);
     const auth = useContext(AuthContext);
     const client = useContext(ApolloContext);
-
+    const [selection, setSelection] = useState(null);
+    const [searchHandler, setSearchHandler] = useState(null);
+    const [hashtags, setHashTags] = useState([]);
+    const [focusHashTag, setFocusHashTag] = useState(null);
 
     const event = useEvent()
 
@@ -224,7 +229,7 @@ export default function NewPost({ navigation }) {
                 event.emit("new-post", newPost);
             }
         } catch (error) {
-            
+
 
             await BackgroundService.stop();
         }
@@ -275,7 +280,117 @@ export default function NewPost({ navigation }) {
 
 
     const themeContext = useContext(ThemeContext);
-    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+
+
+    const processHashTag = (text, hashtags) => {
+
+        if (hashtags.length == 0)
+            return [text]
+
+        var sequences = text.split(hashtags[0]);
+
+        if (hashtags.length == 1)
+            return [sequences[0], <Text style={styles.hashtag}>{hashtags[0]}</Text>, sequences[1]];
+        else if (hashtags.length > 1)
+            return [sequences[0], <Text style={styles.hashtag}>{hashtags[0]}</Text>, ...processHashTag(sequences[1], hashtags.slice(1))];
+    }
+
+    const renderText = () => {
+
+        var hashtags = text.match(HASHTAG_REGEX);
+
+        if (!hashtags)
+            return text;
+        else {
+            var processedText = processHashTag(text, hashtags);
+
+            return processedText
+        }
+    }
+
+
+
+    useEffect(() => {
+
+        const position = selection ? selection.start : text.length;
+
+
+
+        var after = text.slice(position);
+        var before = text.slice(0, position);
+        after = after.split(" ");
+        before = before.split(" ");
+        var beforeWord = before.pop();
+        var focusWord = beforeWord + after[0];
+
+
+        if (focusWord.match(HASHTAG_REGEX)) {
+
+            if (searchHandler) {
+                clearTimeout(searchHandler)
+            }
+
+            setSearchHandler(setTimeout(() => {
+
+
+                client.query({
+                    query: gql`
+                query SearchHashTag($name: String!, $limit: Int!, $offset: Int!) {
+                    searchHashTag(name: $name, limit: $limit, offset: $offset) {
+                      id
+                      name
+                      numPosts
+                    }
+                  }
+                
+                ` , variables: {
+                        offset: 0,
+                        limit: 10,
+                        name: focusWord
+                    }
+                }).then(response => {
+                    setHashTags(response.data.searchHashTag)
+
+                    setFocusHashTag({
+                        word: focusWord,
+                        position: position - beforeWord.length
+                    })
+                })
+            }, 100))
+        } else 
+            setHashTags([]);
+
+    }, [selection]);
+
+
+    const selectHashTag = useCallback((hashtag) => {
+
+
+        var before = text.substring(0, focusHashTag.position);
+        var after = text.substring(focusHashTag.position + focusHashTag.word.length);
+
+        setText(before + hashtag.name + " " + after);
+        setHashTags([])
+    }, [text, focusHashTag])
+
+
+    const keyExtractor = useCallback((item, index) => {
+        return item.id;
+    }, []);
+
+    const renderItem = useCallback(({ item, index }) => {
+        return (
+            <TouchableOpacity style={styles.hashResult} onPress={() => selectHashTag(item)}>
+                <Text style={[styles.hashtag, styles.hashtagName]}>
+                    {item.name}
+                </Text>
+                <Text style={styles.numPosts}>
+                    عدد المنشورات {item.numPosts}
+                </Text>
+            </TouchableOpacity>
+        )
+    }, [text, focusHashTag])
 
     return (
         <View style={styles.container}>
@@ -312,12 +427,24 @@ export default function NewPost({ navigation }) {
                     numberOfLines={numberOfLines}
                     onChangeText={setText}
                     placeholderTextColor={styles.placeholderTextColor}
+                    onSelectionChange={(event) => setSelection(event.nativeEvent.selection)}
+
+
 
                 >
                     <Text style={styles.inputText} >
-                        {text}
+                        {renderText()}
                     </Text>
                 </TextInput>
+                <FlatList
+                    style={[styles.hashtags, { top: 56 + (32 * numberOfLines) }]}
+                    data={hashtags}
+                    keyExtractor={keyExtractor}
+                    renderItem={renderItem}
+                    ItemSeparatorComponent={<View style={styles.separator}></View>}
+                />
+
+
                 {
                     post.media.length > 0 &&
                     <PostImage
@@ -376,6 +503,7 @@ const lightStyles = StyleSheet.create({
     content: {
         flex: 1,
         marginTop: 16,
+
     },
     input: {
         padding: 16,
@@ -383,15 +511,31 @@ const lightStyles = StyleSheet.create({
         marginTop: 16,
         paddingTop: 0,
         paddingBottom: 0,
-
-
         textAlignVertical: "top",
+    },
+    hashtags: {
 
+
+        backgroundColor: "white",
+        width: "92%",
+
+        alignSelf: "center",
+        elevation: 4,
+        position: "absolute",
+        marginTop: 16,
+        zIndex: 99,
+        borderRadius: 4,
+        paddingHorizontal: 16,
+        maxHeight: 260,
+
+
+    },
+    hashtag: {
+        color: "#1A6ED8"
     },
     outlineButton: {
         width: 86,
         backgroundColor: "#1A6ED8",
-
         borderRadius: 26,
         flexDirection: "row",
         justifyContent: "center",
@@ -423,6 +567,24 @@ const lightStyles = StyleSheet.create({
         marginVertical: 16,
         height: "100%",
         width: "100%",
+    },
+    hashResult: {
+        paddingVertical: 4,
+
+        alignItems: "flex-end"
+    },
+    hashtagName: {
+        fontFamily: textFonts.semiBold,
+        fontSize: 12
+    },
+    numPosts: {
+        color: "#888",
+        fontFamily: textFonts.regular,
+        fontSize: 10
+    },
+    separator: {
+        height: 1,
+        backgroundColor: "#eee"
     }
 
 });
@@ -458,131 +620,3 @@ const darkStyles = {
     },
 }
 
-
-/*
-
-    const createPost = async () => {
-
-        var media = [];
-        var type = "note";
-        var thumbnail = null;
-        if (images.length > 0) {
-
-            type = "image";
-
-            for (let index = 0; index < images.length; index++) {
-
-                var image = images[index];
-
-                const manipResult = await manipulateAsync(
-                    image.uri,
-                    [{ resize: { width: 512 } }],
-                    { format: 'jpeg' }
-                );
-
-                media.splice(0, 0, new ReactNativeFile({
-                    type: "image/jpeg",
-                    name: "image",
-                    uri: manipResult.uri
-                }));
-            }
-        } if (video) {
-
-            type = "reel";
-            var compressedFileUrl = null;
-
-            try {
-                compressedFileUrl = await Video.compress(
-                    video.uri,
-                    {
-                        compressionMethod: "auto",
-                        maxSize: 520,
-                        minimumFileSizeForCompress: 3
-                    },
-                    (progress) => {
-                        console.log({ compression: progress });
-                    }
-                )
-            } catch (error) {
-                //       alert("Compression Failed " + error);
-            }
-            if (compressedFileUrl) {
-                video.uri = compressedFileUrl
-            }
-
-            try {
-                const { uri } = await VideoThumbnails.getThumbnailAsync(
-                    video.uri,
-                    {
-                        time: 15000,
-                    }
-                );
-
-                thumbnail = new ReactNativeFile({
-                    type: "image/jpeg",
-                    name: "thumbnail",
-                    uri: uri
-                });
-
-
-            } catch (e) {
-
-                alert("Failed to generate thumbnail " + e.message);
-
-                return;
-            }
-
-            media = [new ReactNativeFile({
-                type: "video/mp4",
-                name: "video",
-                uri: video.uri
-            })]
-        }
-
-        var response = await client.mutate({
-            mutation: gql`
-        mutation CREATE_POST($postInput : PostInput!) {
-            createPost(postInput: $postInput) { 
-                id 
-                title 
-                type 
-                media {
-                    id path 
-                }
-                reel {
-                    id 
-                    views 
-                    thumbnail { 
-                        id path 
-                    }
-                }
-                createdAt 
-                updatedAt 
-            }
-        }` ,
-            variables: {
-                postInput: {
-                    title: (text.trim().length > 0) ? text.trim() : null,
-                    media: media,
-                    type: type,
-                    reel: (type == "reel") ? ({
-                        thumbnail: thumbnail
-                    }) : null
-                }
-            } 
-        }) ;  
-        if ( response ) { 
-            var newPost = response.data.createPost ; 
-            newPost.user = user ; 
-            newPost.likes = 0 ; 
-            newPost.liked = false ; 
-            newPost.isFavorite = false ; 
-            newPost.numComments = 0 ; 
-
-            event.emit("new-post" , newPost) ; 
-        }
-    }
-    
-
-
-*/ 
