@@ -68,20 +68,20 @@ export default function Search({ navigation }) {
                 }
                 {
                     filter == "notes" &&
-                    <SearchPosts type={"note"} query={query} />
+                    <SearchPosts type={"note"} query={query} navigation = { navigation }/>
                 }
                 {
                     filter == "images" &&
-                    <SearchPosts type={"image"} query={query} />
+                    <SearchPosts type={"image"} query={query} navigation = { navigation }/>
                 }
                 {
                     filter == "reels" &&
-                    <SearchPosts type={"reel"} query={query} />
+                    <SearchPosts type={"reel"} query={query} navigation = { navigation }/>
 
                 }
                 {
                     filter == "hashtags" &&
-                    <SearchHashTags query={query} />
+                    <SearchHashTags query={query} navigation = { navigation } />
                 }
 
             </View>
@@ -119,8 +119,7 @@ const lightStyles = StyleSheet.create({
     },
     content: {
         flex: 1,
-        padding : 16 , 
-        paddingBottom : 0
+      
     }
 })
 

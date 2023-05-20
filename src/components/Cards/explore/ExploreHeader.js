@@ -46,7 +46,7 @@ export default function ExploreHeader({ navigation, activePage , onQueryChange})
         setSearchHandler ( setTimeout(() => {
    
             onQueryChange && onQueryChange(query) ; 
-        } , 200)) 
+        } , 500)) 
     } , [searchHandler])
 
     return (

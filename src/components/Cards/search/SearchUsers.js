@@ -28,11 +28,7 @@ export default function SearchUsers({ query, navigation }) {
 
         if (!currentUser) {
             (async () => {
-
-
-
                 const userAuth = await auth.getUserAuth();
-
                 if (userAuth) {
                     setCurrentUser(userAuth.user);
 
@@ -82,7 +78,9 @@ export default function SearchUsers({ query, navigation }) {
 
     useEffect(() => {
 
-        setFirstFetch(true)
+        setFirstFetch(true) ; 
+        setEnd(false) ; 
+        setLoading(false) ; 
         if (query)
             search_users(query, [])
         else
@@ -91,14 +89,12 @@ export default function SearchUsers({ query, navigation }) {
 
     useEffect(() => {
         if (loading)
-            search_users(query, users.filter(user => user.type != "loading").length);
+            search_users(query, users.filter(user => user.type != "loading") );
     }, [loading])
 
     const openProfile = useCallback((userId) => {
         if (userId == currentUser.id) {
-            navigation.navigate("HomeNavigation", { 
-                screen: "AccountStack" , 
-             })
+            navigation.navigate("AccountStack", { screen: "MyProfile" })
 
         } else {
             navigation.navigate("Profile", { userId: userId });
@@ -162,7 +158,7 @@ export default function SearchUsers({ query, navigation }) {
                     renderItem={renderItem}
                     style={styles.list}
                     onEndReached={reachEnd}
-                    onEndReachedThreshold={0.2}
+                    onEndReachedThreshold={0.5}
                 />
             }
             {
@@ -177,7 +173,9 @@ export default function SearchUsers({ query, navigation }) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1 , 
+        padding : 16 , 
+        paddingBottom : 0
     },
     user: {
         flexDirection: "row",
