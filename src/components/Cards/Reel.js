@@ -23,10 +23,11 @@ import { AuthContext } from "../../providers/AuthContext";
 
 const WIDTH = Dimensions.get("screen").width;
 const HEIGHT = Dimensions.get("screen").height;
+const HASHTAG_REGEX = /#+([ا-يa-zA-Z0-9_]+)/ig;
 
 function Reel(props) {
 
-    var { focus, openProfile } = props
+    var { focus, openProfile , navigation } = props
 
 
 
@@ -47,7 +48,7 @@ function Reel(props) {
     const [showComments, setShowComments] = useState(false);
     const [showSender, setShowSender] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-
+    const [processedTitle , setProcessedTitle] = useState(props.reel.title) ; 
 
     const event = useEvent();
 
@@ -67,7 +68,38 @@ function Reel(props) {
     }, [props])
 
 
+    useEffect(() => {
 
+        const title = props.reel.title ; 
+        if (title) {
+            var hashtags = title.match(HASHTAG_REGEX);
+        
+            if ( hashtags && hashtags.length > 0 ) {
+                var processedText = processHashTag(title, hashtags);
+                setProcessedTitle(processedText) ; 
+            }
+        }
+    } , []) ; 
+
+
+    const processHashTag = (text, hashtags) => {
+
+        if (hashtags.length == 0)
+            return [text]
+
+        var sequences = text.split(hashtags[0]);
+
+        if (hashtags.length == 1)
+            return [sequences[0], <Text onPress={() => openHashtag(hashtags[0]) }  style={styles.hashtag}>{hashtags[0]}</Text>, sequences[1]];
+        else if (hashtags.length > 1)
+            return [sequences[0], <Text onPress={() => openHashtag(hashtags[0]) } style={styles.hashtag}>{hashtags[0]}</Text>, ...processHashTag(sequences[1], hashtags.slice(1))];
+    }
+
+    const openHashtag = useCallback((hashtag) => {
+        navigation.navigate("HashTag" , {
+            hashtagName :  hashtag
+        })
+    } , [navigation]) 
 
 
 
@@ -351,7 +383,7 @@ function Reel(props) {
                     </TouchableOpacity>
 
                     <Text style={styles.reelTitle} numberOfLines={2} ellipsizeMode="tail">
-                        {reel.title}
+                        {processedTitle}
                     </Text>
 
                 </View>
@@ -469,6 +501,9 @@ const styles = StyleSheet.create({
         height: "25%",
         zIndex: 99
 
+    },
+    hashtag: {
+        color: "#1A6ED8"
     },
     user: {
 

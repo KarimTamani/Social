@@ -214,7 +214,7 @@ export default function Reels({ navigation, route }) {
 
         return (
             <View style={styles.reel}>
-                <Reel reel={item} focus={focus} openProfile={openProfile} />
+                <Reel reel={item} focus={focus} openProfile={openProfile} navigation = {navigation} />
             </View>
         )
 

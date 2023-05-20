@@ -101,12 +101,7 @@ export default function NewPost({ navigation }) {
 
 
     const createPost = async (params) => {
-
-
-
-
-
-        var { client, event, text, images, video } = params;
+        var { client, event, text, images, video , hashtags } = params;
 
         var media = [];
         var type = "note";
@@ -174,10 +169,7 @@ export default function NewPost({ navigation }) {
 
             if (compressedFileUrl)
                 video.uri = compressedFileUrl
-
             media = [await createRNUploadableFile(video.uri)];
-
-
         }
 
 
@@ -200,6 +192,10 @@ export default function NewPost({ navigation }) {
                             id path 
                         }
                     }
+
+                    hashtags {
+                        id name 
+                    }
                     createdAt 
                     updatedAt 
                 }
@@ -211,14 +207,15 @@ export default function NewPost({ navigation }) {
                         type: type,
                         reel: (type == "reel") ? ({
                             thumbnail: thumbnail
-                        }) : null
+                        }) : null , 
+                        hashtags : hashtags
                     }
                 }
             });
 
 
             if (response) {
-
+                console.log(response) ; 
                 var newPost = response.data.createPost;
                 newPost.user = user;
                 newPost.likes = 0;
@@ -226,6 +223,7 @@ export default function NewPost({ navigation }) {
                 newPost.isFavorite = false;
                 newPost.numComments = 0;
 
+                console.log(newPost) ; 
                 event.emit("new-post", newPost);
             }
         } catch (error) {
@@ -242,7 +240,14 @@ export default function NewPost({ navigation }) {
 
     const newPost = useCallback(() => {
         (async () => {
+
+
+            var hashtags = text.match(HASHTAG_REGEX);
+            
+            
+      
             try {
+
                 const options = {
                     taskName: 'UPLOAD_CONTENT',
                     taskTitle: 'رفع المحتوى',
@@ -258,7 +263,8 @@ export default function NewPost({ navigation }) {
                         images: images,
                         video: video,
                         client: client,
-                        event: event
+                        event: event , 
+                        hashtags : hashtags 
                     },
                 };
 
@@ -269,10 +275,11 @@ export default function NewPost({ navigation }) {
             } catch (error) {
 
 
-                createPost({ client, event, text, images, video });
+                createPost({ client, event, text, images, video , hashtags });
                 navigation.goBack();
 
             }
+          
         })();
 
 
@@ -358,7 +365,7 @@ export default function NewPost({ navigation }) {
                     })
                 })
             }, 100))
-        } else 
+        } else
             setHashTags([]);
 
     }, [selection]);

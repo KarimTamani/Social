@@ -29,6 +29,7 @@ import PostVideo from "./PostVideo";
 
 
 const WIDTH = Dimensions.get("screen").width;
+const HASHTAG_REGEX = /#+([ا-يa-zA-Z0-9_]+)/ig;
 
 function Post(props) {
 
@@ -42,6 +43,7 @@ function Post(props) {
     const [numLikes, setNumLikes] = useState(props.post.likes);
     const [favorite, setFavorite] = useState(props.post.isFavorite);
     const [numComments, setNumComments] = useState(props.post.numComments);
+    const [processedTitle , setProcessedTitle] = useState(props.post.title) ; 
 
     const [showOptions, setShowOptions] = useState(false);
 
@@ -59,35 +61,41 @@ function Post(props) {
     useEffect(() => {
 
         setPost(props.post);
-
         setLike(props.post.liked);
         setNumLikes(props.post.likes);
         setFavorite(props.post.isFavorite);
         setNumComments(props.post.numComments);
 
-    }, [props])
+
+
+      
+    }, [props]) ; 
+
+
+  
+    
 
     const toggleComments = useCallback(() => {
 
         if (!showComments) {
             const onNewComment = () => {
-                var newNumOfComments = null ; 
+                var newNumOfComments = null;
 
                 setNumComments(previousNum => {
                     setNumComments(previousNum + 1);
-                    newNumOfComments = previousNum + 1 ; 
+                    newNumOfComments = previousNum + 1;
                 });
 
                 event.emit("update-post-comments", post.id, newNumOfComments);
 
-            } 
+            }
             event.addListener("new-comment", onNewComment);
-        }else{
-            event.removeAllListeners("new-comment") ; 
+        } else {
+            event.removeAllListeners("new-comment");
         }
         setShowComments(!showComments);
-    }, [showComments , numComments, post]);
-   
+    }, [showComments, numComments, post]);
+
 
     const toggleLike = () => {
         if (!like) {
@@ -114,7 +122,7 @@ function Post(props) {
                 postId: post.id
             }
         }).then(response => {
-            
+
         }).catch(error => {
             toggleLike();
         })
@@ -188,7 +196,10 @@ function Post(props) {
         navigation.navigate("PayedContentDetails", {
             course: post
         })
-    }, [])
+    }, []);
+
+
+
     return (
         <View style={styles.container}>
             {
@@ -314,14 +325,17 @@ function Post(props) {
                 </TouchableOpacity>
             </View>
             {
-                post.type != "note" && post.title &&
+                /*
+            post.type != "note" && post.title &&
                 <Text style={styles.title}>
-                    {post.title}
+                    {processedTitle}
                 </Text>
-
-            }<View style={styles.content}>
+                */
+            }
+            
+            <View style={styles.content}>
                 {
-                    (post.type == "note") && <PostNote post={post} />
+                    (post.type == "note" || post.title) && <PostNote post={post} navigation = { navigation } />
                 }
                 {
                     post.type == "image" && <PostImage post={post} navigation={navigation} />
@@ -444,6 +458,9 @@ const lightStyles = StyleSheet.create({
         paddingVertical: 16,
         borderColor: "#ddd",
         marginTop: 12
+    },
+    hashtag: {
+        color: "#1A6ED8"
     },
     row: {
         flexDirection: "row",

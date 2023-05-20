@@ -247,6 +247,7 @@ export default function Home({ navigation }) {
                         liked
                         likes  
                         isFavorite 
+                      
                         user { 
                             id
                             name 
@@ -275,6 +276,7 @@ export default function Home({ navigation }) {
                             } 
                             views
                         }
+                      
                         user { 
                             id
                             name 
@@ -297,8 +299,6 @@ export default function Home({ navigation }) {
                 reelLimit: REEL_LIMIT
             }
         }).then(response => {
-
-            console.log(response);
 
             var reels = null;
             if (response.data.getReels.length >= 3)

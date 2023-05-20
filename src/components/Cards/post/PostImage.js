@@ -87,7 +87,8 @@ export default function PostImage({ post, navigation }) {
 const styles = StyleSheet.create({
     container: {
 
-        paddingVertical: 16
+        paddingVertical: 16 , 
+        
     },
     image: {
         height: 360,

@@ -14,7 +14,6 @@ export default function SmallFollowButton({text =  "متابعة" , style , text
             {
                 loading && 
                 <ActivityIndicator color = {"white"}>
-
                 </ActivityIndicator>
             }
         </TouchableOpacity>

@@ -32,6 +32,7 @@ import { NotificationNavigator } from "./NotificationNavigator";
 import { useEvent } from "../providers/EventProvider";
 import { AuthContext } from "../providers/AuthContext";
 import Favorites from "../screens/Favorites";
+import HashTag from "../screens/HashTag";
 
 const Stack = createStackNavigator();
 
@@ -72,6 +73,7 @@ export default function RootNavigation({ initialRouteName = "AuthRoute" }) {
 
                 initialRouteName={initialRouteName}
             >
+                <Stack.Screen name="HashTag" component={HashTag} />
 
                 <Stack.Screen name="Favorites" component={Favorites} />
                 <Stack.Screen name="ReelsViewer" component={ReelsViewer} />
