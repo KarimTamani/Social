@@ -1,16 +1,18 @@
-import { useCallback, useContext, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Pressable } from "react-native";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Pressable, Keyboard } from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import PrimaryInput from "../../Inputs/PrimaryInput";
 import { MaterialIcons } from '@expo/vector-icons';
 import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
 
-export default function ExploreHeader({ navigation, activePage }) {
+export default function ExploreHeader({ navigation, activePage , onQueryChange}) {
 
-    const themeContext = useContext(ThemeContext) ; 
-    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles ;  
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+    const [searchHandler , setSearchHandler] = useState( null ) ; 
 
+    
     const inputRef = useRef();
 
     const onBack = useCallback(() => {
@@ -19,20 +21,33 @@ export default function ExploreHeader({ navigation, activePage }) {
     }, [navigation]);
 
     const onFocus = useCallback(() => {
-        if (activePage != "Search")
+        if (activePage != "Search") {
             navigation.navigate("Search");
-
-    }, [navigation, activePage]);
+        }
+    }, [navigation, activePage, inputRef]);
 
 
     useEffect(() => {
-        if (activePage == "Search") 
-            inputRef.current?.focus();
-        
+        if (activePage == "Search") {
+            setTimeout(() => {
+                inputRef.current?.focus();
+            } , 200)
+        }
+
     }, [activePage, inputRef])
+ 
 
+    
+    const onSearchQueryChange = useCallback((query) => {
+        if (searchHandler) {
+            clearTimeout(searchHandler) 
+        } ; 
 
-
+        setSearchHandler ( setTimeout(() => {
+   
+            onQueryChange && onQueryChange(query) ; 
+        } , 200)) 
+    } , [searchHandler])
 
     return (
         <View style={styles.container}>
@@ -43,6 +58,10 @@ export default function ExploreHeader({ navigation, activePage }) {
                     placeholder={"بحث ..."}
                     onFocus={onFocus}
                     inputRef={inputRef}
+                    showKeyBoard={activePage == "Search" ? true : false }
+           
+                    onChange={onSearchQueryChange}
+               
                     leftContent={
                         <TouchableOpacity style={styles.qrButton}>
                             <MaterialIcons name="qr-code-scanner" style={styles.scanner} />
@@ -80,14 +99,14 @@ const lightStyles = StyleSheet.create({
         marginLeft: 8,
         borderRadius: 48
     },
-    scanner : { 
-        color :"black" , 
-        fontSize : 24 
+    scanner: {
+        color: "black",
+        fontSize: 24
     }
-}) ; 
+});
 
-const darkStyles = { 
-    ...lightStyles , 
+const darkStyles = {
+    ...lightStyles,
     container: {
         backgroundColor: darkTheme.backgroudColor,
         flexDirection: "row",
@@ -99,8 +118,8 @@ const darkStyles = {
     }
     ,
     icon: {
-        fontSize: 24 , 
-        color : darkTheme.textColor 
+        fontSize: 24,
+        color: darkTheme.textColor
     },
     qrButton: {
         backgroundColor: darkTheme.backgroudColor,
@@ -108,8 +127,8 @@ const darkStyles = {
         marginLeft: 8,
         borderRadius: 48
     },
-    scanner : { 
-        color : darkTheme.textColor , 
-        fontSize : 24 
+    scanner: {
+        color: darkTheme.textColor,
+        fontSize: 24
     }
 }

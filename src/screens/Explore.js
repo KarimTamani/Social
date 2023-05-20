@@ -5,6 +5,7 @@ import { textFonts } from "../design-system/font"
 import { AntDesign } from '@expo/vector-icons';
 import ThemeContext from "../providers/ThemeContext";
 import darkTheme from "../design-system/darkTheme";
+import ExploreHeader from "../components/Cards/explore/ExploreHeader";
 export default function Explore({ navigation }) {
 
 
@@ -14,8 +15,6 @@ export default function Explore({ navigation }) {
     const [explore, setExplore] = useState();
     useEffect(() => {
         setExplore(exploreData.sort((a, b) => 0.5 - Math.random()))
-
-
     }, []);
 
 
@@ -56,6 +55,8 @@ export default function Explore({ navigation }) {
 
     return (
         <View style={styles.container}>
+            
+            <ExploreHeader navigation={navigation} activePage={"Explore"} />
             <FlatList
                 data={explore}
                 keyExtractor={keyExtractor}

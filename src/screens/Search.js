@@ -1,36 +1,47 @@
-import { useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import darkTheme from "../design-system/darkTheme";
 import { textFonts } from "../design-system/font";
 import ThemeContext from "../providers/ThemeContext";
+import ExploreHeader from "../components/Cards/explore/ExploreHeader";
+import SearchUsers from "../components/Cards/search/SearchUsers";
+import SearchPosts from "../components/Cards/search/SearchPosts";
+import SearchHashTags from "../components/Cards/search/SearchHashTags";
 export default function Search({ navigation }) {
 
     const [filter, setFilter] = useState("people");
 
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+    const [query, setQuery] = useState("");
 
 
-    const themeContext = useContext(ThemeContext) ; 
-    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles ;  
+    const onQueryChange = useCallback((query) => {
+        setQuery(query);
+    }, [])
+
+
+
+    useEffect(() => {
+        console.log(filter);
+    }, [filter])
+
 
     return (
         <View style={styles.container}>
-
+            <ExploreHeader navigation={navigation} activePage={"Search"} onQueryChange={onQueryChange} />
             <View style={styles.filter}>
-                <TouchableOpacity style={styles.tab} onPress={() => setFilter("people") }>
+                <TouchableOpacity style={styles.tab} onPress={() => setFilter("people")}>
                     <Text style={[styles.tabText, filter == "people" && styles.activeText]}>
                         أشخاص
-
                     </Text>
                 </TouchableOpacity>
 
-
-                <TouchableOpacity style={styles.tab} onPress={() => setFilter("posts")}>
-                    <Text style={[styles.tabText, filter == "posts" && styles.activeText]}>
-                        مشاركات
-
+                <TouchableOpacity style={styles.tab} onPress={() => setFilter("notes")}>
+                    <Text style={[styles.tabText, filter == "notes" && styles.activeText]}>
+                        منشورات
                     </Text>
                 </TouchableOpacity>
-
 
                 <TouchableOpacity style={styles.tab} onPress={() => setFilter("images")}>
                     <Text style={[styles.tabText, filter == "images" && styles.activeText]}>
@@ -38,16 +49,42 @@ export default function Search({ navigation }) {
                     </Text>
                 </TouchableOpacity>
 
-
-                <TouchableOpacity style={styles.tab} onPress={() => setFilter("videos")}>
-                    <Text style={[styles.tabText, filter == "videos" && styles.activeText]}>
-                        فيديو
+                <TouchableOpacity style={styles.tab} onPress={() => setFilter("reels")}>
+                    <Text style={[styles.tabText, filter == "reels" && styles.activeText]}>
+                        فيديوات
                     </Text>
                 </TouchableOpacity>
 
+                <TouchableOpacity style={styles.tab} onPress={() => setFilter("hashtags")}>
+                    <Text style={[styles.tabText, filter == "hashtags" && styles.activeText]}>
+                    الهاشتاج
+                    </Text>
+                </TouchableOpacity>
+            </View>
+            <View style={styles.content}>
+                {
+                    filter == "people" &&
+                    <SearchUsers query={query} navigation = { navigation } />
+                }
+                {
+                    filter == "notes" &&
+                    <SearchPosts type={"note"} query={query} />
+                }
+                {
+                    filter == "images" &&
+                    <SearchPosts type={"image"} query={query} />
+                }
+                {
+                    filter == "reels" &&
+                    <SearchPosts type={"reel"} query={query} />
+
+                }
+                {
+                    filter == "hashtags" &&
+                    <SearchHashTags query={query} />
+                }
 
             </View>
-
         </View>
     )
 };
@@ -58,7 +95,8 @@ const lightStyles = StyleSheet.create({
 
     },
     filter: {
-        flexDirection: "row-reverse"
+        flexDirection: "row-reverse",
+        paddingBottom: 8
     },
     tab: {
         flex: 1,
@@ -78,14 +116,19 @@ const lightStyles = StyleSheet.create({
         borderBottomWidth: 4,
         fontWeight: "bold"
 
+    },
+    content: {
+        flex: 1,
+        padding : 16 , 
+        paddingBottom : 0
     }
-}) 
+})
 
-const darkStyles = { 
-    ...lightStyles , 
+const darkStyles = {
+    ...lightStyles,
     container: {
         flex: 1,
-        backgroundColor  : darkTheme.secondaryBackgroundColor 
+        backgroundColor: darkTheme.secondaryBackgroundColor
 
     },
     tabText: {

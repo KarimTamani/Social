@@ -5,12 +5,13 @@ import { textFonts } from "../../design-system/font";
 import ThemeContext from "../../providers/ThemeContext";
 
 
-export default function PrimaryInput({ placeholder, secure = false, inputStyle, onChange, inputRef, onFocus, rightContent, style, leftContent, value, multiline = false , onBlur , error = false }) {
+export default function PrimaryInput({ placeholder  ,  secure = false,showKeyBoard = true, inputStyle, onChange, inputRef, onFocus, rightContent, style, leftContent, value, multiline = false , onBlur , error = false }) {
 
     var ref = inputRef;
     if (!ref) {
         ref = useRef();
     }
+    const [text , setText] = useState() ; 
 
 
     const themeContext = useContext(ThemeContext) ; 
@@ -18,15 +19,16 @@ export default function PrimaryInput({ placeholder, secure = false, inputStyle, 
 
 
     useEffect(() => {
-        
+    
         const subscription = Keyboard.addListener("keyboardDidHide", () => {
             ref.current?.blur();
         });
-
         return subscription.remove;
         
-    }, [ref])
+    }, [ref]) ; 
 
+
+    
     return (
         <View style={[styles.container, style , error&&  styles.errorContainer]}>
             <View style={styles.leftContent}>
@@ -44,7 +46,11 @@ export default function PrimaryInput({ placeholder, secure = false, inputStyle, 
                 autoCapitalize={"none"}
                 secureTextEntry={secure}
                 placeholderTextColor = { styles.placeholderTextColor }
-          
+                showSoftInputOnFocus={showKeyBoard} 
+   
+
+ 
+             
             >
                 <Text style={styles.text}>
                     {value}

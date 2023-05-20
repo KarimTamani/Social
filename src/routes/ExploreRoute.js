@@ -16,8 +16,6 @@ export default function ExploreRoute({ navigation }) {
         <View style={styles.container}>
 
 
-            <ExploreHeader navigation={navigation} activePage={activePage} />
-
             <Stack.Navigator
                 screenOptions={{
                     headerShown: false,
@@ -25,19 +23,14 @@ export default function ExploreRoute({ navigation }) {
                         backgroundColor: "white"
                     }
                 }}
-
             >
-
                 <Stack.Screen name="Explore" component={Explore} listeners={{
-                    focus: (e) => {
-
-                        
+                    focus: (e) => {           
                         setActivePage("Explore")
                     }
                 }} />
                 <Stack.Screen name="Search" component={Search} listeners={{
                     focus: (e) => {
-                        
                         setActivePage("Search")
                     }
                 }}

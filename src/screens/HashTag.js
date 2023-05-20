@@ -5,6 +5,7 @@ import { ApolloContext } from "../providers/ApolloContext";
 import { gql } from "@apollo/client";
 import LoadingPost from "../components/Cards/loadings/LoadingPost";
 import Post from "../components/Cards/post/Post";
+import { useEvent } from "../providers/EventProvider";
 
 const LOADING_COMPONENTS = [{ id: 0, type: "loading" }, { id: 0, type: "loading" }, { id: 0, type: "loading" }];
 const LIMIT = 10;
@@ -19,7 +20,7 @@ export default function HashTag({ route , navigation }) {
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
 
-
+    const event = useEvent() ; 
     const load_posts = async ( previousPosts) => {
 
         var offset = previousPosts.length ; 
@@ -93,6 +94,46 @@ export default function HashTag({ route , navigation }) {
             load_posts(posts.filter(post => post.type != "loading"));
         }
     }, [loading])
+
+    useEffect(() => {
+        const updatePostLikes = (postId, value, numLikes) => {
+
+            const index = posts.findIndex(post => post.type != "loading"  &&  post.id == postId);
+            if (index >= 0) {
+                var newPostsState = [...posts];
+                newPostsState[index] = {
+                    ...posts[index],
+                    liked: value,
+                    likes: numLikes
+                };
+                setPosts(newPostsState) ; 
+
+            }
+
+        }  
+        const updatePostComments = (postId, value) => {
+            const index = posts.findIndex(post => post.type != "loading"  && post.id == postId);
+    
+            if (index >= 0) {
+                var newPostsState = [...posts];
+                newPostsState[index] = {
+                    ...posts[index],
+                    numComments: value,
+                };
+                setPosts(newPostsState);
+            }
+
+        }
+
+
+        event.addListener("update-post-likes", updatePostLikes); 
+        event.addListener("update-post-comments", updatePostComments);
+
+        return() => { 
+            event.removeListener("update-post-likes", updatePostLikes);
+            event.removeListener("update-post-comments", updatePostComments);
+        }
+    } , [event , posts])
 
 
 
