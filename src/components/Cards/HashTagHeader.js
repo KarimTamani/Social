@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { ApolloContext } from "../../providers/ApolloContext";
 import { gql } from "@apollo/client";
@@ -13,7 +13,9 @@ export default function HashTagHeader({ hashtagName }) {
 
     const client = useContext(ApolloContext);
     const [hashtag, setHashTag] = useState(null);
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true);
+    const [following, setFollowing] = useState(false);
+    const [followLoading, setFollowLoading] = useState(false);
 
     useEffect(() => {
         setLoading(true);
@@ -23,6 +25,7 @@ export default function HashTagHeader({ hashtagName }) {
             query GetHashTagPosts($name: String!) {
                 getHashTagByName(name: $name) {
                   id name numPosts
+                  isFollowed
                 }
             }
             
@@ -33,10 +36,44 @@ export default function HashTagHeader({ hashtagName }) {
         }).then(response => {
             setHashTag(response.data.getHashTagByName);
             setLoading(false);
+            setFollowing(response.data.getHashTagByName.isFollowed);
 
+        }).catch(error => {
+            setLoading(false);
 
         })
-    }, [hashtagName])
+    }, [hashtagName]);
+
+
+
+    const toggleFollowHashTag = useCallback(() => {
+        if (hashtag) {
+
+            var previousValue = following; 
+            setFollowLoading(true) ; 
+            setFollowing(!previousValue) ;
+            client.mutate({
+                mutation: gql`
+            mutation Mutation($hashtagId: ID!) {
+                followHashTag(hashtagId: $hashtagId)
+            }
+            ` ,
+                variables: {
+                    hashtagId: hashtag.id
+                }
+            }).then(response => {
+                if (!response) { 
+
+                    setFollowing(previousValue) ; 
+                } 
+                setFollowLoading(false)
+            }).catch(error => {
+                setFollowLoading(false ) ; 
+                setFollowing(previousValue) ; 
+            })
+             
+        }
+    }, [following, hashtag])
     return (
         <View style={styles.container}>
             <View style={styles.hashtagInfo}>
@@ -69,7 +106,14 @@ export default function HashTagHeader({ hashtagName }) {
             {
                 hashtag && !loading &&
                 <View style={styles.followSection}>
-                    <SmallFollowButton style={styles.follow} />
+                    <SmallFollowButton
+
+                        style={!following ? styles.follow : styles.unfollowButton}
+                        textStyle={!following ? styles.buttonText : styles.unfollowText}
+                        text={!following ? "متابعة" : "الغاء المتابعة"}
+                        loading={followLoading}
+                        onPress={toggleFollowHashTag}
+                    />
                 </View>
             }
             {
@@ -121,4 +165,18 @@ const styles = StyleSheet.create({
         fontFamily: textFonts.regular,
         fontSize: 12
     },
+    unfollowButton: {
+
+        borderRadius: 12,
+        padding: 8,
+        justifyContent: "center",
+        backgroundColor: "#ccc"
+
+    },
+
+    unfollowText: {
+
+        color: "#212121"
+
+    }
 })
