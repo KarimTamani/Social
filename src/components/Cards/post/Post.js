@@ -26,10 +26,16 @@ import { useEvent } from "../../../providers/EventProvider";
 import LikeHeart from "./LikeHeart";
 import Reel from "../Reel";
 import PostVideo from "./PostVideo";
+import Confirmation from "../Confirmation";
 
 
 const WIDTH = Dimensions.get("screen").width;
 const HASHTAG_REGEX = /#+([ا-يa-zA-Z0-9_]+)/ig;
+
+const DELETE_MESSAGE = { 
+    title : "حذف المنشور" , 
+    message : "هل انت متأكد من حذف المنشور نهائيا ؟"
+}
 
 function Post(props) {
 
@@ -43,7 +49,9 @@ function Post(props) {
     const [numLikes, setNumLikes] = useState(props.post.likes);
     const [favorite, setFavorite] = useState(props.post.isFavorite);
     const [numComments, setNumComments] = useState(props.post.numComments);
-    const [processedTitle , setProcessedTitle] = useState(props.post.title) ; 
+    const [myPost, setMyPost] = useState(false);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [isDeleting , setIsDeleting] = useState(false) ; 
 
     const [showOptions, setShowOptions] = useState(false);
 
@@ -58,6 +66,9 @@ function Post(props) {
     const event = useEvent();
 
 
+
+
+
     useEffect(() => {
 
         setPost(props.post);
@@ -67,13 +78,19 @@ function Post(props) {
         setNumComments(props.post.numComments);
 
 
+        (async () => {
+            var userAuth = await auth.getUserAuth();
+            if (userAuth) {
+                const user = userAuth.user;
+                setMyPost(user.id == props.post.user.id);
+            }
+        })();
 
-      
-    }, [props]) ; 
+    }, [props, auth]);
 
 
-  
-    
+
+
 
     const toggleComments = useCallback(() => {
 
@@ -200,8 +217,39 @@ function Post(props) {
 
 
 
+    const confirmToDelete = useCallback(() => {
+        setShowOptions(false);
+        setShowDeleteConfirmation(true) ; 
+
+    }, [post])
+
+    const deletePost = useCallback(() => {
+
+    
+        closeConfirmation()  ;
+
+    }, [post]) ; 
+
+
+    const closeConfirmation = useCallback(() => {
+        setShowDeleteConfirmation(false) ; 
+    } , [])
+
+
     return (
         <View style={styles.container}>
+
+            {
+
+                showDeleteConfirmation &&
+                <Modal
+                    transparent
+                    onRequestClose={ closeConfirmation }
+                >
+                    <Confirmation loading={isDeleting} title = {DELETE_MESSAGE.title} message={DELETE_MESSAGE.message} onClose={closeConfirmation } onConfirm = {deletePost}/>
+                </Modal>
+            }
+
             {
                 showComments &&
                 <Modal
@@ -245,12 +293,15 @@ function Post(props) {
                     {
                         showOptions && post.type != "payed-content" &&
                         <View style={styles.shareContainer}>
+                            {
 
-                            <TouchableOpacity style={styles.shareOption}>
-                                <Octicons name="stop" style={styles.shareIcon} />
-                                <Text style={styles.shareText}>أبلغ</Text>
-                            </TouchableOpacity>
+                                !myPost &&
+                                <TouchableOpacity style={styles.shareOption}>
+                                    <Octicons name="stop" style={styles.shareIcon} />
+                                    <Text style={styles.shareText}>أبلغ</Text>
+                                </TouchableOpacity>
 
+                            }
                             {
                                 post.type == "note" &&
                                 <TouchableOpacity style={styles.shareOption}>
@@ -269,18 +320,33 @@ function Post(props) {
                                 </TouchableOpacity>
                             }
 
-
-                            <TouchableOpacity style={styles.shareOption}>
-                                <Feather name="eye-off" style={styles.shareIcon} />
-                                <Text style={styles.shareText}>غير مهم</Text>
-                            </TouchableOpacity>
-
+                            {
+                                !myPost &&
+                                <TouchableOpacity style={styles.shareOption}>
+                                    <Feather name="eye-off" style={styles.shareIcon} />
+                                    <Text style={styles.shareText}>غير مهم</Text>
+                                </TouchableOpacity>
+                            }
                             <TouchableOpacity style={styles.shareOption}>
                                 <Entypo name="share" style={styles.shareIcon} />
-
                                 <Text style={styles.shareText}>شارك</Text>
-
                             </TouchableOpacity>
+                            {
+                                myPost &&
+                                <TouchableOpacity style={styles.shareOption} onPress={confirmToDelete}>
+                                    <Feather name="trash-2" style={styles.shareIcon} />
+                                    <Text style={styles.shareText}>حذف</Text>
+                                </TouchableOpacity>
+                            }
+
+                            {
+                                myPost &&
+                                <TouchableOpacity style={styles.shareOption}>
+                                    <Feather name="edit" style={styles.shareIcon} />
+                                    <Text style={styles.shareText}>تعديل</Text>
+                                </TouchableOpacity>
+                            }
+
                         </View>
 
 
@@ -332,10 +398,10 @@ function Post(props) {
                 </Text>
                 */
             }
-            
+
             <View style={styles.content}>
                 {
-                    (post.type == "note" || post.title) && <PostNote post={post} navigation = { navigation } />
+                    (post.type == "note" || post.title) && <PostNote post={post} navigation={navigation} />
                 }
                 {
                     post.type == "image" && <PostImage post={post} navigation={navigation} />

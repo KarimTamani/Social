@@ -13,6 +13,7 @@ import LoadingActivity from "../components/Cards/post/loadingActivity";
 import { useEvent } from "../providers/EventProvider";
 import { AuthContext } from "../providers/AuthContext";
 import LoadingPost from "../components/Cards/loadings/LoadingPost";
+import Confirmation from "../components/Cards/Confirmation";
 
 const POST_LIMIT = 5;
 const REEL_LIMIT = 4;
@@ -379,6 +380,7 @@ export default function Home({ navigation }) {
 
                 />
             </View>
+          
         </View>
     )
 

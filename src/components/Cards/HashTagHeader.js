@@ -52,6 +52,7 @@ export default function HashTagHeader({ hashtagName }) {
             var previousValue = following; 
             setFollowLoading(true) ; 
             setFollowing(!previousValue) ;
+            
             client.mutate({
                 mutation: gql`
             mutation Mutation($hashtagId: ID!) {
