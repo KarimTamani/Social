@@ -69,7 +69,7 @@ export default function ProfileImages({ navigation, route }) {
     }
 
     // update the content height whenever we fcus on this page 
-    useFocusEffect( useCallback( () => {
+    useFocusEffect(useCallback(() => {
         event.emit("update-height", Math.ceil(images.length / 3) * (WIDTH / 3 + 2));
     }, [images]))
 
@@ -93,7 +93,7 @@ export default function ProfileImages({ navigation, route }) {
         return imageSources;
     }
 
- 
+
     useEffect(() => {
 
         load_data().then(response => {
@@ -101,9 +101,9 @@ export default function ProfileImages({ navigation, route }) {
             setPosts([...posts, ...newPosts]);
             var imageSource = pipePostsToImages(newPosts);
             setImages(imageSource);
-            if (newPosts.length < LIMIT) 
-                setEnd(true) ; 
-            setFirstFetch(false )
+            if (newPosts.length < LIMIT)
+                setEnd(true);
+            setFirstFetch(false)
         }).catch(error => {
             console.log(error);
         });
@@ -120,77 +120,98 @@ export default function ProfileImages({ navigation, route }) {
             }
         }
 
-            
+
         const updatePostLikes = (postId, value, numLikes) => {
 
 
-            
+
 
             const index = posts.findIndex(post => post.type != "loading" && post.id == postId);
 
-    
-            if (index >= 0) {
-                
 
-                var newPostsState = [...posts]; 
+            if (index >= 0) {
+
+
+                var newPostsState = [...posts];
                 newPostsState[index] = {
-                    ...posts[index] , 
-                    liked : value ,
-                    likes : numLikes  
-                } ; 
- 
+                    ...posts[index],
+                    liked: value,
+                    likes: numLikes
+                };
+
                 setPosts(newPostsState);
-                
+
             }
 
         }
         const updatePostFavorite = (postId, value) => {
             const index = posts.findIndex(post => post.type != "loading" && post.id == postId);
- 
-            if (index >= 0) { 
-                var newPostsState = [...posts]; 
+
+            if (index >= 0) {
+                var newPostsState = [...posts];
                 newPostsState[index] = {
-                    ...posts[index] , 
-                    isFavorite : value ,
-                } ; 
-
-
+                    ...posts[index],
+                    isFavorite: value,
+                };
                 setPosts(newPostsState);
             }
 
         }
         const updatePostComments = (postId, value) => {
             const index = posts.findIndex(post => post.type != "loading" && post.id == postId);
-      
-            if (index >= 0) { 
-                var newPostsState = [...posts]; 
+            if (index >= 0) {
+                var newPostsState = [...posts];
                 newPostsState[index] = {
-                    ...posts[index] ,  
-                    numComments : value , 
-                } ; 
-
-
-
+                    ...posts[index],
+                    numComments: value,
+                };
                 setPosts(newPostsState);
             }
-
         }
-
-        
         const updateProfile = (profile) => {
-        
-
             var newState = posts.map(post => {
-                post.user = profile ; 
-                return post ; 
-            })  ; 
+                post.user = profile;
+                return post;
+            });
+            setPosts([...newState]);
+        };
 
+        const deletePost = (deletedPost) => {
+            if (deletedPost.type == "image") {
+                const index = posts.findIndex(post => post.type != "loading" && post.id == deletedPost.id);
+                if (index >= 0) {
+                    var newPostsState = [...posts];
+                    newPostsState.splice(index, 1);
+                    setPosts(newPostsState);
+                    setImages([...images].filter(image =>  image.id != deletedPost.id));
+                }
+            }
+        }
+        const editPost = (editablePost) => {
 
-            setPosts([...newState]) ; 
+            if (editablePost.type == "image") {
+                var index = posts.findIndex(post => post.type != "loading" &&  post.id == editablePost.id);
+                if (index >= 0) {
 
-        }; 
+                    var newPostsState = [...posts];
+                    newPostsState.splice(index, 1, editablePost);
+                    setPosts(newPostsState);
 
+                    var newImagesState = [...images] ; 
+                    index = images.findIndex(image => image.type != "loading" && image.id == editablePost.id) ; 
 
+                    newImagesState = newImagesState.filter(image => image.type != "loading" && image.id != editablePost.id) ; 
+
+                    newImagesState.splice (index , 0 , ...editablePost.media.map((image) => ({
+                        id: editablePost.id,
+                        uri: getMediaUri(image.path)
+                    }))) ;
+                
+                    
+                    setImages ( newImagesState ) ; 
+                }
+            }
+        }
 
 
         event.addListener("update-post-likes", updatePostLikes);
@@ -198,6 +219,9 @@ export default function ProfileImages({ navigation, route }) {
         event.addListener("update-post-favorite", updatePostFavorite);
         event.addListener("update-profile", updateProfile);
         event.addListener("new-post", addNewPost);
+        event.addListener("delete-post", deletePost);
+        event.addListener("edit-post", editPost);
+
 
         return () => {
             event.removeListener("new-post", addNewPost);
@@ -205,14 +229,12 @@ export default function ProfileImages({ navigation, route }) {
             event.removeListener("update-post-likes", updatePostLikes);
             event.removeListener("update-post-comments", updatePostComments);
             event.removeListener("update-post-favorite", updatePostFavorite);
+            event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post", editPost);
         }
     }, [posts, images])
 
-
-
     const openViewPosts = useCallback((postId) => {
-
-
         navigation.navigate("ViewPosts", {
             getPosts: () => posts,
             focusPostId: postId,
@@ -221,21 +243,18 @@ export default function ProfileImages({ navigation, route }) {
     }, [navigation, posts]);
 
     const renderItem = useCallback(({ item }) => {
-
         if (item.type == "loading") {
-
-            return <LoadingActivity size = {26} style={styles.imageView} color='#aaaa' />
+            return <LoadingActivity size={26} style={styles.imageView} color='#aaaa' />
         } else
             return (
-
                 <TouchableOpacity style={styles.imageView} onPress={() => openViewPosts(item.id)}>
                     <Image source={item} style={styles.image} />
                 </TouchableOpacity>
             )
-    }, [images , posts]);
+    }, [images, posts]);
 
     const keyExtractor = useCallback((item, index) => {
-        return index;
+        return `${item.id}-${index}`;
     }, [images]);
 
 
@@ -249,24 +268,24 @@ export default function ProfileImages({ navigation, route }) {
 
 
                 var imageSource = pipePostsToImages(newPosts);
-    
+
                 setImages(imageSource);
-                if(newPosts.length < LIMIT) 
-                    setEnd( true ) ; 
-                
-                setLoading (false) ; 
+                if (newPosts.length < LIMIT)
+                    setEnd(true);
+
+                setLoading(false);
             }).catch(error => {
                 console.log(error);
-            }); 
+            });
         }
-    } , [loading])
+    }, [loading])
 
     // whenever we reach the end of the list 
     // set the state to be loading and increase the offset 
     const reachEnd = useCallback(() => {
 
-        if (!loading && !end) {            
-      
+        if (!loading && !end) {
+
             var loadingComponents = [];
             const loadingLength = images.length % 3 == 0 ? 3 : (images.length % 3 + 3);
 

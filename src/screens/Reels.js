@@ -103,17 +103,49 @@ export default function Reels({ navigation, route }) {
             setReels([...newState]);
 
         };
+
+
+        const deletePost = (deletedPost) => {
+            if (deletedPost.type == "reel") {
+
+                const index = reels.findIndex(post => post.type != "loading" && post.id == deletedPost.id);
+                if (index >= 0) {
+                    var newPostsState = [...reels];
+                    newPostsState.splice(index, 1);
+                    setReels(newPostsState);
+                }
+            }
+        }
+
+        const editPost = (editablePost) => {
+            if (editablePost.type == "reel") {
+                const index = reels.findIndex(post => post.type != "loading"  && post.id == editablePost.id);
+                if (index >= 0) {
+                    var newPostsState = [...reels];
+                    newPostsState[index] = {
+                        ...editablePost
+                    }
+
+                    setReels(newPostsState);
+                }
+            }
+        }
+
         event.addListener("update-post-likes", updatePostLikes);
         event.addListener("update-post-comments", updatePostComments);
         event.addListener("update-post-favorite", updatePostFavorite);
         event.addListener("update-profile", updateProfile);
         event.addListener("new-post", addReel);
+        event.addListener("delete-post", deletePost);
+        event.addListener("edit-post" ,editPost ) ; 
         return () => {
             event.removeListener("new-post", addReel);
             event.removeListener("update-post-likes", updatePostLikes);
             event.removeListener("update-post-comments", updatePostComments);
             event.removeListener("update-post-favorite", updatePostFavorite);
             event.removeListener("update-profile", updateProfile);
+            event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post" ,editPost ) ; 
         }
     }, [reels]);
 
@@ -163,7 +195,7 @@ export default function Reels({ navigation, route }) {
         }).then(response => {
 
 
-         
+
             if (response) {
                 var reelsResponse;
                 if (!prefix)
@@ -214,7 +246,7 @@ export default function Reels({ navigation, route }) {
 
         return (
             <View style={styles.reel}>
-                <Reel reel={item} focus={focus} openProfile={openProfile} navigation = {navigation} />
+                <Reel reel={item} focus={focus} openProfile={openProfile} navigation={navigation} />
             </View>
         )
 

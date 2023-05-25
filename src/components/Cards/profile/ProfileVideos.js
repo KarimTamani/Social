@@ -82,11 +82,9 @@ export default function ProfileVideos({ navigation, route }) {
     // a callback to open reels of this user 
     const openReels = useCallback((reelId) => {
         navigation.navigate("ReelsViewer", {
-
             focusPostId: reelId,
             getReels: () => reels , 
             fetchMore : false  
-
         })
     }, [navigation, reels])
 
@@ -168,17 +166,35 @@ export default function ProfileVideos({ navigation, route }) {
 
         };
 
+
+        
+        const deletePost = (deletedPost) => {
+
+            if (deletedPost.type == "reel") {
+                const index = reels.findIndex(post => post.type != "loading"  && post.id == deletedPost.id);
+                if (index >= 0) {
+                    var newPostsState = [...reels];
+                    newPostsState.splice(index, 1);
+                    setReels(newPostsState);
+                
+                }
+            }
+
+        }
+
         event.addListener("update-post-likes", updatePostLikes);
         event.addListener("update-post-comments", updatePostComments);
         event.addListener("update-post-favorite", updatePostFavorite);
         event.addListener("update-profile", updateProfile);
         event.addListener("new-post", addNewPost);
+        event.addListener("delete-post", deletePost);
         return () => {
             event.removeListener("new-post", addNewPost);
             event.removeListener("update-post-likes", updatePostLikes);
             event.removeListener("update-post-comments", updatePostComments);
             event.removeListener("update-post-favorite", updatePostFavorite);
             event.removeListener("update-profile", updateProfile);
+            event.removeListener("delete-post", deletePost);
         }
     }, [reels]);
 

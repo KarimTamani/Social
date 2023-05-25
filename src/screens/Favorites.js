@@ -97,7 +97,7 @@ export default function Favorites({ navigation }) {
         const updatePostLikes = (postId, value, numLikes) => {
 
 
-            console.log("event recived")
+ 
 
             const index = favorites.findIndex(post => post.type != "loading"  &&  post.id == postId);
             if (index >= 0) {
@@ -114,7 +114,7 @@ export default function Favorites({ navigation }) {
         }  
         const updatePostComments = (postId, value) => {
             const index = favorites.findIndex(post => post.type != "loading"  && post.id == postId);
-            console.log("request update") ; 
+          
             if (index >= 0) {
 
                 console.log("updating num of comments " , value) ; 
@@ -126,16 +126,40 @@ export default function Favorites({ navigation }) {
                 };
                 setFavorites(newPostsState);
             }
+        }
 
+        const deletePost = (deletedPost) => {
+            const index = favorites.findIndex(post => post.type != "loading"  && post.id == deletedPost.id);
+            if (index >= 0) {
+                var newPostsState = [...favorites];
+                newPostsState.splice(index, 1);
+                setFavorites(newPostsState);
+            }
         }
 
 
+        const editPost = ( editablePost) => { 
+            const index = favorites.findIndex(post => post.type != "loading" && post.id == editablePost.id);
+            if (index >= 0) { 
+                var newPostsState = [...favorites];
+                newPostsState[index] = {
+                    ...editablePost
+                } 
+      
+                setFavorites(newPostsState);
+            }
+        }
+
         event.addListener("update-post-likes", updatePostLikes); 
         event.addListener("update-post-comments", updatePostComments);
+        event.addListener("delete-post", deletePost); 
+        event.addListener("edit-post" ,editPost ) ; 
 
         return() => { 
             event.removeListener("update-post-likes", updatePostLikes);
             event.removeListener("update-post-comments", updatePostComments);
+            event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post" ,editPost ) ; 
         }
     } , [event , favorites])
 

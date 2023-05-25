@@ -140,9 +140,7 @@ export default function Home({ navigation }) {
         const updatePostLikes = (postId, value, numLikes) => {
 
             const index = posts.findIndex(post => post.type != "loading" && post.type != "stories" && post.type != "reels" && post.id == postId);
-
             if (index >= 0) {
-
 
                 var newPostsState = [...posts];
                 newPostsState[index] = {
@@ -150,8 +148,6 @@ export default function Home({ navigation }) {
                     liked: value,
                     likes: numLikes
                 };
-
-
                 setPosts(newPostsState);
 
             }
@@ -181,33 +177,47 @@ export default function Home({ navigation }) {
                 };
                 setPosts(newPostsState);
             }
-
         }
         const updateProfile = (profile) => {
-
-
             var newState = posts.map(post => {
                 if (post.type != "loading" && post.type != "reels" && post.type != "stories") {
                     if (post.user.id == profile.id)
                         post.user = profile;
                 }
                 return post;
-
             });
-
-
             setPosts([...newState]);
-
         };
 
+        const deletePost = (deletedPost) => {
+            const index = posts.findIndex(post => post.type != "loading" && post.type != "stories" && post.type != "reels" && post.id == deletedPost.id);
+            if (index >= 0) {
+                var newPostsState = [...posts];
+                newPostsState.splice(index, 1);
+                setPosts(newPostsState);
+            }
+        }
 
+        const editPost = ( editablePost) => { 
+            const index = posts.findIndex(post => post.type != "loading" && post.type != "stories" && post.type != "reels" && post.id == editablePost.id);
+            if (index >= 0) { 
+                var newPostsState = [...posts];
+                newPostsState[index] = {
+                    ...editablePost
+                } 
+      
+                setPosts(newPostsState);
+            }
+        }
 
+        
         event.addListener("update-post-likes", updatePostLikes);
         event.addListener("update-post-comments", updatePostComments);
         event.addListener("update-post-favorite", updatePostFavorite);
         event.addListener("update-profile", updateProfile);
-        event.addListener("new-post", addNewPost)
-
+        event.addListener("new-post", addNewPost);
+        event.addListener("delete-post", deletePost);
+        event.addListener("edit-post" ,editPost ) ; 
 
         return () => {
             event.removeListener('new-post', addNewPost);
@@ -215,20 +225,15 @@ export default function Home({ navigation }) {
             event.removeListener("update-post-comments", updatePostComments);
             event.removeListener("update-post-favorite", updatePostFavorite);
             event.removeListener("update-profile", updateProfile);
-
+            event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post" ,editPost ) ; 
         }
     }, [posts])
 
 
     useEffect(() => {
-
-
-
-
         if (!checkAuthentication)
             return;
-
-
         // whene ever screen loose focus set blur to true 
         // to stop all video posts from running 
         client.query({
@@ -380,7 +385,7 @@ export default function Home({ navigation }) {
 
                 />
             </View>
-          
+
         </View>
     )
 

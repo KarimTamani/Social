@@ -7,24 +7,32 @@ import ThemeContext from "../../providers/ThemeContext";
 import darkTheme from "../../design-system/darkTheme";
 import * as ImagePicker from 'expo-image-picker';
 
-export default function NewPostUploader({ onImagesChanged, onVideoChange }) {
+export default function NewPostUploader({ onImagesChanged, onVideoChange, defaultImages = [], defaultVideo = null, type = null }) {
 
     const [images, setImages] = useState([]);
     const [video, setVideo] = useState(null);
 
+
+    useEffect(() => {
+        if (defaultImages && defaultImages.length > 0)
+            setImages(defaultImages);
+        if (defaultVideo)
+            setVideo(defaultVideo);
+    }, [defaultImages, defaultVideo])
+
     const pickImage = useCallback(() => {
 
         (async () => {
-    
+
             let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images ,
-                allowsMultipleSelection : true , 
-                quality : 0.2 
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsMultipleSelection: true,
+                quality: 0.2
 
             });
             if (result.canceled != "cancel") {
                 setImages([...images, ...result.assets]);
-    
+
             }
         })();
     }, [images])
@@ -32,20 +40,20 @@ export default function NewPostUploader({ onImagesChanged, onVideoChange }) {
 
 
     const pickVideo = useCallback(() => {
-      
+
         (async () => {
 
             let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Videos ,
-             
+                mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+
             });
             if (result.canceled != "cancel") {
                 setVideo(result.assets[0]);
                 onVideoChange(result.assets[0])
-    
+
             }
-       
-         
+
+
         })()
     }, [video]);
 
@@ -59,6 +67,7 @@ export default function NewPostUploader({ onImagesChanged, onVideoChange }) {
 
     const deleteVideo = useCallback(() => {
         setVideo(null);
+        onVideoChange(null )
     }, [video])
 
 
@@ -66,10 +75,7 @@ export default function NewPostUploader({ onImagesChanged, onVideoChange }) {
         onImagesChanged(images);
     }, [images]);
 
-
-    useEffect(() => {
-        onVideoChange(video);
-    }, [video]);
+ 
 
 
     const themeContext = useContext(ThemeContext);
@@ -81,8 +87,29 @@ export default function NewPostUploader({ onImagesChanged, onVideoChange }) {
         <View style={styles.container}>
 
             {
+                type == "image" &&
+                <TouchableOpacity style={[styles.option, images.length > 0 && styles.activeOption]} onPress={pickImage}>
+                    <SimpleLineIcons name="picture" style={styles.icon} />
+                    <Text style={styles.text}>
+                        صورة
+                    </Text>
+                </TouchableOpacity>
 
-                images.length == 0 &&
+            }
+            {
+                type == "reel" &&
+                <TouchableOpacity style={[styles.option, video && styles.activeOption]} onPress={pickVideo}>
+                    <AntDesign name="videocamera" style={styles.icon} />
+
+                    <Text style={styles.text}>
+                        ريلز
+                    </Text>
+                </TouchableOpacity>
+            }
+
+
+            {
+                (images.length == 0 && !type) &&
                 <TouchableOpacity style={[styles.option, video && styles.activeOption]} onPress={pickVideo}>
                     <AntDesign name="videocamera" style={styles.icon} />
 
@@ -93,15 +120,13 @@ export default function NewPostUploader({ onImagesChanged, onVideoChange }) {
             }
             {
 
-                !video &&
+                (!video && !type) &&
                 <TouchableOpacity style={[styles.option, images.length > 0 && styles.activeOption]} onPress={pickImage}>
                     <SimpleLineIcons name="picture" style={styles.icon} />
                     <Text style={styles.text}>
                         صورة
                     </Text>
                 </TouchableOpacity>
-
-
             }
             {
                 (images.length > 0) &&

@@ -10,7 +10,7 @@ import { useEvent } from "../providers/EventProvider";
 const LOADING_COMPONENTS = [{ id: 0, type: "loading" }, { id: 0, type: "loading" }, { id: 0, type: "loading" }];
 const LIMIT = 10;
 
-export default function HashTag({ route , navigation }) {
+export default function HashTag({ route, navigation }) {
 
     const { hashtagName } = route?.params
     const [posts, setPosts] = useState([]);
@@ -20,10 +20,10 @@ export default function HashTag({ route , navigation }) {
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
 
-    const event = useEvent() ; 
-    const load_posts = async ( previousPosts) => {
+    const event = useEvent();
+    const load_posts = async (previousPosts) => {
 
-        var offset = previousPosts.length ; 
+        var offset = previousPosts.length;
 
         client.query({
             query: gql`
@@ -86,11 +86,11 @@ export default function HashTag({ route , navigation }) {
     useEffect(() => {
         setPosts([...LOADING_COMPONENTS]);
         load_posts([]);
-    }, [hashtagName]) ; 
+    }, [hashtagName]);
 
 
     useEffect(() => {
-        if (loading) { 
+        if (loading) {
             load_posts(posts.filter(post => post.type != "loading"));
         }
     }, [loading])
@@ -98,7 +98,7 @@ export default function HashTag({ route , navigation }) {
     useEffect(() => {
         const updatePostLikes = (postId, value, numLikes) => {
 
-            const index = posts.findIndex(post => post.type != "loading"  &&  post.id == postId);
+            const index = posts.findIndex(post => post.type != "loading" && post.id == postId);
             if (index >= 0) {
                 var newPostsState = [...posts];
                 newPostsState[index] = {
@@ -106,14 +106,14 @@ export default function HashTag({ route , navigation }) {
                     liked: value,
                     likes: numLikes
                 };
-                setPosts(newPostsState) ; 
+                setPosts(newPostsState);
 
             }
 
-        }  
+        }
         const updatePostComments = (postId, value) => {
-            const index = posts.findIndex(post => post.type != "loading"  && post.id == postId);
-    
+            const index = posts.findIndex(post => post.type != "loading" && post.id == postId);
+
             if (index >= 0) {
                 var newPostsState = [...posts];
                 newPostsState[index] = {
@@ -126,14 +126,14 @@ export default function HashTag({ route , navigation }) {
         }
 
 
-        event.addListener("update-post-likes", updatePostLikes); 
+        event.addListener("update-post-likes", updatePostLikes);
         event.addListener("update-post-comments", updatePostComments);
 
-        return() => { 
+        return () => {
             event.removeListener("update-post-likes", updatePostLikes);
             event.removeListener("update-post-comments", updatePostComments);
         }
-    } , [event , posts])
+    }, [event, posts])
 
 
 
@@ -158,9 +158,8 @@ export default function HashTag({ route , navigation }) {
         if (item.type == "loading") {
             return <LoadingPost />
         } else
-            return <Post navigation={navigation} post={item} />
+            return <Post navigation={navigation} post={item} noShowEdit={true} />
     }, [posts, navigation]);
-
 
     return (
         <View style={styles.container}>
@@ -184,6 +183,6 @@ export default function HashTag({ route , navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "white"
+        backgroundColor: "#eee"
     }
 })

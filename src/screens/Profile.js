@@ -108,7 +108,7 @@ export default function Profile({ route, navigation }) {
                             setUser(response.data.getUserById)
                             await auth.updateUser(response.data.getUserById);
 
-                            event.emit("update-profile"  , response.data.getUserById)  ; 
+                            event.emit("update-profile", response.data.getUserById);
                         });
                     })
                 }
@@ -136,9 +136,20 @@ export default function Profile({ route, navigation }) {
                     numPosts: user.numPosts + 1
                 })
             }
-            const subscription = event.addListener("new-post", updateUserPostNumber);
+
+
+            const decreaseUserPostNumber = (post) => { 
+                setUser({
+                    ...user,
+                    numPosts: user.numPosts - 1
+                })
+                
+            }
+            event.addListener("delete-post" , decreaseUserPostNumber) ; 
+            event.addListener("new-post", updateUserPostNumber);
             return () => {
-                subscription.removeListener("new-post", updateUserPostNumber)
+                event.removeListener("new-post", updateUserPostNumber) ; 
+                event.removeListener("delete-post" , decreaseUserPostNumber) ; 
             }
         }
 
@@ -192,7 +203,7 @@ export default function Profile({ route, navigation }) {
                     state: response.data.toggleFollow
                 });
 
- 
+
 
 
             }
@@ -503,7 +514,7 @@ const darkStyles = {
         fontSize: 24
     },
     bio: {
-        color: darkTheme.textColor ,
+        color: darkTheme.textColor,
         fontFamily: textFonts.regular,
         textAlign: "center",
         lineHeight: 22,

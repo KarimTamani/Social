@@ -93,10 +93,28 @@ export default function ReelsSuggestion(props) {
             setReels([...newState]);
 
         };
+
+
+
+        const deletePost = (deletedPost) => {
+            if (deletedPost.type == "reel") {
+
+                const index = reels.findIndex(post => post.type != "loading"  && post.id == deletedPost.id);
+                if (index >= 0) {
+                    var newPostsState = [...reels];
+                    newPostsState.splice(index, 1);
+                    setReels(newPostsState);
+                }
+            }
+        }
+
+
+
         event.addListener("update-post-likes", updatePostLikes);
         event.addListener("update-post-comments", updatePostComments);
         event.addListener("update-post-favorite", updatePostFavorite);
         event.addListener("update-profile", updateProfile);
+        event.addListener("delete-post", deletePost);
  
         return () => {
      
@@ -104,7 +122,10 @@ export default function ReelsSuggestion(props) {
             event.removeListener("update-post-comments", updatePostComments);
             event.removeListener("update-post-favorite", updatePostFavorite);
             event.removeListener("update-profile", updateProfile);
+            event.removeListener("delete-post", deletePost);
         }
+       
+        
     } , [reels]) 
 
 

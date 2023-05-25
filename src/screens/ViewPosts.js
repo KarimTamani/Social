@@ -7,11 +7,16 @@ import Header from "../components/Cards/Header";
 import ThemeContext from "../providers/ThemeContext";
 import darkTheme from "../design-system/darkTheme";
 import LoadingActivity from "../components/Cards/post/loadingActivity";
+import { useEvent } from "../providers/EventProvider";
 
 export default function ViewPosts({ navigation, route }) {
     const { getPosts, focusPostId, title } = route.params;
     const [posts, setPosts] = useState();
     const [loading, setLoading] = useState(true);
+
+
+
+    const event = useEvent() ; 
 
 
 
@@ -50,6 +55,37 @@ export default function ViewPosts({ navigation, route }) {
     }, []);
 
 
+    useEffect(() => {
+        const deletePost = (deletedPost) => {
+            const index = posts.findIndex(post => post.type != "loading"  && post.id == deletedPost.id);
+            if (index >= 0) {
+                var newPostsState = [...posts];
+                newPostsState.splice(index, 1);
+                setPosts(newPostsState);
+            }
+        }
+
+        const editPost = ( editablePost) => { 
+            const index = posts.findIndex(post => post.type != "loading" && post.id == editablePost.id);
+            if (index >= 0) { 
+                var newPostsState = [...posts];
+                newPostsState[index] = {
+                    ...editablePost
+                } 
+      
+                setPosts(newPostsState);
+            }
+        }
+
+        event.addListener("delete-post", deletePost); 
+        event.addListener("edit-post" ,editPost ) ; 
+       
+
+        return () => {
+            event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post" ,editPost ) ; 
+        }
+    } , [posts])
 
 
     const themeContext = useContext(ThemeContext);

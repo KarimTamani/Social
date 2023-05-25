@@ -15,6 +15,7 @@ export default function PostNote({post , navigation }) {
     useEffect(() => {
 
         const title = post.title ; 
+   
         if (title) {
             var hashtags = title.match(HASHTAG_REGEX);
         
@@ -23,7 +24,7 @@ export default function PostNote({post , navigation }) {
                 setProcessedTitle(processedText) ; 
             }
         }
-    } , []) ; 
+    } , [post]) ; 
 
     
 

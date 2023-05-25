@@ -14,10 +14,7 @@ const LIMIT = 3;
 
 const WIDTH = Dimensions.get("screen").width;
 const HEIGHT = Dimensions.get("screen").height;
-export default function ProfileNotes({ route }) {
-    const keyExtractor = useCallback((item, index) => {
-        return index;
-    }, []);
+export default function ProfileNotes({ route , navigation }) {
 
     const { userId } = route.params
 
@@ -163,29 +160,69 @@ export default function ProfileNotes({ route }) {
 
 
         const updateProfile = (profile) => {
-        
+
 
             var newNotesState = notes.map(note => {
-                note.user = profile ; 
-                return note ; 
-            })  ; 
+                note.user = profile;
+                return note;
+            });
 
 
-            setNotes([...newNotesState]) ; 
+            setNotes([...newNotesState]);
 
         };
+
+        const deletePost = (deletedPost) => {
+
+            if (deletedPost.type == "note") {
+
+                const index = notes.findIndex(post => post.type != "loading" && post.id == deletedPost.id);
+                if (index >= 0) {
+
+                    var newPostsState = [...notes];
+                    newPostsState.splice(index, 1);
+                    setNotes(newPostsState);
+                }
+            }
+        }
+
+
+        const editPost = (editablePost) => {
+
+            if (editablePost.type == "note") {
+
+                const index = notes.findIndex(post => post.type != "loading" && post.id == editablePost.id);
+                if (index >= 0) {
+
+                    var newPostsState = [...notes];
+                    newPostsState[index] = {
+                        ...editablePost
+                    }
+
+                    setNotes(newPostsState);
+                }
+            }
+        }
+
+
 
         event.addListener("update-post-likes", updatePostLikes);
         event.addListener("update-post-comments", updatePostComments);
         event.addListener("update-post-favorite", updatePostFavorite);
         event.addListener("update-profile", updateProfile);
         event.addListener("new-post", addNewPost);
+        event.addListener("delete-post", deletePost);
+        event.addListener("edit-post", editPost);
+
         return () => {
             event.removeListener("new-post", addNewPost);
             event.removeListener("update-profile", updateProfile);
             event.removeListener("update-post-likes", updatePostLikes);
             event.removeListener("update-post-comments", updatePostComments);
             event.removeListener("update-post-favorite", updatePostFavorite);
+            event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post", editPost);
+
         }
     }, [notes]);
 
@@ -212,9 +249,14 @@ export default function ProfileNotes({ route }) {
         if (item.type == "loading")
             return <LoadingActivity size={26} style={[styles.loadingNode, { alignSelf: "center" }]} color='#aaaa' />
         return (
-            <Post post={item} />
+            <Post post={item} navigation = { navigation } />
         )
-    }, [])
+    }, []);
+
+    const keyExtractor = useCallback((item, index) => {
+        return item.id;
+    }, []);
+
 
     return (
         <View style={styles.container}>

@@ -105,7 +105,7 @@ export default function SearchPosts({ type, query, navigation }) {
         if (item.type == "loading")
             return <LoadingPost />
         return (
-            <Post post={item} navigation={navigation} />
+            <Post post={item} navigation={navigation} noShowEdit = {true} />
         )
     }, [])
 
@@ -132,9 +132,6 @@ export default function SearchPosts({ type, query, navigation }) {
 
         if (type == "reel") {
             const updatePostLikes = (postId, value, numLikes) => {
-
-
-               
 
                 const index = posts.findIndex(post => post.type != "loading" && post.id == postId);
                 if (index >= 0) {

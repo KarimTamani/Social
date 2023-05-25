@@ -1,62 +1,54 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import {
-    Text,
-    View,
-    StyleSheet,
-    Image,
-    TextInput,
-    Keyboard,
-    TouchableOpacity,
-    Dimensions,
-    FlatList
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, Keyboard, TextInput, FlatList } from "react-native";
 import Header from "../components/Cards/Header";
-import NewPostUploader from "../components/Cards/NewPostUploader";
-import PostImage from "../components/Cards/post/PostImage";
-import darkTheme from "../design-system/darkTheme";
-import { textFonts } from "../design-system/font";
-import ThemeContext from "../providers/ThemeContext";
+import { useEvent } from "../providers/EventProvider";
 import { AuthContext } from "../providers/AuthContext";
 import { getMediaUri } from "../api";
+import ThemeContext from "../providers/ThemeContext";
+import darkTheme from "../design-system/darkTheme";
+import { textFonts } from "../design-system/font";
 import { ApolloContext } from "../providers/ApolloContext";
 import { gql } from "@apollo/client";
-import { Video } from 'react-native-compressor';
-import * as VideoThumbnails from 'expo-video-thumbnails';
-
 
 import BackgroundService from 'react-native-background-actions';
-import { useEvent } from "../providers/EventProvider";
-import { compreessImage, createRNUploadableFile } from "../providers/MediaProvider";
+import PostImage from "../components/Cards/post/PostImage";
+import NewPostUploader from "../components/Cards/NewPostUploader";
+import { createRNUploadableFile } from "../providers/MediaProvider";
+
+import { Video } from 'react-native-compressor';
+import * as VideoThumbnails from 'expo-video-thumbnails';
 
 const WIDTH = Dimensions.get("screen").width;
 const HASHTAG_REGEX = /#+([ا-يa-zA-Z0-9_]+)/ig;
 
-export default function NewPost({ navigation }) {
+export default function EditPost({ route, navigation }) {
 
 
-    const inputRef = useRef();
-    const [text, setText] = useState("");
-    const [numberOfLines, setNumOfLines] = useState(1);
+
+    var [post, setPost] = useState(route.params.post);
     const [disabled, setDisabled] = useState(true);
     const [user, setUser] = useState(null);
     const auth = useContext(AuthContext);
-    const client = useContext(ApolloContext);
+    const event = useEvent();
+    const inputRef = useRef();
+    const [numberOfLines, setNumOfLines] = useState(1);
+    const [text, setText] = useState(post.title ? post.title : "");
     const [selection, setSelection] = useState(null);
+
     const [searchHandler, setSearchHandler] = useState(null);
     const [hashtags, setHashTags] = useState([]);
     const [focusHashTag, setFocusHashTag] = useState(null);
+    const client = useContext(ApolloContext);
 
-    const event = useEvent()
-
-    const [post, setPost] = useState({
-        media: []
-    });
+    const [defaultImage, setDefaultImages] = useState([]);
+    const [defaultVideo, setDefaultVideo] = useState(null);
 
     const [images, setImages] = useState([]);
     const [video, setVideo] = useState(null);
+    const [thumbnail , setThumbnail] = useState( null ) ; 
 
-    const themeContext = useContext(ThemeContext);
-    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+
+
 
     useEffect(() => {
         const subscription = Keyboard.addListener("keyboardDidHide", () => {
@@ -65,222 +57,55 @@ export default function NewPost({ navigation }) {
         (async () => {
             const userAuth = await auth.getUserAuth();
             setUser(userAuth.user);
-        })()
+        })();
+
+
+
+
+        if (post.type == "image") {
+            post.media = post.media.map(image => {
+                image.uri = getMediaUri(image.path);
+                return image;
+            });
+
+            setDefaultImages(post.media);
+            setImages(post.media);
+        }
+        if (post.type == "reel" && post.media.length > 0) {
+
+
+
+      
+            post.media[0].uri = getMediaUri(post.media[0].path);
+            post.reel.thumbnail.uri = getMediaUri(post.reel.thumbnail.path) ;  
+            setDefaultVideo(post.reel.thumbnail);
+            setVideo(post.media[0]);
+            setThumbnail(post.reel.thumbnail)
+        }
 
         return subscription.remove;
-    }, []);
+
+    }, [])
+
+
 
 
     useEffect(() => {
 
         const lines = text.split("\n").length;
+
+
+
         if (lines >= 4)
             setNumOfLines(4);
         else
             setNumOfLines(lines)
+
+
     }, [text]);
 
-
-    useEffect(() => {
-        setDisabled(!(text.trim().length > 1 || images.length > 0 || video))
-    }, [text, images, video])
-
-
-    const onImagesChanged = useCallback((data) => {
-        setPost({
-            media: data
-        });
-        setImages(data);
-    }, []);
-
-    const onVideoChange = useCallback((data) => {
-        setVideo(data)
-    }, []);
-
-
-    const createPost = async (params) => {
-        var { client, event, text, images, video, hashtags } = params;
-
-        var media = [];
-        var type = "note";
-        var thumbnail = null;
-        // if the images where selected 
-        // then loop over them and resize and compress them into one media array 
-        if (images.length > 0) {
-            type = "image";
-            for (let index = 0; index < images.length; index++) {
-                media.splice(0, 0, await createRNUploadableFile(images[index].uri));
-            }
-        }
-
-
-        // in case the video was selected then we need to estabilish a compression and keep the user informed 
-        // in case the compress failed we continue with uncompressed video 
-        if (video) {
-
-            var compressedFileUrl = null;
-            type = "reel";
-
-            try {
-
-                compressedFileUrl = await Video.compress(
-                    video.uri,
-                    {
-                        compressionMethod: "auto",
-
-                    },
-                    async (progress) => {
-                        await BackgroundService.updateNotification({
-                            taskDesc: "يتم الآن ضغط الريلز يرجى الإنتظار",
-                            progressBar: {
-                                max: 100,
-                                value: Math.round(progress * 100),
-                            }
-                        }); // Only Android, iOS will ignore this call
-
-                    }
-                )
-
-
-                if (compressedFileUrl.startsWith("file://")) {
-                    compressedFileUrl = compressedFileUrl.replace("file://", "file:///");
-
-                }
-
-                console.log(compressedFileUrl);
-            } catch (error) {
-                console.log(error);
-            }
-
-            // extract a thumbnail for the video
-            try {
-                const { uri } = await VideoThumbnails.getThumbnailAsync(
-                    video.uri,
-                    {
-                        time: 15000,
-                    }
-                );
-                thumbnail = await createRNUploadableFile(uri);
-            } catch (e) {
-                return;
-            }
-
-            if (compressedFileUrl)
-                video.uri = compressedFileUrl
-            media = [await createRNUploadableFile(video.uri)];
-        }
-
-
-
-        try {
-            var response = await client.mutate({
-                mutation: gql`
-            mutation CREATE_POST($postInput : PostInput!) {
-                createPost(postInput: $postInput) { 
-                    id 
-                    title 
-                    type 
-                    media {
-                        id path 
-                    }
-                    reel {
-                        id 
-                        views 
-                        thumbnail { 
-                            id path 
-                        }
-                    }
-
-                    hashtags {
-                        id name 
-                    }
-                    createdAt 
-                    updatedAt 
-                }
-            }` ,
-                variables: {
-                    postInput: {
-                        title: (text.trim().length > 0) ? text.trim() : null,
-                        media: media,
-                        type: type,
-                        reel: (type == "reel") ? ({
-                            thumbnail: thumbnail
-                        }) : null,
-                        hashtags: hashtags
-                    }
-                }
-            });
-
-
-            if (response) {
-                console.log(response);
-                var newPost = response.data.createPost;
-                newPost.user = user;
-                newPost.likes = 0;
-                newPost.liked = false;
-                newPost.isFavorite = false;
-                newPost.numComments = 0;
-
-                console.log(newPost);
-                event.emit("new-post", newPost);
-            }
-        } catch (error) {
-            await BackgroundService.stop();
-        }
-        setTimeout(async () => {
-            await BackgroundService.stop();
-        }, 10000)
-
-    }
-
-    const newPost = useCallback(() => {
-        (async () => {
-
-
-            var hashtags = text.match(HASHTAG_REGEX);
-
-
-
-            try {
-
-                const options = {
-                    taskName: 'UPLOAD_CONTENT',
-                    taskTitle: 'رفع المحتوى',
-                    taskDesc: '.. تحميل المحتوى الخاص بك الرجاء الانتظار',
-                    taskIcon: {
-                        name: 'ic_launcher',
-                        type: 'mipmap',
-                    },
-                    color: '#ff00ff',
-                    linkingURI: 'yourSchemeHere://chat/jane', // See Deep Linking for more info
-                    parameters: {
-                        text: text,
-                        images: images,
-                        video: video,
-                        client: client,
-                        event: event,
-                        hashtags: hashtags
-                    },
-                };
-
-
-                await BackgroundService.start(createPost, options);
-                navigation.goBack();
-                // iOS will also run everything here in the background until .stop() is called
-            } catch (error) {
-
-
-                createPost({ client, event, text, images, video, hashtags });
-                navigation.goBack();
-
-            }
-
-        })();
-
-
-    }, [event, client, text, images, video])
-
-
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
 
     const processHashTag = (text, hashtags) => {
@@ -297,17 +122,28 @@ export default function NewPost({ navigation }) {
     }
 
     const renderText = () => {
-
         var hashtags = text.match(HASHTAG_REGEX);
-
         if (!hashtags)
             return text;
         else {
             var processedText = processHashTag(text, hashtags);
-
             return processedText
         }
     }
+    useEffect(() => {
+
+
+
+        if (post.type == "note" && text.trim().length > 1)
+            setDisabled(false);
+        else if (post.type == "image" && images.length > 0)
+            setDisabled(false);
+        else if (post.type == "reel" && video)
+            setDisabled(false);
+        else
+            setDisabled(true)
+
+    }, [text, images, video, post]);
 
 
 
@@ -390,21 +226,235 @@ export default function NewPost({ navigation }) {
                 </Text>
             </TouchableOpacity>
         )
-    }, [text, focusHashTag]);
+    }, [text, focusHashTag])
 
 
+    const editPost = async (params) => {
+        var { client, event, text, images, video, hashtags, post } = params;
+
+        const type = post.type;
+        var thumbnail = null;
+
+        var media = [];
+
+        // if the images where selected 
+        // then loop over them and resize and compress them into one media array 
+        if (type == "image" && images.length > 0) {
+
+            for (let index = 0; index < images.length; index++) {
+
+                if (images[index].id) {
+                    media.splice(0, 0, {
+                        id: images[index].id
+
+                    });
+
+                } else {
+                    media.splice(0, 0, {
+                        id: null,
+                        path: null,
+                        file: await createRNUploadableFile(images[index].uri)
+                    });
+
+                }
+            }
+        }
+
+        // in case the video was selected then we need to estabilish a compression and keep the user informed 
+        // in case the compress failed we continue with uncompressed video 
+
+        
+        if (type == "reel" && video && video.id) {
+        
+            media = [{
+                id : video.id , 
+                path : video.path 
+            }] ;
+            thumbnail = { 
+                id : post.reel.thumbnail.id , 
+                path  : post.reel.thumbnail.path 
+            } 
+        } else if (type == "reel" && video) {
+            var compressedFileUrl = null;
+            try {
+                compressedFileUrl = await Video.compress(
+                    video.uri,
+                    {
+                        compressionMethod: "auto",
+
+                    },
+                    async (progress) => {
+                        await BackgroundService.updateNotification({
+                            taskDesc: "يتم الآن ضغط الريلز يرجى الإنتظار",
+                            progressBar: {
+                                max: 100,
+                                value: Math.round(progress * 100),
+                            }
+                        }); // Only Android, iOS will ignore this call
+
+                    }
+                )
 
 
+                if (compressedFileUrl.startsWith("file://")) {
+                    compressedFileUrl = compressedFileUrl.replace("file://", "file:///");
 
+                }
+
+           
+            } catch (error) {
+                console.log(error);
+            }
+
+            // extract a thumbnail for the video
+            try {
+                const { uri } = await VideoThumbnails.getThumbnailAsync(
+                    video.uri,
+                    {
+                        time: 15000,
+                    }
+                );
+                thumbnail = {file : await createRNUploadableFile(uri)};
+            } catch (e) {
+                return;
+            }
+
+            if (compressedFileUrl)
+                video.uri = compressedFileUrl
+            media = [{ file : await createRNUploadableFile(video.uri) }];
+        
+        }
+
+        try {
+            var response = await client.mutate({
+                mutation: gql`
+                mutation Mutation($postInput: EditPostInput!) {
+                    editPost(postInput: $postInput) {
+                        id 
+                        title 
+                        type 
+                        media {
+                            id path 
+                        }
+                        reel {
+                            id 
+                            views 
+                            thumbnail { 
+                                id path 
+                            }
+                        }
+    
+                        hashtags {
+                            id name 
+                        }
+                        createdAt 
+                        updatedAt 
+                    }
+                }
+                ` ,
+                variables: {
+                    postInput: {
+                        id: post.id,
+                        title: (text.trim().length > 0) ? text.trim() : null,
+                        media: media,
+                        reel: (type == "reel") ? ({
+                            thumbnail: thumbnail
+                        }) : null ,
+         
+                        hashtags: hashtags
+                    }
+                }
+            });
+
+
+            if (response) {
+
+                
+                var editPost = response.data.editPost;
+                post.title = editPost.title;
+                post.hashtags = editPost.hashtags;
+                post.media = editPost.media;
+                post.reel = editPost.reel;
+
+                console.log(editPost) ; 
+
+                event.emit("edit-post", post);
+            }
+        } catch (error) {
+     
+            await BackgroundService.stop();
+        }
+        setTimeout(async () => {
+            await BackgroundService.stop();
+        }, 10000)
+
+
+    }
+
+
+    const edit = useCallback(() => {
+        (async () => {
+
+            var hashtags = text.match(HASHTAG_REGEX);
+            try {
+
+                const options = {
+                    taskName: 'EDIT_CONTENT',
+                    taskTitle: 'رفع المحتوى',
+                    taskDesc: '.. تحميل المحتوى الخاص بك الرجاء الانتظار',
+                    taskIcon: {
+                        name: 'ic_launcher',
+                        type: 'mipmap',
+                    },
+                    color: '#ff00ff',
+                    linkingURI: 'yourSchemeHere://chat/jane', // See Deep Linking for more info
+                    parameters: {
+                        post: post,
+                        text: text,
+                        images: images,
+                        video: video,
+                        client: client,
+                        event: event,
+                        hashtags: hashtags
+                    },
+                };
+
+                await BackgroundService.start(editPost, options);
+                 navigation.goBack();
+                // iOS will also run everything here in the background until .stop() is called
+            } catch (error) {
+
+
+                editPost({ client, event, text, images, video, hashtags, post });
+                 navigation.goBack();
+
+            }
+
+        })();
+    }, [event, client, text, images, video]);
+
+
+    const onImagesChanged = useCallback((data) => {
+        setPost({
+            ...post,
+            media: data
+        });
+        setImages(data);
+    }, [post]);
+
+    const onVideoChange = useCallback((data) => {
+        setVideo(data) ; 
+        setThumbnail(data)
+    }, []);
 
     return (
         <View style={styles.container}>
             <Header navigation={navigation} />
             <View style={styles.content}>
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={newPost} style={[styles.outlineButton, disabled && styles.disabled]} disabled={disabled}>
+                    <TouchableOpacity onPress={edit} style={[styles.outlineButton, disabled && styles.disabled]} disabled={disabled}>
                         <Text style={styles.outlineText}>
-                            شارك
+                            تعديل
                         </Text>
                     </TouchableOpacity>
                     {
@@ -424,6 +474,7 @@ export default function NewPost({ navigation }) {
                         </View>
                     }
                 </View>
+
                 <TextInput
                     placeholder="ماذا تريد ان تكتب"
                     style={styles.input}
@@ -441,6 +492,7 @@ export default function NewPost({ navigation }) {
                         {renderText()}
                     </Text>
                 </TextInput>
+
                 <FlatList
                     style={[styles.hashtags, { top: 56 + (32 * numberOfLines) }]}
                     data={hashtags}
@@ -448,7 +500,6 @@ export default function NewPost({ navigation }) {
                     renderItem={renderItem}
                     ItemSeparatorComponent={<View style={styles.separator}></View>}
                 />
-
 
                 {
                     post.media.length > 0 &&
@@ -460,24 +511,28 @@ export default function NewPost({ navigation }) {
                 {
                     video &&
                     <TouchableOpacity style={styles.videoContainer}>
-                        <Image source={video} style={styles.video} />
+                        <Image source={thumbnail} style={styles.video} />
                     </TouchableOpacity>
                 }
 
 
-            </View >
-            {
-           
-                <NewPostUploader
+            </View>
 
+            {
+
+                post.type != "note" &&
+                <NewPostUploader
+                    defaultImages={defaultImage}
+                    defaultVideo={defaultVideo}
                     onImagesChanged={onImagesChanged}
                     onVideoChange={onVideoChange}
+                    type={post.type}
                 />
-              
             }
         </View>
     )
-}
+
+};
 
 
 const lightStyles = StyleSheet.create({

@@ -32,14 +32,14 @@ import Confirmation from "../Confirmation";
 const WIDTH = Dimensions.get("screen").width;
 const HASHTAG_REGEX = /#+([ا-يa-zA-Z0-9_]+)/ig;
 
-const DELETE_MESSAGE = { 
-    title : "حذف المنشور" , 
-    message : "هل انت متأكد من حذف المنشور نهائيا ؟"
+const DELETE_MESSAGE = {
+    title: "حذف المنشور",
+    message: "هل انت متأكد من حذف المنشور نهائيا ؟"
 }
 
 function Post(props) {
 
-    const { navigation } = props
+    const { navigation , noShowEdit } = props
     const [post, setPost] = useState(props.post);
 
 
@@ -51,23 +51,16 @@ function Post(props) {
     const [numComments, setNumComments] = useState(props.post.numComments);
     const [myPost, setMyPost] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-    const [isDeleting , setIsDeleting] = useState(false) ; 
-
-    const [showOptions, setShowOptions] = useState(false);
-
+    const [ disableOptions , setDisableOption ] = useState(true) ; 
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [showOptions, setShowOptions] = useState(false );
     const [showComments, setShowComments] = useState(false);
     const [showSender, setShowSender] = useState(false);
-
     const themeContext = React.useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
-
     const client = React.useContext(ApolloContext);
     const auth = React.useContext(AuthContext);
     const event = useEvent();
-
-
-
-
 
     useEffect(() => {
 
@@ -82,10 +75,11 @@ function Post(props) {
             var userAuth = await auth.getUserAuth();
             if (userAuth) {
                 const user = userAuth.user;
+
                 setMyPost(user.id == props.post.user.id);
+                setDisableOption(noShowEdit && user.id == props.post.user.id)
             }
         })();
-
     }, [props, auth]);
 
 
@@ -219,37 +213,56 @@ function Post(props) {
 
     const confirmToDelete = useCallback(() => {
         setShowOptions(false);
-        setShowDeleteConfirmation(true) ; 
+        setShowDeleteConfirmation(true);
 
     }, [post])
 
     const deletePost = useCallback(() => {
 
-    
-        closeConfirmation()  ;
+        setIsDeleting(true);
+        closeConfirmation();
 
-    }, [post]) ; 
+
+        client.mutate({
+            mutation: gql`
+            mutation Mutation($postId: ID!) {
+                deletePost(postId: $postId)
+            }` ,
+            variables: {
+                postId: post.id
+            }
+        }).then(response => {
+            if (response) {
+                event.emit("delete-post", post);
+            }
+            setIsDeleting(false);
+        }).catch(error => {
+            setIsDeleting(false);
+        })
+    }, [post]);
 
 
     const closeConfirmation = useCallback(() => {
-        setShowDeleteConfirmation(false) ; 
-    } , [])
-
+        setShowDeleteConfirmation(false);
+    }, [])
+    const editPost = useCallback(() => {
+        setShowOptions(false);
+        navigation && navigation.navigate('EditPost', {
+            post: post
+        })
+    }, [navigation, post])
 
     return (
         <View style={styles.container}>
-
             {
-
                 showDeleteConfirmation &&
                 <Modal
                     transparent
-                    onRequestClose={ closeConfirmation }
+                    onRequestClose={closeConfirmation}
                 >
-                    <Confirmation loading={isDeleting} title = {DELETE_MESSAGE.title} message={DELETE_MESSAGE.message} onClose={closeConfirmation } onConfirm = {deletePost}/>
+                    <Confirmation loading={isDeleting} title={DELETE_MESSAGE.title} message={DELETE_MESSAGE.message} onClose={closeConfirmation} onConfirm={deletePost} />
                 </Modal>
             }
-
             {
                 showComments &&
                 <Modal
@@ -264,7 +277,6 @@ function Post(props) {
             {
                 showOptions && <TouchableOpacity style={styles.touchableBackground} onPressIn={toggleOptions}></TouchableOpacity>
             }
-
             {
                 showSender &&
                 <Modal
@@ -281,7 +293,7 @@ function Post(props) {
 
                 <View style={styles.shareSection}>
                     {
-                        post.type != "service" &&
+                        post.type != "service" &&  !disableOptions && 
                         <TouchableOpacity onPress={toggleOptions}>
                             <Entypo name="dots-three-horizontal" style={styles.interactionIcon} />
                         </TouchableOpacity>
@@ -291,16 +303,14 @@ function Post(props) {
                         <ServiceButton openConversation={openConversation} openServiceAsk={openServiceAsk} />
                     }
                     {
-                        showOptions && post.type != "payed-content" &&
+                        showOptions && post.type != "payed-content" && 
                         <View style={styles.shareContainer}>
                             {
-
                                 !myPost &&
                                 <TouchableOpacity style={styles.shareOption}>
                                     <Octicons name="stop" style={styles.shareIcon} />
                                     <Text style={styles.shareText}>أبلغ</Text>
                                 </TouchableOpacity>
-
                             }
                             {
                                 post.type == "note" &&
@@ -308,18 +318,14 @@ function Post(props) {
                                     <Feather name="copy" style={styles.shareIcon} />
                                     <Text style={styles.shareText}>نسخ</Text>
                                 </TouchableOpacity>
-
                             }
                             {
-
                                 post.type != "note" &&
-
                                 <TouchableOpacity style={styles.shareOption}>
                                     <AntDesign name="download" style={styles.shareIcon} />
                                     <Text style={styles.shareText}>تحميل</Text>
                                 </TouchableOpacity>
                             }
-
                             {
                                 !myPost &&
                                 <TouchableOpacity style={styles.shareOption}>
@@ -332,24 +338,20 @@ function Post(props) {
                                 <Text style={styles.shareText}>شارك</Text>
                             </TouchableOpacity>
                             {
-                                myPost &&
+                                myPost && 
                                 <TouchableOpacity style={styles.shareOption} onPress={confirmToDelete}>
                                     <Feather name="trash-2" style={styles.shareIcon} />
                                     <Text style={styles.shareText}>حذف</Text>
                                 </TouchableOpacity>
                             }
-
                             {
                                 myPost &&
-                                <TouchableOpacity style={styles.shareOption}>
+                                <TouchableOpacity style={styles.shareOption} onPress={editPost}>
                                     <Feather name="edit" style={styles.shareIcon} />
                                     <Text style={styles.shareText}>تعديل</Text>
                                 </TouchableOpacity>
                             }
-
                         </View>
-
-
                     }
                     {
 
@@ -390,14 +392,7 @@ function Post(props) {
                     </View>
                 </TouchableOpacity>
             </View>
-            {
-                /*
-            post.type != "note" && post.title &&
-                <Text style={styles.title}>
-                    {processedTitle}
-                </Text>
-                */
-            }
+
 
             <View style={styles.content}>
                 {
@@ -480,7 +475,12 @@ const postCoparator = (prevProps, nextProps) => {
     var previousPost = prevProps.post;
     var nextPost = nextProps.post;
 
+   
+    if (previousPost.title != nextPost.title) {
+     
 
+        return false;
+    }
     if (previousPost.liked != nextPost.liked)
         return false;
 
@@ -513,6 +513,8 @@ const postCoparator = (prevProps, nextProps) => {
 
     if (previousUser.username != nextUser.username)
         return false;
+
+
 
     return true;
 };

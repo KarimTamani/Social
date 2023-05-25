@@ -19,6 +19,14 @@ import { gql } from "@apollo/client";
 import { useEvent } from "../../providers/EventProvider";
 import LikeHeart from "./post/LikeHeart";
 import { AuthContext } from "../../providers/AuthContext";
+import Confirmation from "./Confirmation";
+
+
+
+const DELETE_MESSAGE = {
+    title: "حذف الريل",
+    message: "هل انت متأكد من حذف الريل الخاصة بك تهائيا ؟"
+}
 
 
 const WIDTH = Dimensions.get("screen").width;
@@ -27,7 +35,7 @@ const HASHTAG_REGEX = /#+([ا-يa-zA-Z0-9_]+)/ig;
 
 function Reel(props) {
 
-    var { focus, openProfile , navigation } = props
+    var { focus, openProfile, navigation } = props
 
 
 
@@ -48,7 +56,13 @@ function Reel(props) {
     const [showComments, setShowComments] = useState(false);
     const [showSender, setShowSender] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [processedTitle , setProcessedTitle] = useState(props.reel.title) ; 
+    const [processedTitle, setProcessedTitle] = useState(props.reel.title);
+
+    const [myPost, setMyPost] = useState(false);
+    const auth = React.useContext(AuthContext);
+
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const event = useEvent();
 
@@ -65,21 +79,29 @@ function Reel(props) {
         setNumComments(props.reel.numComments);
         setFavorite(props.reel.isFavorite);
 
+
+        (async () => {
+            var userAuth = await auth.getUserAuth();
+            if (userAuth) {
+                const user = userAuth.user;
+                setMyPost(user.id == props.reel.user.id);
+            }
+        })();
+
+
+        const title = props.reel.title;
+        if (title) {
+            var hashtags = title.match(HASHTAG_REGEX);
+
+            if (hashtags && hashtags.length > 0) {
+                var processedText = processHashTag(title, hashtags);
+                setProcessedTitle(processedText);
+            }
+        }
     }, [props])
 
 
-    useEffect(() => {
-
-        const title = props.reel.title ; 
-        if (title) {
-            var hashtags = title.match(HASHTAG_REGEX);
-        
-            if ( hashtags && hashtags.length > 0 ) {
-                var processedText = processHashTag(title, hashtags);
-                setProcessedTitle(processedText) ; 
-            }
-        }
-    } , []) ; 
+   
 
 
     const processHashTag = (text, hashtags) => {
@@ -90,16 +112,16 @@ function Reel(props) {
         var sequences = text.split(hashtags[0]);
 
         if (hashtags.length == 1)
-            return [sequences[0], <Text onPress={() => openHashtag(hashtags[0]) }  style={styles.hashtag}>{hashtags[0]}</Text>, sequences[1]];
+            return [sequences[0], <Text onPress={() => openHashtag(hashtags[0])} style={styles.hashtag}>{hashtags[0]}</Text>, sequences[1]];
         else if (hashtags.length > 1)
-            return [sequences[0], <Text onPress={() => openHashtag(hashtags[0]) } style={styles.hashtag}>{hashtags[0]}</Text>, ...processHashTag(sequences[1], hashtags.slice(1))];
+            return [sequences[0], <Text onPress={() => openHashtag(hashtags[0])} style={styles.hashtag}>{hashtags[0]}</Text>, ...processHashTag(sequences[1], hashtags.slice(1))];
     }
 
     const openHashtag = useCallback((hashtag) => {
-        navigation.navigate("HashTag" , {
-            hashtagName :  hashtag
+        navigation.navigate("HashTag", {
+            hashtagName: hashtag
         })
-    } , [navigation]) 
+    }, [navigation])
 
 
 
@@ -153,34 +175,24 @@ function Reel(props) {
             setFavorite(previousValue);
         })
 
-
-
-
     }, [favorite]);
 
-
-
     const toggleComments = useCallback(() => {
-
-        
         if (!showComments) {
             const onNewComment = () => {
-                var newNumOfComments = null ; 
-
+                var newNumOfComments = null;
                 setNumComments(previousNum => {
                     setNumComments(previousNum + 1);
-                    newNumOfComments = previousNum + 1 ; 
+                    newNumOfComments = previousNum + 1;
                 });
-
                 event.emit("update-post-comments", reel.id, newNumOfComments);
-
-            } 
+            }
             event.addListener("new-comment", onNewComment);
-        }else{
-            event.removeAllListeners("new-comment") ; 
+        } else {
+            event.removeAllListeners("new-comment");
         }
-        
-        
+
+
         setShowComments(!showComments);
     }, [showComments, numComments, reel]);
 
@@ -234,10 +246,70 @@ function Reel(props) {
     const profilePressed = useCallback(() => {
 
         openProfile && openProfile(reel.user.id);
-    }, [reel, openProfile])
+    }, [reel, openProfile]);
+
+
+    const confirmToDelete = useCallback(() => {
+        setShowOptions(false);
+        setShowDeleteConfirmation(true);
+
+    }, [reel])
+
+    const deletePost = useCallback(() => {
+
+        setIsDeleting(true);
+        closeConfirmation();
+
+
+        client.mutate({
+            mutation: gql`
+            mutation Mutation($postId: ID!) {
+                deletePost(postId: $postId)
+            }` ,
+            variables: {
+                postId: reel.id
+            }
+        }).then(response => {
+            if (response) {
+                event.emit("delete-post", reel);
+            }
+            setIsDeleting(false);
+
+        }).catch(error => {
+            setIsDeleting(false);
+        })
+
+
+    }, [reel]);
+    const closeConfirmation = useCallback(() => {
+        setShowDeleteConfirmation(false);
+    }, []) ; 
+
+
+    
+    const editPost = useCallback(() => {
+        setShowOptions(false);
+        navigation && navigation.navigate('EditPost', {
+            post: reel
+        })
+    }, [navigation, reel])
+
 
     return (
         <View style={styles.container}>
+
+
+            {
+
+                showDeleteConfirmation &&
+                <Modal
+                    transparent
+                    onRequestClose={closeConfirmation}
+                >
+                    <Confirmation loading={isDeleting} title={DELETE_MESSAGE.title} message={DELETE_MESSAGE.message} onClose={closeConfirmation} onConfirm={deletePost} />
+                </Modal>
+            }
+
             {
                 showComments &&
                 <Modal
@@ -312,12 +384,14 @@ function Reel(props) {
 
                     showOptions &&
                     <View style={styles.shareContainer}>
+                        {
 
-                        <TouchableOpacity style={styles.shareOption}>
-                            <Octicons name="stop" style={styles.shareIcon} />
-                            <Text style={styles.shareText}>أبلغ</Text>
-                        </TouchableOpacity>
-
+                            !myPost &&
+                            <TouchableOpacity style={styles.shareOption}>
+                                <Octicons name="stop" style={styles.shareIcon} />
+                                <Text style={styles.shareText}>أبلغ</Text>
+                            </TouchableOpacity>
+                        }
                         <TouchableOpacity style={styles.shareOption} onPress={toggleFavorite}>
                             {
                                 !favorite && <FontAwesome name="bookmark-o" style={styles.shareIcon} />
@@ -332,16 +406,35 @@ function Reel(props) {
                                 favorite && <Text style={[styles.shareText, { color: "#FFD700" }]}>تم حفظها</Text>
                             }
                         </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.shareOption}>
-                            <Feather name="eye-off" style={styles.shareIcon} />
-                            <Text style={styles.shareText}>غير مهم</Text>
-                        </TouchableOpacity>
+                        {
+                            !myPost &&
+                            <TouchableOpacity style={styles.shareOption}>
+                                <Feather name="eye-off" style={styles.shareIcon} />
+                                <Text style={styles.shareText}>غير مهم</Text>
+                            </TouchableOpacity>
+                        }
 
                         <TouchableOpacity style={styles.shareOption}>
                             <Entypo name="share" style={styles.shareIcon} />
                             <Text style={styles.shareText}>شارك</Text>
                         </TouchableOpacity>
+
+
+                        {
+                            myPost &&
+                            <TouchableOpacity style={styles.shareOption} onPress={confirmToDelete}>
+                                <Feather name="trash-2" style={styles.shareIcon} />
+                                <Text style={styles.shareText}>حذف</Text>
+                            </TouchableOpacity>
+                        }
+
+                        {
+                            myPost &&
+                            <TouchableOpacity style={styles.shareOption} onPress={editPost}>
+                                <Feather name="edit" style={styles.shareIcon} />
+                                <Text style={styles.shareText}>تعديل</Text>
+                            </TouchableOpacity>
+                        }
 
                     </View>
                 }
@@ -436,7 +529,8 @@ const postCoparator = (prevProps, nextProps) => {
 
 
 
-
+    if (previousPost.title != nextPost.title) 
+        return false; 
     if (prevProps.focus != nextProps.focus)
         return false;
 
