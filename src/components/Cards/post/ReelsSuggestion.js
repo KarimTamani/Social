@@ -108,6 +108,21 @@ export default function ReelsSuggestion(props) {
             }
         }
 
+        
+        const editPost = (editablePost) => {
+            if (editablePost.type == "reel") {
+                const index = reels.findIndex(post => post.type != "loading"  && post.id == editablePost.id);
+                if (index >= 0) {
+                    var newPostsState = [...reels];
+                    newPostsState[index] = {
+                        ...editablePost
+                    }
+
+                    setReels(newPostsState);
+                }
+            }
+        }
+
 
 
         event.addListener("update-post-likes", updatePostLikes);
@@ -115,7 +130,7 @@ export default function ReelsSuggestion(props) {
         event.addListener("update-post-favorite", updatePostFavorite);
         event.addListener("update-profile", updateProfile);
         event.addListener("delete-post", deletePost);
- 
+        event.addListener("edit-post", editPost);
         return () => {
      
             event.removeListener("update-post-likes", updatePostLikes);
@@ -123,6 +138,7 @@ export default function ReelsSuggestion(props) {
             event.removeListener("update-post-favorite", updatePostFavorite);
             event.removeListener("update-profile", updateProfile);
             event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post", editPost);
         }
        
         

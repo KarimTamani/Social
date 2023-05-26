@@ -149,6 +149,9 @@ export default function EditPost({ route, navigation }) {
 
     useEffect(() => {
 
+        if (!selection) 
+            return ; 
+
         const position = selection ? selection.start : text.length;
 
 
@@ -381,7 +384,7 @@ export default function EditPost({ route, navigation }) {
                 event.emit("edit-post", post);
             }
         } catch (error) {
-     
+            console.log(error) ; 
             await BackgroundService.stop();
         }
         setTimeout(async () => {
@@ -576,6 +579,7 @@ const lightStyles = StyleSheet.create({
         paddingTop: 0,
         paddingBottom: 0,
         textAlignVertical: "top",
+     
     },
     hashtags: {
 
@@ -587,7 +591,7 @@ const lightStyles = StyleSheet.create({
         elevation: 4,
         position: "absolute",
         marginTop: 16,
-        zIndex: 99,
+        zIndex: 999,
         borderRadius: 4,
         paddingHorizontal: 16,
         maxHeight: 260,
@@ -595,7 +599,8 @@ const lightStyles = StyleSheet.create({
 
     },
     hashtag: {
-        color: "#1A6ED8"
+        color: "#1A6ED8" , 
+        textAlign : "right"
     },
     outlineButton: {
         width: 86,
@@ -649,6 +654,9 @@ const lightStyles = StyleSheet.create({
     separator: {
         height: 1,
         backgroundColor: "#eee"
+    } , 
+    inputText :  {
+        textAlign : "auto" 
     }
 
 });
@@ -682,5 +690,21 @@ const darkStyles = {
         color: darkTheme.textColor
 
     },
+    hashtags: {
+
+        ...lightStyles.hashtags , 
+        backgroundColor : darkTheme.backgroudColor
+
+
+    },
+    numPosts: {
+        color: darkTheme.secondaryTextColor,
+        fontFamily: textFonts.regular,
+        fontSize: 10
+    },
+    separator: {
+        height: 1,
+        backgroundColor: darkTheme.borderColor
+    }
 }
 

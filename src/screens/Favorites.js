@@ -6,6 +6,8 @@ import { gql } from "@apollo/client";
 import LoadingPost from "../components/Cards/loadings/LoadingPost";
 import Post from "../components/Cards/post/Post";
 import { useEvent } from "../providers/EventProvider";
+import ThemeContext from "../providers/ThemeContext";
+import darkTheme from "../design-system/darkTheme";
 
 
 const LOADING_COMPONENTS = [{ id: 0, type: "loading" }, { id: 0, type: "loading" }, { id: 0, type: "loading" }];
@@ -18,6 +20,11 @@ export default function Favorites({ navigation }) {
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
     const event = useEvent() ; 
+
+
+        
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
     const load_favorites = async (offset) => {
 
@@ -209,8 +216,17 @@ export default function Favorites({ navigation }) {
 
 
 
-const styles = StyleSheet.create({
+const lightStyles = StyleSheet.create({
     container: {
         flex: 1
     }
 })
+
+
+const darkStyles = { 
+    ...lightStyles , 
+    container : { 
+        flex : 1 , 
+        backgroundColor : darkTheme.secondaryBackgroundColor
+    }
+}

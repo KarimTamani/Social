@@ -105,16 +105,17 @@ const lightStyles = StyleSheet.create({
     tabText: {
 
         textAlign: "center",
-        fontSize: 14,
         color: "#666",
         paddingVertical: 8,
-        fontFamily: textFonts.medium
+        fontFamily: textFonts.medium , 
+        fontSize: 12,
+
     },
     activeText: {
         color: "#1A6ED8",
         borderBottomColor: "#1A6ED8",
         borderBottomWidth: 4,
-        fontWeight: "bold"
+    
 
     },
     content: {
@@ -130,10 +131,16 @@ const darkStyles = {
         backgroundColor: darkTheme.secondaryBackgroundColor
 
     },
+    filter : { 
+        backgroundColor : darkTheme.backgroudColor , 
+        flexDirection: "row-reverse",
+        paddingBottom: 8
+
+    } , 
     tabText: {
 
         textAlign: "center",
-        fontSize: 14,
+        fontSize: 12,
         color: darkTheme.secondaryTextColor,
         paddingVertical: 8,
         fontFamily: textFonts.medium

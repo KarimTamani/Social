@@ -5,6 +5,8 @@ import { gql } from "@apollo/client";
 import SmallFollowButton from "../Buttons/SmallFollowButton";
 import { textFonts } from "../../design-system/font";
 import Skelton from "./loadings/Skelton";
+import ThemeContext from "../../providers/ThemeContext";
+import darkTheme from "../../design-system/darkTheme";
 
 
 
@@ -16,6 +18,10 @@ export default function HashTagHeader({ hashtagName }) {
     const [loading, setLoading] = useState(true);
     const [following, setFollowing] = useState(false);
     const [followLoading, setFollowLoading] = useState(false);
+
+    
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
     useEffect(() => {
         setLoading(true);
@@ -134,7 +140,7 @@ export default function HashTagHeader({ hashtagName }) {
 
 };
 
-const styles = StyleSheet.create({
+const lightStyles = StyleSheet.create({
     container: {
 
         backgroundColor: "white",
@@ -180,4 +186,24 @@ const styles = StyleSheet.create({
         color: "#212121"
 
     }
-})
+}) ; 
+
+
+const darkStyles = { 
+    ...lightStyles , 
+    container: {
+        ...lightStyles.container , 
+        backgroundColor : darkTheme.backgroudColor
+    },
+    hashtagName: {
+        fontFamily: textFonts.bold,
+        fontSize: 16,
+        textAlign: "right" , 
+        color : darkTheme.textColor
+    },
+    numPosts: {
+        color: darkTheme.secondaryTextColor,
+        fontFamily: textFonts.regular,
+        fontSize: 12
+    },
+}

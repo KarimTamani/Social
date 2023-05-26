@@ -5,6 +5,7 @@ import Reel from "../components/Cards/Reel";
 import { ApolloContext } from "../providers/ApolloContext";
 import { gql } from "@apollo/client";
 import { AuthContext } from "../providers/AuthContext";
+import { useEvent } from "../providers/EventProvider";
 
 const WIDTH = Dimensions.get("screen").width;
 const HEIGHT = Dimensions.get("screen").height;
@@ -27,6 +28,8 @@ export default function ReelsViewer({ navigation, route }) {
     const client = useContext(ApolloContext);
     const [user, setUser] = useState(null);
     const auth = useContext(AuthContext);
+
+    const event = useEvent() ; 
 
     useEffect(() => {
         if (time != null && fetchMore)
@@ -154,7 +157,7 @@ export default function ReelsViewer({ navigation, route }) {
 
         return (
             <View style={styles.reel}>
-                <Reel reel={item} focus={focus} openProfile={openProfile} />
+                <Reel reel={item} focus={focus} openProfile={openProfile} navigation={navigation } />
             </View>
         )
 
@@ -207,10 +210,6 @@ export default function ReelsViewer({ navigation, route }) {
     const openProfile = useCallback((userId) => {
 
         if (user) {
-
-
-            console.log(user.id, userId);
-
             if (user.id == userId) {
                 navigation.navigate("AccountStack", { screen: "MyProfile" })
                 return;
@@ -219,7 +218,46 @@ export default function ReelsViewer({ navigation, route }) {
 
         }
 
-    }, [navigation, user])
+    }, [navigation, user]) ; 
+
+
+    useEffect(() => {
+        const deletePost = (deletedPost) => {
+
+            if (deletedPost.type == "reel") {
+                const index = reels.findIndex(post => post.type != "loading" && post.id == deletedPost.id);
+                if (index >= 0) {
+                    var newPostsState = [...reels];
+                    newPostsState.splice(index, 1);
+                    setReels(newPostsState);
+
+                }
+            }
+
+        }
+
+
+        const editPost = (editablePost) => {
+            if (editablePost.type == "reel") {
+                const index = reels.findIndex(post => post.type != "loading"  && post.id == editablePost.id);
+                if (index >= 0) {
+                    var newPostsState = [...reels];
+                    newPostsState[index] = {
+                        ...editablePost
+                    }
+
+                    setReels(newPostsState);
+                }
+            }
+        }
+        event.addListener("delete-post", deletePost);
+        event.addListener("edit-post" ,editPost ) ; 
+
+        return() => {
+            event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post", editPost);
+        }
+    } , [reels])
 
     return (
         <View style={styles.container}>

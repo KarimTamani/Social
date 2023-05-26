@@ -6,6 +6,8 @@ import { gql } from "@apollo/client";
 import LoadingPost from "../components/Cards/loadings/LoadingPost";
 import Post from "../components/Cards/post/Post";
 import { useEvent } from "../providers/EventProvider";
+import ThemeContext from "../providers/ThemeContext";
+import darkTheme from "../design-system/darkTheme";
 
 const LOADING_COMPONENTS = [{ id: 0, type: "loading" }, { id: 0, type: "loading" }, { id: 0, type: "loading" }];
 const LIMIT = 10;
@@ -21,6 +23,10 @@ export default function HashTag({ route, navigation }) {
     const [end, setEnd] = useState(false);
 
     const event = useEvent();
+
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+
     const load_posts = async (previousPosts) => {
 
         var offset = previousPosts.length;
@@ -125,13 +131,44 @@ export default function HashTag({ route, navigation }) {
 
         }
 
+        const deletePost = (deletedPost) => {
 
+
+            const index = posts.findIndex(post => post.type != "loading" && post.id == deletedPost.id);
+            if (index >= 0) {
+                var newPostsState = [...posts];
+                newPostsState.splice(index, 1);
+                setPosts(newPostsState);
+
+            }
+
+
+        }
+
+
+        const editPost = (editablePost) => {
+
+            const index = posts.findIndex(post => post.type != "loading" && post.id == editablePost.id);
+            if (index >= 0) {
+                var newPostsState = [...posts];
+                newPostsState[index] = {
+                    ...editablePost
+                }
+
+                setPosts(newPostsState);
+            }
+
+        }
+        event.addListener("delete-post", deletePost);
+        event.addListener("edit-post", editPost);
         event.addListener("update-post-likes", updatePostLikes);
         event.addListener("update-post-comments", updatePostComments);
 
         return () => {
             event.removeListener("update-post-likes", updatePostLikes);
             event.removeListener("update-post-comments", updatePostComments);
+            event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post", editPost);
         }
     }, [event, posts])
 
@@ -158,7 +195,7 @@ export default function HashTag({ route, navigation }) {
         if (item.type == "loading") {
             return <LoadingPost />
         } else
-            return <Post navigation={navigation} post={item} noShowEdit={true} />
+            return <Post navigation={navigation} post={item} />
     }, [posts, navigation]);
 
     return (
@@ -180,9 +217,17 @@ export default function HashTag({ route, navigation }) {
 };
 
 
-const styles = StyleSheet.create({
+const lightStyles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#eee"
     }
-})
+}) ; 
+
+
+const darkStyles = { 
+    container: {
+        flex: 1,
+        backgroundColor: darkTheme.secondaryBackgroundColor
+    }
+}

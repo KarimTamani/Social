@@ -5,12 +5,18 @@ import { FlatList } from "react-native-gesture-handler";
 import LoadingActivity from "../post/loadingActivity";
 import { textFonts } from "../../../design-system/font";
 import { gql } from "@apollo/client";
+import ThemeContext from "../../../providers/ThemeContext";
+import darkTheme from "../../../design-system/darkTheme";
 
 const LIMIT = 10 ;
 export default function SearchHashTags({ query , navigation }) {
     const client = useContext(ApolloContext);
     const [hashtags, setHashtags] = useState([]);
 
+
+
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
     const [firstFetch, setFirstFetch] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -92,7 +98,7 @@ export default function SearchHashTags({ query , navigation }) {
             </TouchableOpacity>
         )
 
-    }, [navigation ]);
+    }, [navigation , styles ]);
 
 
 
@@ -135,7 +141,7 @@ export default function SearchHashTags({ query , navigation }) {
 
 };
 
-const styles = StyleSheet.create({
+const lightStyles = StyleSheet.create({
     container: {
         flex: 1
     } , 
@@ -162,4 +168,18 @@ const styles = StyleSheet.create({
     hashtag: {
         color: "#1A6ED8"
     },
-})
+}) ; 
+
+
+const darkStyles = { 
+    ...lightStyles , 
+    separator: {
+        height: 1,
+        backgroundColor: darkTheme.borderColor
+    } , 
+    numPosts: {
+        color: darkTheme.secondaryTextColor,
+        fontFamily: textFonts.regular,
+        fontSize: 10
+    },
+}

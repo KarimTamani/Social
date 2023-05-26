@@ -83,8 +83,8 @@ export default function ProfileVideos({ navigation, route }) {
     const openReels = useCallback((reelId) => {
         navigation.navigate("ReelsViewer", {
             focusPostId: reelId,
-            getReels: () => reels , 
-            fetchMore : false  
+            getReels: () => reels,
+            fetchMore: false
         })
     }, [navigation, reels])
 
@@ -167,19 +167,34 @@ export default function ProfileVideos({ navigation, route }) {
         };
 
 
-        
+
         const deletePost = (deletedPost) => {
 
             if (deletedPost.type == "reel") {
-                const index = reels.findIndex(post => post.type != "loading"  && post.id == deletedPost.id);
+                const index = reels.findIndex(post => post.type != "loading" && post.id == deletedPost.id);
                 if (index >= 0) {
                     var newPostsState = [...reels];
                     newPostsState.splice(index, 1);
                     setReels(newPostsState);
-                
+
                 }
             }
 
+        }
+
+
+        const editPost = (editablePost) => {
+            if (editablePost.type == "reel") {
+                const index = reels.findIndex(post => post.type != "loading"  && post.id == editablePost.id);
+                if (index >= 0) {
+                    var newPostsState = [...reels];
+                    newPostsState[index] = {
+                        ...editablePost
+                    }
+
+                    setReels(newPostsState);
+                }
+            }
         }
 
         event.addListener("update-post-likes", updatePostLikes);
@@ -188,6 +203,7 @@ export default function ProfileVideos({ navigation, route }) {
         event.addListener("update-profile", updateProfile);
         event.addListener("new-post", addNewPost);
         event.addListener("delete-post", deletePost);
+        event.addListener("edit-post", editPost);
         return () => {
             event.removeListener("new-post", addNewPost);
             event.removeListener("update-post-likes", updatePostLikes);
@@ -195,6 +211,7 @@ export default function ProfileVideos({ navigation, route }) {
             event.removeListener("update-post-favorite", updatePostFavorite);
             event.removeListener("update-profile", updateProfile);
             event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post", editPost);
         }
     }, [reels]);
 

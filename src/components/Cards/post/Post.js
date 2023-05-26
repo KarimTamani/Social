@@ -39,7 +39,7 @@ const DELETE_MESSAGE = {
 
 function Post(props) {
 
-    const { navigation , noShowEdit } = props
+    const { navigation  } = props
     const [post, setPost] = useState(props.post);
 
 
@@ -51,7 +51,7 @@ function Post(props) {
     const [numComments, setNumComments] = useState(props.post.numComments);
     const [myPost, setMyPost] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-    const [ disableOptions , setDisableOption ] = useState(true) ; 
+ 
     const [isDeleting, setIsDeleting] = useState(false);
     const [showOptions, setShowOptions] = useState(false );
     const [showComments, setShowComments] = useState(false);
@@ -77,7 +77,7 @@ function Post(props) {
                 const user = userAuth.user;
 
                 setMyPost(user.id == props.post.user.id);
-                setDisableOption(noShowEdit && user.id == props.post.user.id)
+             
             }
         })();
     }, [props, auth]);
@@ -293,7 +293,7 @@ function Post(props) {
 
                 <View style={styles.shareSection}>
                     {
-                        post.type != "service" &&  !disableOptions && 
+                        post.type != "service"  && 
                         <TouchableOpacity onPress={toggleOptions}>
                             <Entypo name="dots-three-horizontal" style={styles.interactionIcon} />
                         </TouchableOpacity>

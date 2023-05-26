@@ -6,6 +6,8 @@ import { gql } from "@apollo/client";
 import LoadingActivity from "../post/loadingActivity";
 import { textFonts } from "../../../design-system/font";
 import { AuthContext } from "../../../providers/AuthContext";
+import ThemeContext from "../../../providers/ThemeContext";
+import darkTheme from "../../../design-system/darkTheme";
 const LIMIT = 10;
 
 export default function SearchUsers({ query, navigation }) {
@@ -21,6 +23,11 @@ export default function SearchUsers({ query, navigation }) {
 
     const [currentUser, setCurrentUser] = useState(null);
     const auth = useContext(AuthContext);
+
+
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+
 
     useEffect(() => {
 
@@ -128,7 +135,7 @@ export default function SearchUsers({ query, navigation }) {
             </TouchableOpacity>
         )
 
-    }, [navigation, currentUser]);
+    }, [navigation, currentUser , styles]);
 
 
 
@@ -171,7 +178,7 @@ export default function SearchUsers({ query, navigation }) {
 
 };
 
-const styles = StyleSheet.create({
+const lightStyles = StyleSheet.create({
     container: {
         flex: 1 , 
         padding : 16 , 
@@ -203,4 +210,20 @@ const styles = StyleSheet.create({
         fontSize: 12
     }
 
-})
+}); 
+
+
+const darkStyles = { 
+    ...lightStyles , 
+    username: {
+        fontFamily: textFonts.regular,
+        color: darkTheme.secondaryTextColor,
+        fontSize: 12
+    } , 
+    fullname: {
+        fontFamily: textFonts.semiBold,
+        fontSize: 12 , 
+        color: darkTheme.textColor,
+        
+    },
+}

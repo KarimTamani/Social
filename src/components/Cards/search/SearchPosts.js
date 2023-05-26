@@ -6,6 +6,8 @@ import LoadingActivity from "../post/loadingActivity";
 import LoadingPost from "../loadings/LoadingPost";
 import Post from "../post/Post";
 import { useEvent } from "../../../providers/EventProvider";
+import ThemeContext from "../../../providers/ThemeContext";
+import darkTheme from "../../../design-system/darkTheme";
 
 const LIMIT = 4;
 export default function SearchPosts({ type, query, navigation }) {
@@ -17,8 +19,13 @@ export default function SearchPosts({ type, query, navigation }) {
     const [firstFetch, setFirstFetch] = useState(true);
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
-    
-    const event = useEvent() ; 
+
+
+
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+
+    const event = useEvent();
     const search_posts = async (query, previousSearch) => {
         var offset = previousSearch.length;
         client.query({
@@ -105,7 +112,7 @@ export default function SearchPosts({ type, query, navigation }) {
         if (item.type == "loading")
             return <LoadingPost />
         return (
-            <Post post={item} navigation={navigation} noShowEdit = {true} />
+            <Post post={item} navigation={navigation} />
         )
     }, [])
 
@@ -142,13 +149,12 @@ export default function SearchPosts({ type, query, navigation }) {
                         likes: numLikes
                     };
                     setPosts(newPostsState);
-
                 }
 
             }
             const updatePostComments = (postId, value) => {
                 const index = posts.findIndex(post => post.type != "loading" && post.id == postId);
-       
+
                 if (index >= 0) {
 
                     console.log("updating num of comments ", value);
@@ -164,15 +170,60 @@ export default function SearchPosts({ type, query, navigation }) {
             }
 
 
+
+
+
             event.addListener("update-post-likes", updatePostLikes);
             event.addListener("update-post-comments", updatePostComments);
 
             return () => {
                 event.removeListener("update-post-likes", updatePostLikes);
                 event.removeListener("update-post-comments", updatePostComments);
+
             }
         }
-    }, [type , event, posts])
+    }, [type, event, posts]);
+
+
+    useEffect(() => {
+        const deletePost = (deletedPost) => {
+
+
+            const index = posts.findIndex(post => post.type != "loading" && post.id == deletedPost.id);
+            if (index >= 0) {
+                var newPostsState = [...posts];
+                newPostsState.splice(index, 1);
+                setPosts(newPostsState);
+
+            }
+
+
+        }
+
+
+        const editPost = (editablePost) => {
+       
+            const index = posts.findIndex(post => post.type != "loading" && post.id == editablePost.id);
+            if (index >= 0) {
+ 
+                var newPostsState = [...posts];
+                newPostsState[index] = {
+                    ...editablePost
+                }
+
+                setPosts(newPostsState);
+            }
+
+        }
+
+        event.addListener("delete-post", deletePost);
+        event.addListener("edit-post", editPost);
+
+        return () => {
+            event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post", editPost);
+        }
+    }, [posts]);
 
 
     return (
@@ -198,9 +249,17 @@ export default function SearchPosts({ type, query, navigation }) {
 
 };
 
-const styles = StyleSheet.create({
+const lightStyles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#eee"
     }
-})
+}) ; 
+
+
+const darkStyles ={ 
+    container: {
+        flex: 1,
+        backgroundColor: darkTheme.secondaryBackgroundColor
+    }
+}

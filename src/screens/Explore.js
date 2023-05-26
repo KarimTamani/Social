@@ -10,6 +10,7 @@ import { ApolloContext } from "../providers/ApolloContext";
 import { gql } from "@apollo/client";
 import { getMediaUri } from "../api";
 import LoadingActivity from "../components/Cards/post/loadingActivity";
+import { useEvent } from "../providers/EventProvider";
 
 const LIMIT = 10;
 
@@ -21,6 +22,7 @@ export default function Explore({ navigation }) {
 
     const [posts, setPosts] = useState();
     const client = useContext(ApolloContext);
+    const event = useEvent();
 
 
     const [timeOffset, setTimeOffset] = useState(null);
@@ -88,8 +90,8 @@ export default function Explore({ navigation }) {
                 setLastTimeOffset(lastPost.createdAt);
 
 
-            if (newPosts.length < LIMIT) 
-                setEnd(true) ; 
+            if (newPosts.length < LIMIT)
+                setEnd(true);
 
 
             newPosts = newPosts.sort((a, b) => 0.5 - Math.random());
@@ -110,11 +112,11 @@ export default function Explore({ navigation }) {
         load_posts([]);
     }, []);
 
-    useEffect(() => { 
-        if (timeOffset) { 
-            load_posts(posts.filter(post => post.type != "loading")); 
+    useEffect(() => {
+        if (timeOffset) {
+            load_posts(posts.filter(post => post.type != "loading"));
         }
-    } , [timeOffset])
+    }, [timeOffset])
 
 
     const reachEnd = useCallback(() => {
@@ -127,43 +129,74 @@ export default function Explore({ navigation }) {
 
 
 
-    const openPost = useCallback((post ) => {
+    const openPost = useCallback((post) => {
         if (post.type != "reel")
-        navigation.navigate("ViewPosts", {
-            getPosts: () => posts.filter(post => post.type != "reel") ,
-            focusPostId : post.id  , 
-            title: "اكسبلور",
-    
-          });
-        else if ( post.type == "reel") {
+            navigation.navigate("ViewPosts", {
+                getPosts: () => posts.filter(post => post.type != "reel"),
+                focusPostId: post.id,
+                title: "اكسبلور",
+
+            });
+        else if (post.type == "reel") {
             navigation.navigate("ReelsViewer", {
-                getReels: () => posts.filter(post => post.type == "reel") ,
-                focusPostId : post.id  , 
-                
-        
-              });
+                getReels: () => posts.filter(post => post.type == "reel"),
+                focusPostId: post.id,
+
+
+            });
         }
-    }, [navigation , posts])
+    }, [navigation, posts])
+
+    useEffect(() => {
 
 
+        const deletePost = (deletedPost) => {
+            const index = posts.findIndex(post => post.type != "loading"  && post.id == deletedPost.id);
+            if (index >= 0) {
+                var newPostsState = [...posts];
+                newPostsState.splice(index, 1);
+                setPosts(newPostsState);
+            }
+        }
+
+        const editPost = (editablePost) => {
+            const index = posts.findIndex(post => post.type != "loading"  && post.id == editablePost.id);
+            if (index >= 0) {
+                var newPostsState = [...posts];
+                newPostsState[index] = {
+                    ...editablePost
+                }
+
+                setPosts(newPostsState);
+            }
+        }
+        event.addListener("delete-post", deletePost);
+        event.addListener("edit-post", editPost);
+
+        return () => {
+            event.removeListener("delete-post", deletePost);
+            event.removeListener("edit-post", editPost);
+        }
+
+    }, [posts])
 
     const renderItem = useCallback(({ item }) => {
-        if (item.type == "loading") { 
+        if (item.type == "loading") {
             return (
-                <LoadingActivity/>
+                <LoadingActivity />
             )
         }
 
         if (item.type == "reel") {
             return (
-                <TouchableOpacity style={[styles.item]} onPress={ () => openPost( item )} >
+                <TouchableOpacity style={[styles.item]} onPress={() => openPost(item)} >
                     <AntDesign name="play" style={styles.playIcon} />
                     <Image source={{ uri: getMediaUri(item.reel.thumbnail.path) }} style={styles.image} />
                 </TouchableOpacity>
             )
         } else if (item.type == "note") {
             return (
-                <TouchableOpacity style={[styles.item]} onPress={ () => openPost( item )} >
+                <TouchableOpacity style={[styles.item]} onPress={() => openPost(item)} >
                     <Text style={styles.note} numberOfLines={4} ellipsizeMode={"tail"}>
                         {item.title}
                     </Text>
@@ -174,16 +207,16 @@ export default function Explore({ navigation }) {
 
             return (
 
-                <TouchableOpacity style={styles.item} onPress={ () => openPost( item )} >
-                    <Image source={{ uri: getMediaUri( item.media[0].path ) }} style={styles.image} />
+                <TouchableOpacity style={styles.item} onPress={() => openPost(item)} >
+                    <Image source={{ uri: getMediaUri(item.media[0].path) }} style={styles.image} />
                 </TouchableOpacity>
             )
         }
 
-    }, [navigation , posts ])
+    }, [navigation, posts])
 
     const keyExtractor = useCallback((item, index) => {
-        return item.id ;
+        return item.id;
     }, []);
 
 
@@ -201,11 +234,11 @@ export default function Explore({ navigation }) {
                     renderItem={renderItem}
                     numColumns={3}
                     onEndReached={reachEnd}
-                /> 
+                />
             }
             {
-                firstFetch && 
-                <LoadingActivity/>
+                firstFetch &&
+                <LoadingActivity />
             }
         </View>
     )
