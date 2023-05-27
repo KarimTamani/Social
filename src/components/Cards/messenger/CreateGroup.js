@@ -1,54 +1,155 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, SafeAreaView  } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, SafeAreaView } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { Feather, AntDesign } from '@expo/vector-icons';
 import { textFonts } from "../../../design-system/font";
 import Header from "../Header";
 import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
-var FOLLOWERS = [
-    {
-        id: 1,
-        user: {
-            name: "خير الله غازي",
-            image: require("../../../assets/illustrations/mainUser.jpeg")
-        },
-        lastMessage: "صباح الخير",
-        newMessages: 0
-    },
-    {
-        id: 2,
-        user: {
-            name: "تماني كريم",
-            image: require("../../../assets/illustrations/user.png")
-        },
-        lastMessage: "هذا رائع ، شكرا لك",
-        newMessages: 1
-    },
-    {
-        id: 3,
-        user: {
-            name: "خير الله غازي",
-            image: require("../../../assets/illustrations/uknown.png")
-        },
-        lastMessage: "السلام عليكم",
-        newMessages: 0
-    },
-]
+import PrimaryInput from "../../Inputs/PrimaryInput";
+import { ApolloContext } from "../../../providers/ApolloContext";
+import { gql } from "@apollo/client";
+import { getMediaUri } from "../../../api";
+import LoadingActivity from "../post/loadingActivity";
+
+
+const LIMIT = 10;
 
 export default function CreateGroup({ navigation }) {
 
-    const [users, setUsers] = useState(FOLLOWERS);
+    const [users, setUsers] = useState([]);
     const [members, setMembers] = useState([]);
 
+    const [followers, setFollowers] = useState([]);
+    const [followings, setFollowings] = useState([]);
+    const [query, setQuery] = useState("");
+    const client = useContext(ApolloContext);
+
+    const [end, setEnd] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [firstFetch, setFirstFetch] = useState(true);
+
+    const [searchHandler, setSearchHandler] = useState(null);
+    const [isCreating, setIsCreating] = useState(false);
+
+
+    const load_users = async (previousUsers, previousFollowers, previousFollowings, query) => {
+
+        const followersOffset = previousFollowers.length;
+        const followingOffset = previousFollowings.length;
+
+
+        client.query({
+            query: gql`
+            
+            query GetFollowing($followersOffset: Int!, $limit: Int!, $query: String, $followingOffset: Int!) {
+                getFollowers(offset: $followersOffset, limit: $limit, query: $query) {
+                  id name lastname username
+                  profilePicture {
+                    id path
+                  }
+                }
+                getFollowing(query : $query , offset: $followingOffset, limit: $limit) {
+                  id name lastname username
+                  profilePicture {
+                    id path
+                  }
+                }
+            }    
+            ` ,
+            variables: {
+                query,
+                followersOffset,
+                followingOffset,
+                limit: LIMIT
+            }
+        }).then(response => {
+
+            var newFollowers = response.data.getFollowers;
+            var newFollowing = response.data.getFollowing;
+
+
+            if (newFollowers.length < LIMIT && newFollowing.length < LIMIT)
+                setEnd(true);
+
+
+            setFollowers([...previousFollowers, ...newFollowers]);
+            setFollowings([...previousFollowings, ...newFollowing]);
+
+            var newUsers = [...previousUsers.filter(user => user.type != "loading"), ...newFollowers, ...newFollowing];
+
+
+            newUsers = newUsers.filter((element, index) => {
+                return newUsers.findIndex(user => user.id == element.id) === index;
+            });
+
+            newUsers.map(user => {
+                user.selected = members.findIndex(member => member.id == user.id) >= 0;
+                return user;
+            })
+
+
+            setUsers(newUsers);
+            setLoading(false);
+            setFirstFetch(false);
+
+        }).catch(error => {
+            setLoading(false);
+            setFirstFetch(false);
+        })
+    }
+
+    useEffect(() => {
+
+        if (searchHandler) {
+            clearTimeout(searchHandler)
+        };
+
+        setSearchHandler(setTimeout(() => {
+
+            setFirstFetch(true);
+            setEnd(false);
+            setLoading(false);
+
+            load_users([], [], [], query)
+        }, 500));
+
+
+    }, [query]);
+
+    useEffect(() => {
+        if (loading)
+            load_users(users, followers, followings, query);
+    }, [loading]);
+
+
+
     const renderItem = useCallback(({ item }) => {
- 
+        if (item.type == "loading")
+            return <LoadingActivity style={{ height: 56 }} />
+
         return (
             <TouchableOpacity style={styles.user} onPress={() => selectUser(item.id)}>
-                <Image source={item.user.image} style={styles.userImage} />
-                <Text style={styles.username}>
-                    {item.user.name}
-                </Text>
+                {
+                    item.profilePicture &&
+                    <Image source={{ uri: getMediaUri(item.profilePicture.path) }} style={styles.userImage} />
+                }
+                {
+
+                    !item.profilePicture &&
+                    <Image source={require("../../../assets/illustrations/gravater-icon.png")} style={styles.userImage} />
+                }
+
+                <View style={styles.userInfo}>
+
+                    <Text style={styles.fullname}>
+                        {item.name} {item.lastname}
+                    </Text>
+                    <Text style={styles.username}>
+                        @{item.username}
+                    </Text>
+                </View>
+
                 {
                     !item.selected &&
                     <Feather name="circle" style={styles.icon} />
@@ -63,55 +164,153 @@ export default function CreateGroup({ navigation }) {
     }, [users]);
 
     const keyExtractor = useCallback((item, index) => {
-        return index;
+        return item.id;
     }, [users])
 
     const selectUser = useCallback((userId) => {
-        setUsers((array) => {
-            const index = array.findIndex((user) => user.id == userId);
-            array[index].selected = !array[index].selected;
-            return [...array];
 
+
+        var cloneUsers = [...users];
+        var index = cloneUsers.findIndex(user => user.id == userId);
+        if (index >= 0) {
+            cloneUsers[index].selected = !cloneUsers[index].selected;
+            setUsers(cloneUsers);
+
+
+            var memberIndex = members.findIndex(member => member.id == userId);
+            var cloneMembers = [...members];
+            if (memberIndex >= 0) {
+
+                cloneMembers.splice(memberIndex, 1);
+
+
+            } else {
+
+                cloneMembers.push(cloneUsers[index]);
+
+            }
+
+            setMembers(cloneMembers)
+
+        }
+
+
+
+
+    }, [users, members]);
+
+
+    const reachEnd = useCallback(() => {
+        if (!loading && !end && !firstFetch) {
+            setUsers([...users, { id: 0, type: "loading" }])
+            setLoading(true);
+        }
+    }, [loading, users, end, firstFetch]);
+
+
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+
+
+
+    const createGroup = useCallback(() => {
+        setIsCreating(true) ; 
+
+        client.query({
+            query: gql`
+            mutation Mutation($members: [ID!]!) {
+                createGroup(members: $members) {
+                  id
+                  type
+                   
+                    
+                }
+            }
+            ` ,
+            variables: {
+                members: members.map(member => member.id)
+            }
+        }).then(response => {
+       
+            if (response) {
+
+                var group = response.data.createGroup;
+                group.members = members.map(member => ({
+                    user : member 
+                })); 
+
+                group.messages = [];
+
+                setIsCreating( false ) ; 
+                navigation && navigation.goBack()
+            }
+        }).catch(error => {
+            setIsCreating( false ) ; 
         })
-    }, [users]);
 
+    }, [members])
 
-    useEffect(() => {
-        setMembers(users.filter(user => user.selected));
-    }, [users]);
-
-
-    const themeContext = useContext(ThemeContext) ; 
-    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles ;  
 
     return (
         <SafeAreaView style={styles.container}>
             <Header
                 title={"إنشاء مجموعة"}
-                navigation = { navigation }
+                navigation={navigation}
             />
             <View style={styles.group}>
                 <View style={styles.members}>
                     {
                         members.map((user, index) => (
-                            <Image source={user.user.image} style={[styles.member, index == 1 && styles.floatOne , index == 2 && styles.floatTwo ]} />
+                            user.profilePicture ?
+                                <Image key={user.id} source={{ uri: getMediaUri(user.profilePicture.path) }} style={[styles.member, index == 1 && styles.floatOne, index == 2 && styles.floatTwo]} />
+                                :
+                                <Image key={user.id} source={require("../../../assets/illustrations/gravater-icon.png")} style={[styles.member, index == 1 && styles.floatOne, index == 2 && styles.floatTwo]} />
+
                         ))
                     }
                 </View>
-                <TouchableOpacity style={styles.createButton}>
-                    <Ionicons name="add-outline" size={32} color="#1A6ED8" />
-                    <Text style={styles.createText}>
-                        إنشاء
-                    </Text>
-                </TouchableOpacity>
-
+                {
+                    !isCreating &&
+                    <TouchableOpacity style={[styles.createButton, members.length == 0 && { opacity: 0.5 }]} disabled={members.length == 0} onPress={createGroup}>
+                        <Ionicons name="add-outline" size={32} color="#1A6ED8" />
+                        <Text style={styles.createText}>
+                            إنشاء
+                        </Text>
+                    </TouchableOpacity>
+                }
+                { 
+                    isCreating &&
+                    <LoadingActivity
+                        style={styles.createButton}
+                        size={48}
+                        color={"#1A6ED8"}
+                    />
+                }
             </View>
+
             <View style={styles.usersList}>
-                <FlatList
-                    data={users}
-                    renderItem={renderItem}
-                    keyExtractor={keyExtractor}
+                <PrimaryInput
+                    style={styles.input}
+                    placeholder={"البحث"}
+                    onChange={setQuery}
                 />
+                {
+                    !firstFetch &&
+
+                    <FlatList
+                        data={users}
+                        renderItem={renderItem}
+                        keyExtractor={keyExtractor}
+                        style={styles.searchList}
+                        onEndReached={reachEnd}
+                    />
+                }
+
+                {
+
+                    firstFetch &&
+                    <LoadingActivity />
+                }
             </View>
         </SafeAreaView>
     )
@@ -128,6 +327,9 @@ const lightStyles = StyleSheet.create({
     content: {
         padding: 16
     },
+    input: {
+        height: 48
+    },
 
     icon: {
         fontSize: 24,
@@ -137,8 +339,8 @@ const lightStyles = StyleSheet.create({
         color: "#1A6ED8"
     },
     userImage: {
-        width: 48,
-        height: 48,
+        width: 42,
+        height: 42,
         borderRadius: 48
     },
     user: {
@@ -148,19 +350,26 @@ const lightStyles = StyleSheet.create({
         marginTop: 16
 
     },
-    username: {
-        fontFamily: textFonts.regular,
+    userInfo: {
+        flex: 1,
+        paddingRight: 16,
+
+    },
+    fullname: {
+        fontFamily: textFonts.semiBold,
         flex: 1,
         textAlign: "right",
-        paddingRight: 16
+        fontSize: 12
     },
     usersList: {
-        padding: 16
+        padding: 16,
+        flex: 1
     },
     group: {
         paddingHorizontal: 16,
+
         flexDirection: "row",
-        height: 86
+        height: 72
     },
     members: {
         flex: 1,
@@ -170,7 +379,9 @@ const lightStyles = StyleSheet.create({
         width: 64,
 
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center" , 
+        
+        height : "auto"
     },
     createText: {
         fontFamily: textFonts.regular,
@@ -185,36 +396,50 @@ const lightStyles = StyleSheet.create({
 
     },
     floatOne: {
-        
+
         transform: [{
             translateX: -36
         }]
     }
     ,
     floatTwo: {
-        
+
         transform: [{
             translateX: -72
         }]
+    },
+    username: {
+        textAlign: "right",
+        fontSize: 12,
+        color: "#888"
+    },
+    searchList: {
+        flex: 1,
+
     }
 })
 
 
-const darkStyles = { 
-    ...lightStyles , 
+const darkStyles = {
+    ...lightStyles,
     container: {
         flex: 1,
-        backgroundColor: darkTheme.backgroudColor 
+        backgroundColor: darkTheme.backgroudColor
     }
     ,
-    username: {
-        fontFamily: textFonts.regular,
+    fullname: {
+        fontFamily: textFonts.semiBold,
         flex: 1,
         textAlign: "right",
-        paddingRight: 16 , 
-        color : darkTheme.textColor 
+        fontSize: 12,
+
+        color: darkTheme.textColor
     },
- 
+    username: {
+        textAlign: "right",
+        fontSize: 12,
+        color: darkTheme.secondaryTextColor
+    },
     member: {
         borderRadius: 64,
         width: 72,

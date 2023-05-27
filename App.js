@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import EventProvider from './src/providers/EventProvider';
 import RealTimeProvider from './src/providers/RealTimeContext';
 import NotificationProvider from './src/providers/NotificationProvider';
+import TimeProvider from './src/providers/TimeProvider';
 
 export default function App() {
 
@@ -21,11 +22,11 @@ export default function App() {
 
   const themeHandler = useMemo(() => ({
     toggleTheme: () => {
-      
-      const newTheme  = theme == "light" ? "dark" : "light" ;  
+
+      const newTheme = theme == "light" ? "dark" : "light";
       setTheme(newTheme);
-      
-      AsyncStorage.setItem("theme" , newTheme) ; 
+
+      AsyncStorage.setItem("theme", newTheme);
 
     },
     getTheme: () => {
@@ -51,12 +52,12 @@ export default function App() {
         "Noto-Bold": require("./src/assets/fonts/NotoSansArabic-Bold.ttf"),
       });
 
-      const storedTheme = await AsyncStorage.getItem("theme") ; 
-      
-      if (storedTheme) { 
-        setTheme(storedTheme) ; 
-      }else
-        setTheme("light") ; 
+      const storedTheme = await AsyncStorage.getItem("theme");
+
+      if (storedTheme) {
+        setTheme(storedTheme);
+      } else
+        setTheme("light");
       setIsLoading(false)
     })();
 
@@ -93,23 +94,24 @@ export default function App() {
     <EventProvider>
       <AuthProvider onAuthChange={onAuthChange}>
         <ApolloProvider userAuth={userAuth}>
-          {
-            userAuth &&
-            <RealTimeProvider userAuth={userAuth}>
-              <NotificationProvider userAuth={userAuth}>
+          <TimeProvider>
+            {
+              userAuth &&
+              <RealTimeProvider userAuth={userAuth}>
+                <NotificationProvider userAuth={userAuth}>
 
-                {
+                  {
 
-                  renderApp()
-                }
-              </NotificationProvider>
-            </RealTimeProvider>
-          }
-          {
-            !userAuth &&
-            renderApp()
-          }
-
+                    renderApp()
+                  }
+                </NotificationProvider>
+              </RealTimeProvider>
+            }
+            {
+              !userAuth &&
+              renderApp()
+            }
+          </TimeProvider>
         </ApolloProvider>
       </AuthProvider>
     </EventProvider >

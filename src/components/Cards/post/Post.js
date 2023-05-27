@@ -27,6 +27,7 @@ import LikeHeart from "./LikeHeart";
 import Reel from "../Reel";
 import PostVideo from "./PostVideo";
 import Confirmation from "../Confirmation";
+import { NOW, useTiming } from "../../../providers/TimeProvider";
 
 
 const WIDTH = Dimensions.get("screen").width;
@@ -39,7 +40,7 @@ const DELETE_MESSAGE = {
 
 function Post(props) {
 
-    const { navigation  } = props
+    const { navigation } = props
     const [post, setPost] = useState(props.post);
 
 
@@ -51,9 +52,9 @@ function Post(props) {
     const [numComments, setNumComments] = useState(props.post.numComments);
     const [myPost, setMyPost] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
- 
+
     const [isDeleting, setIsDeleting] = useState(false);
-    const [showOptions, setShowOptions] = useState(false );
+    const [showOptions, setShowOptions] = useState(false);
     const [showComments, setShowComments] = useState(false);
     const [showSender, setShowSender] = useState(false);
     const themeContext = React.useContext(ThemeContext);
@@ -61,6 +62,8 @@ function Post(props) {
     const client = React.useContext(ApolloContext);
     const auth = React.useContext(AuthContext);
     const event = useEvent();
+    const timing = useTiming();
+    const [publishTime, setPublishTime] = useState("");
 
     useEffect(() => {
 
@@ -71,13 +74,22 @@ function Post(props) {
         setNumComments(props.post.numComments);
 
 
+
+        var period = timing.getPeriod(props.post.createdAt);
+        if (period != NOW && !timing.isPeriodRequireCasting(props.post.createdAt)) {
+            period = "قبل " + period
+        }
+
+
+        setPublishTime(period);
+
         (async () => {
             var userAuth = await auth.getUserAuth();
             if (userAuth) {
                 const user = userAuth.user;
 
                 setMyPost(user.id == props.post.user.id);
-             
+
             }
         })();
     }, [props, auth]);
@@ -293,7 +305,7 @@ function Post(props) {
 
                 <View style={styles.shareSection}>
                     {
-                        post.type != "service"  && 
+                        post.type != "service" &&
                         <TouchableOpacity onPress={toggleOptions}>
                             <Entypo name="dots-three-horizontal" style={styles.interactionIcon} />
                         </TouchableOpacity>
@@ -303,7 +315,7 @@ function Post(props) {
                         <ServiceButton openConversation={openConversation} openServiceAsk={openServiceAsk} />
                     }
                     {
-                        showOptions && post.type != "payed-content" && 
+                        showOptions && post.type != "payed-content" &&
                         <View style={styles.shareContainer}>
                             {
                                 !myPost &&
@@ -338,7 +350,7 @@ function Post(props) {
                                 <Text style={styles.shareText}>شارك</Text>
                             </TouchableOpacity>
                             {
-                                myPost && 
+                                myPost &&
                                 <TouchableOpacity style={styles.shareOption} onPress={confirmToDelete}>
                                     <Feather name="trash-2" style={styles.shareIcon} />
                                     <Text style={styles.shareText}>حذف</Text>
@@ -377,7 +389,8 @@ function Post(props) {
                             }
                         </Text>
                         <Text style={styles.time}>
-                            قبل دقيقة واحدة
+
+                            {publishTime}
                         </Text>
                     </View>
                     <View>
@@ -475,9 +488,9 @@ const postCoparator = (prevProps, nextProps) => {
     var previousPost = prevProps.post;
     var nextPost = nextProps.post;
 
-   
+
     if (previousPost.title != nextPost.title) {
-     
+
 
         return false;
     }
