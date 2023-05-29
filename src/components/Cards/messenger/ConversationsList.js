@@ -16,7 +16,7 @@ import LoadingActivity from "../post/loadingActivity";
 
 
 const LIMIT = 10;
-export default function ConversationsList({ openConversation }) {
+export default function ConversationsList({ openConversation, query }) {
 
 
     const themeContext = useContext(ThemeContext);
@@ -37,19 +37,19 @@ export default function ConversationsList({ openConversation }) {
 
 
 
-    const load_conversations = async () => {
+    const load_conversations = async (query , previousConversations) => {
 
         client.query({
             query: gql`
-          query Query($offset: Int!, $limit: Int!) {
-            getConversations(offset: $offset, limit: $limit) {
+          query Query($query : String , $offset: Int!, $limit: Int!) {
+            getConversations(query : $query , offset: $offset, limit: $limit) {
                 id 
                 type
                 unseenMessages 
                 members {
                     lastSeenAt 
                     user {
-                        id name lastname
+                        id name lastname username
                         profilePicture {
                             id path 
                         }
@@ -70,21 +70,28 @@ export default function ConversationsList({ openConversation }) {
         } 
             ` ,
             variables: {
-                offset: conversations.filter(conversation => conversation.type != "loading").length,
-                limit: LIMIT
+                offset: previousConversations.filter(conversation => conversation.type != "loading").length,
+                limit: LIMIT , 
+                query : query , 
             }
         }).then(async response => {
             var userAuth = await auth.getUserAuth();
             var newConversations = response.data.getConversations;
 
-
             if (userAuth && userAuth.user) {
                 const sender = userAuth.user;
 
                 for (var index = 0; index < newConversations.length; index++) {
+
+                    if (newConversations[index].type == "group")
+                        newConversations[index].members.push({
+                            user: sender
+                        })
+
                     // we basiclly check if the last message was went by this authenticated user  
                     if (!(newConversations[index].members &&
                         newConversations[index].messages &&
+                        newConversations[index].messages.length > 0 &&
                         sender.id == newConversations[index].messages[0].sender.id))
 
                         continue;
@@ -95,6 +102,7 @@ export default function ConversationsList({ openConversation }) {
                     var message = newConversations[index].messages[0];
                     message.seen = lastSeenAt >= message.createdAt;
 
+
                 }
             }
 
@@ -103,13 +111,18 @@ export default function ConversationsList({ openConversation }) {
                 setEnd(true)
 
 
-            setConversations([...conversations.filter(conversation => conversation.type != "loading"), ...newConversations]);
+
+
+
+            setConversations([...previousConversations.filter(conversation => conversation.type != "loading"), ...newConversations]);
 
 
             setFirstFetch(false);
             setLoading(false);
 
         }).catch(error => {
+
+
             setLoading(false);
             setFirstFetch(false);
         })
@@ -118,8 +131,7 @@ export default function ConversationsList({ openConversation }) {
     }
 
     useEffect(() => {
-        setFirstFetch(true);
-        load_conversations();
+
         (async () => {
             const userAuth = await auth.getUserAuth();
             if (userAuth) {
@@ -131,8 +143,22 @@ export default function ConversationsList({ openConversation }) {
 
 
     useEffect(() => {
+        setFirstFetch(true);
+
+
+        setFirstFetch(true);
+        setEnd(false);
+        setLoading(false);
+        if (query)
+            load_conversations(query, []);
+        else
+            load_conversations("", []);
+    }, [query])
+
+
+    useEffect(() => {
         if (loading) {
-            load_conversations();
+            load_conversations( query , conversations);
         }
     }, [loading])
 
@@ -156,9 +182,16 @@ export default function ConversationsList({ openConversation }) {
                 const conversationId = message.conversationId;
                 const index = conversations.findIndex(conversation => conversation.id == conversationId);
                 if (index >= 0) {
+
                     conversations[index].messages = [message];
                     var member = conversations[index].members && conversations[index].members[0]
-                    message.seen = member.lastSeenAt >= message.createdAt
+                    message.seen = member.lastSeenAt >= message.createdAt;
+
+                    var updatedConversation = conversations[index];
+
+                    conversations.splice(index, 1);
+                    conversations.splice(0, 0, updatedConversation);
+
                     setConversations([...conversations]);
                 }
             });
@@ -170,6 +203,11 @@ export default function ConversationsList({ openConversation }) {
                 if (index >= 0) {
                     conversations[index].messages = [message];
                     conversations[index].unseenMessages = conversations[index].unseenMessages + 1;
+
+                    var updatedConversation = conversations[index];
+
+                    conversations.splice(index, 1);
+                    conversations.splice(0, 0, updatedConversation);
                     setConversations([...conversations]);
                 }
             })
@@ -225,8 +263,16 @@ export default function ConversationsList({ openConversation }) {
             isActive = index >= 0;
         }
 
+        var groupName = null;
+        if (item.type == "group") {
+
+            groupName = item.members.slice(0, 3).map(member => member.user.name + " " + member.user.lastname).join(",")
+
+        }
+
         return (
             <TouchableOpacity style={styles.conversation} onPress={() => openConversation(item)}>
+
                 <View>
                     {
                         isActive &&
@@ -234,20 +280,44 @@ export default function ConversationsList({ openConversation }) {
                         </View>
                     }
                     {
-                        item.members[0].user.profilePicture &&
+                        item.type != "group" && item.members[0].user.profilePicture &&
                         <Image source={{ uri: getMediaUri(item.members[0].user.profilePicture.path) }} style={styles.image} />
                     }
                     {
-                        !item.members[0].user.profilePicture &&
+                        item.type != "group" && !item.members[0].user.profilePicture &&
                         <Image source={require("../../../assets/illustrations/gravater-icon.png")} style={styles.image} />
 
                     }
+                    {
+                        item.type == "group" && item.members.length > 0 &&
+                        <View style={[styles.groupMembers , item.members.length == 2 && {width : 64}]}>
+                            {
+                                item.members.slice(0, 3).map(({ user }, index) => (
+                                    user.profilePicture ?
+                                        <Image key={user.id} source={{ uri: getMediaUri(user.profilePicture.path) }} style={[styles.image, index == 1 && styles.floatOne, index == 2 && styles.floatTwo]} />
+                                        :
+                                        <Image key={user.id} source={require("../../../assets/illustrations/gravater-icon.png")} style={[styles.image, index == 1 && styles.floatOne, index == 2 && styles.floatTwo]} />
+
+                                ))
+                            }
+                        </View>
+                    }
                 </View>
                 <View style={styles.body}>
-                    <Text style={[styles.username, item.unseenMessages > 0 && styles.unseen]}>
-                        {(item.members[0].user.name + " " + item.members[0].user.lastname)}
-                    </Text>
+                    {
+                        !groupName &&
+                        <Text style={[styles.username, item.unseenMessages > 0 && styles.unseen]} numberOfLines={1}>
+                            {(item.members[0].user.name + " " + item.members[0].user.lastname)}
+                        </Text>
+                    }
+                    {
+                        groupName &&
+                        <Text style={[styles.username, item.unseenMessages > 0 && styles.unseen]} numberOfLines={1}>
+                            {groupName}
+                        </Text>
 
+
+                    }
                     <View style={styles.messageContainer}>
                         {
                             item.messages[0] && item.messages[0].seen !== undefined &&
@@ -301,6 +371,12 @@ export default function ConversationsList({ openConversation }) {
                             <Text style={[styles.lastMessage, item.unseenMessages > 0 && styles.unseen.message]}>
                                 قام بإرسال تسجيل صوتي
 
+                            </Text>
+                        }
+                        {
+                            item.type == "group" && item.messages.length == 0 &&
+                            <Text style={[styles.lastMessage, item.unseenMessages > 0 && styles.unseen.message]}>
+                                مجموعة جديدة
                             </Text>
                         }
 
@@ -397,6 +473,7 @@ const lightStyles = StyleSheet.create({
     },
     username: {
         fontFamily: textFonts.regular,
+        textAlign: "right"
     },
 
     time: {
@@ -432,6 +509,7 @@ const lightStyles = StyleSheet.create({
         fontSize: 12,
         fontFamily: textFonts.regular,
         flex: 1,
+        textAlign: "right",
     },
 
     check: {
@@ -447,6 +525,26 @@ const lightStyles = StyleSheet.create({
         message: {
             color: "#212121"
         }
+    },
+    floatOne: {
+
+        transform: [{
+            translateX: -32
+        }]
+    }
+    ,
+    floatTwo: {
+
+        transform: [{
+            translateX: -56
+        }]
+    },
+    groupMembers: {
+
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        width: 88,
+        overflow: "hidden",
     }
 })
 
@@ -455,7 +553,8 @@ const darkStyles = {
 
     username: {
         fontFamily: textFonts.regular,
-        color: darkTheme.textColor
+        color: darkTheme.textColor,
+        textAlign: "right"
     },
 
     time: {
@@ -473,7 +572,7 @@ const darkStyles = {
         fontSize: 12,
         fontFamily: textFonts.regular,
         flex: 1,
-
+        textAlign: "right",
         color: darkTheme.secondaryTextColor
     },
 

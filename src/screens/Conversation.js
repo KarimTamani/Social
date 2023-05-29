@@ -27,6 +27,9 @@ export default function Conversation({ navigation, route }) {
     const [sima, setSima] = useState();
     const [members, setMembers] = useState(route.params?.members);
     const [conversation, setConversation] = useState(route.params?.conversation);
+    const isGroup = route.params?.conversation?.type == "group"; 
+    
+
     const [sender, setSender] = useState(null);
     const auth = useContext(AuthContext);
     const client = useContext(ApolloContext);
@@ -106,26 +109,33 @@ export default function Conversation({ navigation, route }) {
 
     useEffect(() => {
 
+        const onNewMessage = ( newMessage ) => { 
+            if (newMessage.media) {
+                newMessage.media.uri = getMediaUri(newMessage.media.path);
+            }
+            const index = members.findIndex(member => member.user.id == newMessage.sender.id);
+            newMessage.sender = members[index].user
+
+            setMessages([newMessage, ...messages]);
+            seeConversation(conversation.id) ; 
+        } 
+
+
+        const onConversationSaw = (conversationMember) => { 
+            setMemberLastSeen(conversationMember.lastSeenAt);
+        }
+
+
         if (conversation) {
-            realTime.on("NEW_MESSAGE_CONVERSATION_" + conversation.id, (newMessage) => {
-                if (newMessage.media) {
-                    newMessage.media.uri = getMediaUri(newMessage.media.path);
-                }
-                const index = members.findIndex(member => member.user.id == newMessage.sender.id);
-                newMessage.sender = members[index].user
-
-                setMessages([newMessage, ...messages]);
-                seeConversation(conversation.id) ; 
-            })
+            realTime.addListener("NEW_MESSAGE_CONVERSATION_" + conversation.id,onNewMessage) ; 
+            realTime.addListener("CONVERSATION_SAW_" + conversation.id , onConversationSaw) ; 
 
 
-            realTime.on("CONVERSATION_SAW_" + conversation.id, (conversationMember) => {
-                setMemberLastSeen(conversationMember.lastSeenAt);
-            })
+            
 
             return () => {
-                realTime.off("NEW_MESSAGE_CONVERSATION_" + conversation.id);
-                realTime.off("CONVERSATION_SAW_" + conversation.id);
+                realTime.removeListener("NEW_MESSAGE_CONVERSATION_" + conversation.id , onNewMessage);
+                realTime.removeListener("CONVERSATION_SAW_" + conversation.id , onConversationSaw);
             }
         }
     }, [conversation, messages])
@@ -436,8 +446,13 @@ export default function Conversation({ navigation, route }) {
     return (
         <ImageBackground style={styles.container} source={sima}>
             {
-                members &&
+                !isGroup &&  members && 
                 <ConversationHeader lightContent={sima != null} user={members[0].user} onPickSima={onPickSima} />
+            }
+            { 
+                isGroup && members && 
+                <ConversationHeader lightContent={sima != null} members={members} onPickSima={onPickSima} />
+                
             }
             <View style={styles.body}>
                 {

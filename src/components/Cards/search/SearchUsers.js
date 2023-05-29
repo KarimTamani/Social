@@ -8,6 +8,7 @@ import { textFonts } from "../../../design-system/font";
 import { AuthContext } from "../../../providers/AuthContext";
 import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
+import { getMediaUri } from "../../../api";
 const LIMIT = 10;
 
 export default function SearchUsers({ query, navigation }) {
@@ -186,7 +187,8 @@ const lightStyles = StyleSheet.create({
     },
     user: {
         flexDirection: "row",
-        alignItems: "center"
+        alignItems: "center" , 
+        marginBottom : 12
     },
 
     userImage: {

@@ -13,6 +13,8 @@ import darkTheme from "../design-system/darkTheme";
 export default function Messenger({ navigation }) {
 
     const [filter, setFilter] = useState("chat");
+    const [searchHandler , setSearchHandler] = useState( null ) ; 
+    const [ query , setQuery] = useState(null) ; 
 
     const openConversation = useCallback((conversation) => { 
         navigation.navigate("Conversation" , {
@@ -22,6 +24,19 @@ export default function Messenger({ navigation }) {
 
     const themeContext = useContext(ThemeContext) ; 
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles ;  
+
+    const onSearchQueryChange = useCallback((text) => {
+        if (searchHandler) {
+            clearTimeout(searchHandler) 
+        } ; 
+
+        setSearchHandler ( setTimeout(() => {
+            
+            setQuery(text) ; 
+
+            console.log("searching for : " , text) ;  
+        } , 500)) 
+    } , [searchHandler])
 
     return (
         <View style={styles.container}>
@@ -34,6 +49,7 @@ export default function Messenger({ navigation }) {
                         leftContent={<AntDesign name="search1" style={styles.searchIcon} />}
                         placeholder={"بحث"}
                         style={styles.input}
+                        onChange={onSearchQueryChange}
                     />
                 </View>
                 <View style={styles.filters}>
@@ -52,7 +68,7 @@ export default function Messenger({ navigation }) {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.conversations}>
-                    <ConversationsList openConversation={openConversation}/>
+                    <ConversationsList openConversation={openConversation} query = { query } />
                 </View>
 
             </View>

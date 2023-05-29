@@ -10,12 +10,14 @@ import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
 import { getMediaUri } from "../../../api";
 
-export default function ConversationHeader({ user, allowPhone = false, onPickSima, lightContent = false }) {
+export default function ConversationHeader({ user, allowPhone = false, onPickSima, lightContent = false, members }) {
 
     const [showOptions, setShowOptions] = useState(false);
     const [showSimas, setShowSimas] = useState(false);
 
- 
+
+
+
     const toggleOptions = useCallback(() => {
         setShowOptions(!showOptions);
     }, [showOptions]);
@@ -39,87 +41,153 @@ export default function ConversationHeader({ user, allowPhone = false, onPickSim
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
+    if (user)
+        return (
+            <View style={styles.container}>
+                <View style={[styles.section, { flex: 1 }]}>
+                    {
+                        !allowPhone &&
+                        <TouchableOpacity onPress={toggleOptions}>
+                            <Entypo name="dots-three-vertical" style={[styles.headerIcon, lightContent && { color: "white" }]} />
+                        </TouchableOpacity>
+                    }
+                    {
+                        allowPhone &&
+                        <TouchableOpacity>
+                            <FontAwesome name="phone" style={styles.headerIcon} />
+                        </TouchableOpacity>
+                    }
+                </View>
+                <View style={[styles.section, { alignItems: "center", justifyContent: "flex-end"  , flex : 1 }]}>
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.section}>
-                {
-                    !allowPhone &&
-                    <TouchableOpacity onPress={toggleOptions}>
-                        <Entypo name="dots-three-vertical" style={[styles.headerIcon, lightContent && { color: "white" }]} />
-                    </TouchableOpacity>
-                }
-                {
-                    allowPhone &&
-                    <TouchableOpacity>
-                        <FontAwesome name="phone" style={styles.headerIcon} />
-                    </TouchableOpacity>
-                }
-            </View>
-            <View style={[styles.section, { alignItems: "center", justifyContent: "flex-end" }]}>
-
-                <View style={styles.userInfo}>
-                    <Text style={[styles.username, lightContent && { color: "white" }]}>
-                        {user.name} {user.lastname} {user.validated && <AntDesign name="checkcircle" style={styles.blueIcon} />}
-                    </Text>
-                    <Text style={[styles.status, lightContent && { color: "white" }]}>
+                    <View style={styles.userInfo}>
+                        <Text style={[styles.username, lightContent && { color: "white" }]}>
+                            {user.name} {user.lastname} {user.validated && <AntDesign name="checkcircle" style={styles.blueIcon} />}
+                        </Text>
+                        <Text style={[styles.status, lightContent && { color: "white" }]}>
+                            {
+                                user.isActive ? "نشط الان" : "قبل ساعة"
+                            }
+                        </Text>
+                    </View>
+                    <View style={styles.userImageContainer}>
                         {
-                            user.isActive ? "نشط الان" : "قبل ساعة"
+                            user.profilePicture &&
+                            <Image source={{ uri: getMediaUri(user.profilePicture.path) }} style={styles.userImage} />
                         }
-                    </Text>
+                        {
+                            !user.profilePicture &&
+                            <Image source={require("../../../assets/illustrations/gravater-icon.png")} style={styles.userImage} />
+                        }
+                        {
+                            user.isActive &&
+                            <View style={styles.active}>
+                            </View>
+                        }
+                    </View>
                 </View>
-                <View style={styles.userImageContainer}>
+
+                {
+                    showOptions &&
+                    <Modal
+                        transparent
+                        onRequestClose={toggleOptions}
+                    >
+                        <ConversationOptions
+                            onClose={toggleOptions}
+                            toggleSimas={toggleSimas}
+                        />
+
+                    </Modal>
+                }
+
+                {
+                    showSimas &&
+                    <Modal
+                        transparent
+                        onRequestClose={toggleSimas}
+                    >
+                        <Slider
+                            onClose={toggleSimas}
+                            percentage={0.1}
+
+                        >
+                            <SimaPicker
+                                onSelect={pickSima}
+                            />
+                        </Slider>
+                    </Modal>
+
+                }
+
+            </View>
+        )
+    else if (members) {
+
+        var firstThree = members.slice(0, 3);
+        var groupName = members.map(member => member.user.name + " " + member.user.lastname).join(",");
+
+        var isActive = members.findIndex(member => member.user.isActive) >= 0;
+
+
+        return (
+            <View style={styles.container}>
+                <View style={styles.section}>
                     {
-                        user.profilePicture && 
-                        <Image source={{uri : getMediaUri(user.profilePicture.path)}} style={styles.userImage} />
+                        !allowPhone &&
+                        <TouchableOpacity onPress={toggleOptions}>
+                            <Entypo name="dots-three-vertical" style={[styles.headerIcon, lightContent && { color: "white" }]} />
+                        </TouchableOpacity>
                     }
                     {
-                        !user.profilePicture && 
-                        <Image source={require("../../../assets/illustrations/gravater-icon.png")} style={styles.userImage} />
+                        allowPhone &&
+                        <TouchableOpacity>
+                            <FontAwesome name="phone" style={styles.headerIcon} />
+                        </TouchableOpacity>
                     }
-                    {
-                        user.isActive &&
-                        <View style={styles.active}>
-                        </View>
-                    }
+                </View>
+
+
+                <View style={[styles.section, { alignItems: "center", justifyContent: "flex-end", flex: 1 }]}>
+
+                    <View style={styles.userInfo}>
+                        <Text style={[styles.username, lightContent && { color: "white" }]} numberOfLines={1}>
+                            {groupName}
+                        </Text>
+                        <Text style={[styles.status, lightContent && { color: "white" }]}>
+                            {
+                                isActive ? "نشط الان" : "قبل ساعة"
+                            }
+                        </Text>
+                    </View>
+                    <View style={[styles.groupImages]}>
+                        {
+
+                            firstThree.map((member, index) => {
+                                return (
+                                    !member.user.profilePicture ?
+                                        <Image style={[styles.userImage, index == 1 && styles.floatOne, index == 2 && styles.floatTwo]} source={require("../../../assets/illustrations/gravater-icon.png")} />
+                                        :
+                                        <Image style={[styles.userImage, index == 1 && styles.floatOne, index == 2 && styles.floatTwo]} source={{ uri: getMediaUri(member.user.profilePicture.path) }} />
+                                )
+                            })
+
+
+                        }
+                        {
+
+
+                            isActive &&
+                            <View style={styles.active}>
+                            </View>
+
+                        }
+                    </View>
                 </View>
             </View>
+        )
 
-            {
-                showOptions &&
-                <Modal
-                    transparent
-                    onRequestClose={toggleOptions}
-                >
-                    <ConversationOptions
-                        onClose={toggleOptions}
-                        toggleSimas={toggleSimas}
-                    />
-
-                </Modal>
-            }
-
-            {
-                showSimas &&
-                <Modal
-                    transparent
-                    onRequestClose={toggleSimas}
-                >
-                    <Slider
-                        onClose={toggleSimas}
-                        percentage={0.1}
-
-                    >
-                        <SimaPicker
-                            onSelect={pickSima}
-                        />
-                    </Slider>
-                </Modal>
-
-            }
-
-        </View>
-    )
+    }
 }
 
 const lightStyles = StyleSheet.create({
@@ -132,9 +200,10 @@ const lightStyles = StyleSheet.create({
 
     },
     section: {
-        flex: 1,
+
         flexDirection: "row",
         alignItems: "center",
+
 
     },
     userImage: {
@@ -154,7 +223,9 @@ const lightStyles = StyleSheet.create({
         bottom: 0
     },
     userInfo: {
-        paddingRight: 16
+        paddingRight: 16,
+
+        flex: 1
     },
     blueIcon: {
         color: "#00D0CD",
@@ -163,9 +234,10 @@ const lightStyles = StyleSheet.create({
 
     },
     username: {
-        fontFamily: textFonts.semiBold,
+
         color: "#212121",
-        fontSize: 13
+        fontSize: 12,
+
     },
     status: {
         color: "#666",
@@ -174,7 +246,29 @@ const lightStyles = StyleSheet.create({
     },
     headerIcon: {
         fontSize: 22
+    },
+    groupImages: {
+
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        width: 72,
+        overflow: "hidden",
+
+
+    },
+    floatOne: {
+
+        transform: [{
+            translateX: -32
+        }]
     }
+    ,
+    floatTwo: {
+
+        transform: [{
+            translateX: -56
+        }]
+    },
 
 })
 
