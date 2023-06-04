@@ -15,6 +15,7 @@ import LoadingActivity from "../components/Cards/post/loadingActivity";
 import { useRealTime } from "../providers/RealTimeContext";
 import { useEvent } from "../providers/EventProvider";
 import ConversationMembers from "../components/Cards/messenger/conversationMembers";
+import AcceptingConversation from "../components/Cards/messenger/AcceptingConversation";
 
 
 const LIMIT = 10;
@@ -27,9 +28,10 @@ export default function Conversation({ navigation, route }) {
     const [sima, setSima] = useState();
     const [members, setMembers] = useState(route.params?.members);
     const [conversation, setConversation] = useState(route.params?.conversation);
-    const isGroup = route.params?.conversation?.type == "group"; 
-    
+    const isGroup = route.params?.conversation?.type == "group";
+    const isArchived = route.params?.archived ; 
 
+    const [isReadable , setIsReadable] = useState(null) ; 
     const [sender, setSender] = useState(null);
     const auth = useContext(AuthContext);
     const client = useContext(ApolloContext);
@@ -38,12 +40,10 @@ export default function Conversation({ navigation, route }) {
 
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
-
     const list = useRef();
 
     const event = useEvent();
     const [memberLastSeen, setMemberLastSeen] = useState(route.params?.conversation?.members[0]?.lastSeenAt);
-    
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
@@ -109,7 +109,7 @@ export default function Conversation({ navigation, route }) {
 
     useEffect(() => {
 
-        const onNewMessage = ( newMessage ) => { 
+        const onNewMessage = (newMessage) => {
             if (newMessage.media) {
                 newMessage.media.uri = getMediaUri(newMessage.media.path);
             }
@@ -117,25 +117,25 @@ export default function Conversation({ navigation, route }) {
             newMessage.sender = members[index].user
 
             setMessages([newMessage, ...messages]);
-            seeConversation(conversation.id) ; 
-        } 
+            seeConversation(conversation.id);
+        }
 
 
-        const onConversationSaw = (conversationMember) => { 
+        const onConversationSaw = (conversationMember) => {
             setMemberLastSeen(conversationMember.lastSeenAt);
         }
 
 
         if (conversation) {
-            realTime.addListener("NEW_MESSAGE_CONVERSATION_" + conversation.id,onNewMessage) ; 
-            realTime.addListener("CONVERSATION_SAW_" + conversation.id , onConversationSaw) ; 
+            realTime.addListener("NEW_MESSAGE_CONVERSATION_" + conversation.id, onNewMessage);
+            realTime.addListener("CONVERSATION_SAW_" + conversation.id, onConversationSaw);
 
 
-            
+
 
             return () => {
-                realTime.removeListener("NEW_MESSAGE_CONVERSATION_" + conversation.id , onNewMessage);
-                realTime.removeListener("CONVERSATION_SAW_" + conversation.id , onConversationSaw);
+                realTime.removeListener("NEW_MESSAGE_CONVERSATION_" + conversation.id, onNewMessage);
+                realTime.removeListener("CONVERSATION_SAW_" + conversation.id, onConversationSaw);
             }
         }
     }, [conversation, messages])
@@ -149,13 +149,14 @@ export default function Conversation({ navigation, route }) {
             setSender(authUser.user);
             if (!conversation) {
 
-           
+
                 client.query({
                     query: gql`
                 query GetConversation($userId: ID!) {
                     getConversation(userId: $userId) {
                         id
                         type
+                        isReadable
                         members {
                             lastSeenAt 
                             user {
@@ -173,6 +174,7 @@ export default function Conversation({ navigation, route }) {
                     }
                 }).then(async response => {
                     setConversation({ ...response.data.getConversation, members });
+                    setIsReadable(response.data.getConversation.isReadable) ; 
 
                     if (response.data.getConversation) {
                         setMemberLastSeen(
@@ -188,6 +190,9 @@ export default function Conversation({ navigation, route }) {
                     setFetchingConversation(false);
                 })
             } else {
+
+                setIsReadable(conversation.isReadable) ; 
+                  
                 setMembers(conversation.members);
 
                 loadMessages(conversation.id, authUser.user, conversation.members);
@@ -270,7 +275,7 @@ export default function Conversation({ navigation, route }) {
             }
         });
 
-    
+
         if (response) {
             return response.data.createConversation;
         }
@@ -296,7 +301,7 @@ export default function Conversation({ navigation, route }) {
             }
 
 
-         
+
             var newMessages = [];
 
             if (text) {
@@ -421,7 +426,7 @@ export default function Conversation({ navigation, route }) {
 
         })();
 
-    }, [event  , client , messages, conversation, sender]);
+    }, [event, client, messages, conversation, sender]);
 
 
     const onPickSima = useCallback((image) => {
@@ -442,17 +447,37 @@ export default function Conversation({ navigation, route }) {
 
 
 
+    const onAccept = useCallback(() => {
+
+        
+        event.emit("conversation-accepted" , {
+            ...conversation , 
+            isReadable : true 
+        } ) ; 
+        setIsReadable(true)
+    }, [isReadable , conversation]);
+
+
+    const onBlock = useCallback(() => {
+
+    }, [])
+
+
+    const onRefuse = useCallback(() => {
+
+    }, [])
+
 
     return (
         <ImageBackground style={styles.container} source={sima}>
             {
-                !isGroup &&  members && 
-                <ConversationHeader lightContent={sima != null} user={members[0].user} onPickSima={onPickSima} />
+                !isGroup && members &&
+                <ConversationHeader isArchived = { isArchived } lightContent={sima != null} user={members[0].user} onPickSima={onPickSima} conversation = { conversation } />
             }
-            { 
-                isGroup && members && 
-                <ConversationHeader lightContent={sima != null} members={members} onPickSima={onPickSima} />
-                
+            {
+                isGroup && members &&
+                <ConversationHeader isArchived = { isArchived } lightContent={sima != null} members={members} onPickSima={onPickSima}  conversation = { conversation }  />
+
             }
             <View style={styles.body}>
                 {
@@ -480,9 +505,15 @@ export default function Conversation({ navigation, route }) {
                 }
             </View>
             {
-                !fetchingConversation &&
+                !fetchingConversation && isReadable !== false &&
                 <View style={styles.input}>
                     <ConversartionInput onSend={onSend} />
+                </View>
+            }
+            {
+                !fetchingConversation && isReadable === false &&
+                <View style={styles.accepting}>
+                    <AcceptingConversation onAccept={onAccept} onRefuse={onRefuse} onBlock={onBlock} conversation={conversation} members={members} />
                 </View>
             }
             {
@@ -496,19 +527,16 @@ export default function Conversation({ navigation, route }) {
 const lightStyles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "white" , 
-        position : "relative"
+        backgroundColor: "white",
+        position: "relative"
     },
     body: {
-        flex: 2, 
+        flex: 2,
     },
-    input: { 
-        
-    
-    },
+    input: {},
+    accepting: {
 
-
-
+    }
 })
 
 const darkStyles = {

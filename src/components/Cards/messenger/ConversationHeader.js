@@ -2,7 +2,7 @@ import { Text, StyleSheet, View, TouchableOpacity, Image, Modal } from "react-na
 import { Entypo, AntDesign } from '@expo/vector-icons';
 import { textFonts } from "../../../design-system/font";
 import { FontAwesome } from '@expo/vector-icons';
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import ConversationOptions from "./ConversationOptions";
 import Slider from "../../../components/Cards/Slider";
 import SimaPicker from "./SimaPicker";
@@ -10,13 +10,15 @@ import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
 import { getMediaUri } from "../../../api";
 
-export default function ConversationHeader({ user, allowPhone = false, onPickSima, lightContent = false, members }) {
+export default function ConversationHeader({ user, allowPhone = false, onPickSima, lightContent = false, members , conversation , isArchived = false }) {
 
     const [showOptions, setShowOptions] = useState(false);
     const [showSimas, setShowSimas] = useState(false);
 
 
-
+    useEffect(() => { 
+        console.log(conversation) ; 
+    } , [conversation])
 
     const toggleOptions = useCallback(() => {
         setShowOptions(!showOptions);
@@ -46,7 +48,7 @@ export default function ConversationHeader({ user, allowPhone = false, onPickSim
             <View style={styles.container}>
                 <View style={[styles.section, { flex: 1 }]}>
                     {
-                        !allowPhone &&
+                        !allowPhone && conversation && 
                         <TouchableOpacity onPress={toggleOptions}>
                             <Entypo name="dots-three-vertical" style={[styles.headerIcon, lightContent && { color: "white" }]} />
                         </TouchableOpacity>
@@ -96,6 +98,8 @@ export default function ConversationHeader({ user, allowPhone = false, onPickSim
                         <ConversationOptions
                             onClose={toggleOptions}
                             toggleSimas={toggleSimas}
+                            conversation = { conversation }  
+                            isArchived = { isArchived }
                         />
 
                     </Modal>
@@ -184,6 +188,40 @@ export default function ConversationHeader({ user, allowPhone = false, onPickSim
                         }
                     </View>
                 </View>
+                {
+                    showOptions &&
+                    <Modal
+                        transparent
+                        onRequestClose={toggleOptions}
+                    >
+                        <ConversationOptions
+                            onClose={toggleOptions}
+                            toggleSimas={toggleSimas}
+                            conversation = { conversation }  
+                            isArchived = { isArchived }
+                        />
+
+                    </Modal>
+                }
+
+                {
+                    showSimas &&
+                    <Modal
+                        transparent
+                        onRequestClose={toggleSimas}
+                    >
+                        <Slider
+                            onClose={toggleSimas}
+                            percentage={0.1}
+
+                        >
+                            <SimaPicker
+                                onSelect={pickSima}
+                            />
+                        </Slider>
+                    </Modal>
+
+                }
             </View>
         )
 

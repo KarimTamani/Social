@@ -16,7 +16,79 @@ import LoadingActivity from "../post/loadingActivity";
 
 
 const LIMIT = 10;
-export default function ConversationsList({ openConversation, query }) {
+const LOAD_CONVERSATIONS = gql`
+query Query($query : String , $offset: Int!, $limit: Int!, $asParticipant: Boolean) {
+  getConversations(query : $query , offset: $offset, limit: $limit, asParticipant: $asParticipant) {
+      id 
+      type
+      unseenMessages 
+      members {
+          lastSeenAt 
+          user {
+              id name lastname username
+              profilePicture {
+                  id path 
+              }
+              isActive 
+              lastActiveAt 
+          }
+      }
+      simat {
+        id
+        path
+      }
+      isReadable
+      messages {
+        id
+        type 
+        sender {
+            id name lastname  
+        }
+        content
+        createdAt
+      }
+  }
+} `;
+
+
+const LOAD_ARCHIVED_CONVERSATIONS = gql`
+query Query($offset: Int!, $limit: Int!) {
+    getArchivedConversations(offset: $offset, limit: $limit) {
+        id 
+        type
+        unseenMessages 
+        isArchived
+        members {
+            lastSeenAt 
+            user {
+                id name lastname username
+                profilePicture {
+                    id path 
+                }
+                isActive 
+                lastActiveAt 
+            }
+        }
+        simat {
+          id
+          path
+        }
+        isReadable
+        messages {
+          id
+          type 
+          sender {
+              id name lastname  
+          }
+          content
+          createdAt
+        }
+    }
+}`
+
+
+
+export default function ConversationsList({ openConversation, query, asParticipant = true, archived = false }) {
 
 
     const themeContext = useContext(ThemeContext);
@@ -37,46 +109,25 @@ export default function ConversationsList({ openConversation, query }) {
 
 
 
-    const load_conversations = async (query , previousConversations) => {
+    const load_conversations = async (query, previousConversations) => {
+
+
+
 
         client.query({
-            query: gql`
-          query Query($query : String , $offset: Int!, $limit: Int!) {
-            getConversations(query : $query , offset: $offset, limit: $limit) {
-                id 
-                type
-                unseenMessages 
-                members {
-                    lastSeenAt 
-                    user {
-                        id name lastname username
-                        profilePicture {
-                            id path 
-                        }
-                        isActive 
-                        lastActiveAt 
-                    }
-                }
-                    messages {
-                        id
-                        type 
-                        sender {
-                            id name lastname  
-                        }
-                        content
-                        createdAt
-                }
-            }
-        } 
-            ` ,
+            query: archived ? LOAD_ARCHIVED_CONVERSATIONS : LOAD_CONVERSATIONS,
             variables: {
                 offset: previousConversations.filter(conversation => conversation.type != "loading").length,
-                limit: LIMIT , 
-                query : query , 
+                limit: LIMIT,
+                query: query,
+                asParticipant
             }
         }).then(async response => {
+            
+      
             var userAuth = await auth.getUserAuth();
-            var newConversations = response.data.getConversations;
+
+            var newConversations = response.data.getConversations || response.data.getArchivedConversations;
 
             if (userAuth && userAuth.user) {
                 const sender = userAuth.user;
@@ -101,27 +152,17 @@ export default function ConversationsList({ openConversation, query }) {
                     const lastSeenAt = newConversations[index].members[0].lastSeenAt;
                     var message = newConversations[index].messages[0];
                     message.seen = lastSeenAt >= message.createdAt;
-
-
                 }
             }
 
-
             if (newConversations.length < LIMIT)
                 setEnd(true)
-
-
-
-
-
             setConversations([...previousConversations.filter(conversation => conversation.type != "loading"), ...newConversations]);
-
-
             setFirstFetch(false);
             setLoading(false);
 
         }).catch(error => {
-
+            console.log(error) ; 
 
             setLoading(false);
             setFirstFetch(false);
@@ -158,7 +199,7 @@ export default function ConversationsList({ openConversation, query }) {
 
     useEffect(() => {
         if (loading) {
-            load_conversations( query , conversations);
+            load_conversations(query, conversations);
         }
     }, [loading])
 
@@ -166,81 +207,104 @@ export default function ConversationsList({ openConversation, query }) {
     useEffect(() => {
 
 
-        if (conversations && conversations.length > 0) {
-
-
-
-            event.on("conversation-seen", (conversationId) => {
-                var index = conversations.findIndex(conversation => conversation.id == conversationId);
-                if (index >= 0) {
-                    conversations[index].unseenMessages = 0;
-                    setConversations([...conversations]);
-                }
-            });
-
-            event.on("message-sent", (message) => {
-                const conversationId = message.conversationId;
-                const index = conversations.findIndex(conversation => conversation.id == conversationId);
-                if (index >= 0) {
-
-                    conversations[index].messages = [message];
-                    var member = conversations[index].members && conversations[index].members[0]
-                    message.seen = member.lastSeenAt >= message.createdAt;
-
-                    var updatedConversation = conversations[index];
-
-                    conversations.splice(index, 1);
-                    conversations.splice(0, 0, updatedConversation);
-
-                    setConversations([...conversations]);
-                }
-            });
-
-            realTime.on("NEW_MESSAGE", (message) => {
-
-                const conversationId = message.conversationId;
-                const index = conversations.findIndex(conversation => conversation.id == conversationId);
-                if (index >= 0) {
-                    conversations[index].messages = [message];
-                    conversations[index].unseenMessages = conversations[index].unseenMessages + 1;
-
-                    var updatedConversation = conversations[index];
-
-                    conversations.splice(index, 1);
-                    conversations.splice(0, 0, updatedConversation);
-                    setConversations([...conversations]);
-                }
-            })
-
-            realTime.on("CONVERSATION_SAW", (conversationMember) => {
-
-
-                const conversationId = conversationMember.conversationId;
-                const index = conversations.findIndex(conversation => conversation.id == conversationId);
-                if (index >= 0) {
-                    var conversation = conversations[index];
-                    if (conversation.messages.length != 0 && conversation.messages[0].seen === false) {
-                        conversation.messages[0].seen = true;
-
-
-                        const membersIndex = conversation.members.findIndex(member => member.user.id == conversationMember.userId);
-                        conversation.members[membersIndex].lastSeenAt = conversationMember.lastSeenAt;
-
-                        setConversations([...conversations]);
-                    }
-                }
-            })
-
-            return () => {
-
-                event.off("conversation-seen");
-                event.off("message-sent");
-                realTime.off("NEW_MESSAGE");
-                realTime.off("CONVERSATION_SAW");
+        const conversationSeen = (conversationId) => {
+            var index = conversations.findIndex(conversation => conversation.id == conversationId);
+            if (index >= 0) {
+                conversations[index].unseenMessages = 0;
+                setConversations([...conversations]);
             }
         }
 
+        const messageSent = (message) => {
+            const conversationId = message.conversationId;
+            const index = conversations.findIndex(conversation => conversation.id == conversationId);
+            if (index >= 0) {
+
+                conversations[index].messages = [message];
+                var member = conversations[index].members && conversations[index].members[0]
+                message.seen = member.lastSeenAt >= message.createdAt;
+
+                var updatedConversation = conversations[index];
+
+                conversations.splice(index, 1);
+                conversations.splice(0, 0, updatedConversation);
+
+                setConversations([...conversations]);
+            }
+        }
+
+
+        const newMessage = (message) => {
+            const conversationId = message.conversationId;
+            const index = conversations.findIndex(conversation => conversation.id == conversationId);
+            if (index >= 0) {
+                conversations[index].messages = [message];
+                conversations[index].unseenMessages = conversations[index].unseenMessages + 1;
+
+                var updatedConversation = conversations[index];
+
+                conversations.splice(index, 1);
+                conversations.splice(0, 0, updatedConversation);
+                setConversations([...conversations]);
+            }
+        }
+
+
+        const conversationSaw = (conversationMember) => {
+            const conversationId = conversationMember.conversationId;
+            const index = conversations.findIndex(conversation => conversation.id == conversationId);
+            if (index >= 0) {
+                var conversation = conversations[index];
+                if (conversation.messages.length != 0 && conversation.messages[0].seen === false) {
+                    conversation.messages[0].seen = true;
+
+
+                    const membersIndex = conversation.members.findIndex(member => member.user.id == conversationMember.userId);
+                    conversation.members[membersIndex].lastSeenAt = conversationMember.lastSeenAt;
+
+                    setConversations([...conversations]);
+                }
+            }
+        }
+        const conversationAccepted = (conversation) => {
+            const index = conversations.findIndex(c => c.id == conversation.id);
+            if (index >= 0) {
+                var cloneConversations = [...conversations];
+                cloneConversations.splice(index, 1);
+                setConversations(cloneConversations);
+
+            } else {
+                setConversations([conversation, ...conversations]);
+            }
+        }
+
+
+        event.addListener("conversation-seen", conversationSeen);
+        event.addListener("message-sent", messageSent);
+        realTime.addListener("NEW_MESSAGE", newMessage)
+        realTime.addListener("CONVERSATION_SAW", conversationSaw);
+        event.addListener("conversation-accepted", conversationAccepted);
+
+
+        return () => {
+
+            event.removeListener("conversation-seen", conversationSeen);
+            event.removeListener("message-sent", messageSent);
+            realTime.removeListener("NEW_MESSAGE", newMessage)
+            realTime.removeListener("CONVERSATION_SAW", conversationSaw);
+
+            event.removeListener("conversation-accepted", conversationAccepted);
+
+
+        }
+
+
+
+
     }, [conversations])
+
+
+
 
 
     const renderItem = useCallback(({ item }) => {
@@ -290,7 +354,7 @@ export default function ConversationsList({ openConversation, query }) {
                     }
                     {
                         item.type == "group" && item.members.length > 0 &&
-                        <View style={[styles.groupMembers , item.members.length == 2 && {width : 64}]}>
+                        <View style={[styles.groupMembers, item.members.length == 2 && { width: 64 }]}>
                             {
                                 item.members.slice(0, 3).map(({ user }, index) => (
                                     user.profilePicture ?
@@ -591,3 +655,6 @@ const darkStyles = {
         paddingBottom: 16
     },
 }
+
+
+

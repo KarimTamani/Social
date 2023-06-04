@@ -9,10 +9,6 @@ const WIDTH = Dimensions.get("screen").width;
 const CLOSE = - WIDTH * 80 / 100;
 const OPEN = 0
 
-/*
-
-
-*/
 
 export default function MessengerDrawer({ toggleDrawer , navigation }) {
 
@@ -31,7 +27,11 @@ export default function MessengerDrawer({ toggleDrawer , navigation }) {
         },
         {
             text: "الدردشات المؤرشفة",
-            icon: require("../../../assets/icons/closeRectangle.png")
+            icon: require("../../../assets/icons/closeRectangle.png") , 
+            onPress : useCallback(() => {
+                navigation.navigate("ArchivedConversations") ; 
+                toggleDrawer() ; 
+            } , [navigation])
         },
         {
             text: "حالة النشاط",

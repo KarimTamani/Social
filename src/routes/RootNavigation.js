@@ -34,6 +34,7 @@ import { AuthContext } from "../providers/AuthContext";
 import Favorites from "../screens/Favorites";
 import HashTag from "../screens/HashTag";
 import EditPost from "../screens/EditPost";
+import ArchivedConversations from "../components/Cards/messenger/ArchivedConversations";
 
 const Stack = createStackNavigator();
 
@@ -98,6 +99,7 @@ export default function RootNavigation({ initialRouteName = "AuthRoute" }) {
                 <Stack.Screen name="ImageViewer" component={ImageViewer} />
                 <Stack.Screen name="Conversation" component={Conversation} />
                 <Stack.Screen name="Messenger" component={Messenger} />
+                <Stack.Screen name="ArchivedConversations" component={ArchivedConversations} />
                 <Stack.Screen name='Profile' component={Profile} />
                 <Stack.Screen name="EditProfile" component={EditProfile} />
                 <Stack.Screen name="MessageRequests" component={MessageRequests} />
