@@ -4,6 +4,8 @@ import PrimaryButton from "../../Buttons/PrimaryButton";
 import { textFonts } from "../../../design-system/font";
 import { ApolloContext } from "../../../providers/ApolloContext";
 import { gql } from "@apollo/client";
+import ThemeContext from "../../../providers/ThemeContext";
+import darkTheme from "../../../design-system/darkTheme";
 
 export default function AcceptingConversation({ conversation, members, onAccept, onRefuse, onBlock }) {
 
@@ -17,6 +19,8 @@ export default function AcceptingConversation({ conversation, members, onAccept,
     const [isRefusing, setIsRefusing] = useState(false);
     
     const client = useContext(ApolloContext) ; 
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
 
 
@@ -153,7 +157,7 @@ export default function AcceptingConversation({ conversation, members, onAccept,
 }
 
 
-const styles = StyleSheet.create({
+const lightStyles = StyleSheet.create({
     container: {
         alignItems: "center",
         padding: 16
@@ -178,4 +182,16 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginBottom: 16
     }
-})
+}) ; 
+
+
+const darkStyles = { 
+    ...lightStyles , 
+    headerText: {
+        fontFamily: textFonts.regular,
+        fontSize: 16,
+        marginBottom: 16 , 
+        color : darkTheme.textColor 
+    }
+    
+}

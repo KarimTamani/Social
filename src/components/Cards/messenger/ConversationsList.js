@@ -185,8 +185,6 @@ export default function ConversationsList({ openConversation, query, asParticipa
 
     useEffect(() => {
         setFirstFetch(true);
-
-
         setFirstFetch(true);
         setEnd(false);
         setLoading(false);
@@ -279,12 +277,27 @@ export default function ConversationsList({ openConversation, query, asParticipa
         }
 
 
+        const simatChanged = ( conversationId , simat )  => {
+
+            const index = conversations.findIndex(conversation => conversation.id == conversationId ) ; 
+            if (index >= 0) { 
+                var cloneConversations = [...conversations];
+                
+                cloneConversations[index] = {
+                    ...cloneConversations[index] , 
+                    simat : simat
+                } 
+                setConversations(cloneConversations);
+            }
+        }
+
+
         event.addListener("conversation-seen", conversationSeen);
         event.addListener("message-sent", messageSent);
         realTime.addListener("NEW_MESSAGE", newMessage)
         realTime.addListener("CONVERSATION_SAW", conversationSaw);
         event.addListener("conversation-accepted", conversationAccepted);
-
+        event.addListener("simat-changed" , simatChanged) ; 
 
         return () => {
 
@@ -294,7 +307,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
             realTime.removeListener("CONVERSATION_SAW", conversationSaw);
 
             event.removeListener("conversation-accepted", conversationAccepted);
-
+            event.removeListener("simat-changed" , simatChanged)  ; 
 
         }
 

@@ -29,9 +29,9 @@ export default function Conversation({ navigation, route }) {
     const [members, setMembers] = useState(route.params?.members);
     const [conversation, setConversation] = useState(route.params?.conversation);
     const isGroup = route.params?.conversation?.type == "group";
-    const isArchived = route.params?.archived ; 
+    const isArchived = route.params?.archived;
 
-    const [isReadable , setIsReadable] = useState(null) ; 
+    const [isReadable, setIsReadable] = useState(null);
     const [sender, setSender] = useState(null);
     const auth = useContext(AuthContext);
     const client = useContext(ApolloContext);
@@ -47,6 +47,9 @@ export default function Conversation({ navigation, route }) {
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
+    
+
+ 
 
     const loadMessages = async (conversationId, sender, members) => {
 
@@ -141,6 +144,9 @@ export default function Conversation({ navigation, route }) {
     }, [conversation, messages])
 
 
+
+
+
     useEffect(() => {
 
 
@@ -157,6 +163,9 @@ export default function Conversation({ navigation, route }) {
                         id
                         type
                         isReadable
+                        simat {
+                            id path 
+                        }
                         members {
                             lastSeenAt 
                             user {
@@ -173,14 +182,27 @@ export default function Conversation({ navigation, route }) {
                         userId: members[0].user.id
                     }
                 }).then(async response => {
-                    setConversation({ ...response.data.getConversation, members });
-                    setIsReadable(response.data.getConversation.isReadable) ; 
 
-                    if (response.data.getConversation) {
+                    var loadedConversation = response.data.getConversation ; 
+                    setConversation({ ...loadedConversation, members });
+                  
+                    if (loadedConversation) {
+
+                
+                        setIsReadable(loadedConversation.isReadable);
+                        if (loadedConversation.simat) {
+                            setSima({
+                                ...loadedConversation.simat,
+                                uri: getMediaUri(loadedConversation.simat.path)
+                            });
+    
+    
+                        }
+
                         setMemberLastSeen(
-                            response.data.getConversation.members[0] && response.data.getConversation.members[0].lastSeenAt
+                            loadedConversation.members[0] && loadedConversation.members[0].lastSeenAt
                         );
-                        var conversationId = response.data.getConversation.id;
+                        var conversationId = loadedConversation.id;
                         loadMessages(conversationId, authUser.user, members);
                         seeConversation(conversationId);
 
@@ -191,8 +213,15 @@ export default function Conversation({ navigation, route }) {
                 })
             } else {
 
-                setIsReadable(conversation.isReadable) ; 
-                  
+                setIsReadable(conversation.isReadable);
+                if (conversation.simat) {
+                    setSima({
+                        ...conversation.simat,
+                        uri: getMediaUri(conversation.simat.path)
+                    });
+
+
+                }
                 setMembers(conversation.members);
 
                 loadMessages(conversation.id, authUser.user, conversation.members);
@@ -201,6 +230,46 @@ export default function Conversation({ navigation, route }) {
             }
         })()
     }, []);
+
+
+    useEffect(() => {
+        if (conversation) { 
+
+            const subscription = client.subscribe({
+                query : gql`
+                subscription Subscription($conversationId: ID!) {
+                    simatChanged(conversationId: $conversationId) {
+                      id
+                      path
+                    }
+                }` , 
+
+                variables : { 
+                    conversationId : conversation.id 
+                }
+            }).subscribe((response) => { 
+                if (response && response.data) { 
+                    var newSimat = response.data.simatChanged   ; 
+
+
+                    if (newSimat) { 
+                        setSima({ 
+                            ...newSimat , 
+                            uri : getMediaUri(newSimat.path)  
+                        }) 
+                    }else { 
+                        setSima(null) ; 
+                    }
+                }
+                 
+            })
+
+
+            return () => { 
+                subscription.unsubscribe() ; 
+            }
+        }
+    } , [conversation])
 
 
     const seeConversation = (conversationId) => {
@@ -430,6 +499,27 @@ export default function Conversation({ navigation, route }) {
 
 
     const onPickSima = useCallback((image) => {
+
+        client.mutate({
+            mutation: gql`
+            mutation Mutation($conversationId: ID!, $simatId: ID) {
+                applySimat(conversationId: $conversationId, simatId: $simatId) {
+                  id
+                }
+            }` ,
+            variables: {
+                simatId: (image) ? image.id : null,
+                conversationId: conversation.id
+            }
+        }).then(response => {
+            if (response) { 
+
+                event.emit("simat-changed" ,  conversation.id , image ) ; 
+            }
+        }).catch(error => {
+
+            setSima(null);
+        })
         setSima(image);
     }, [])
 
@@ -449,13 +539,13 @@ export default function Conversation({ navigation, route }) {
 
     const onAccept = useCallback(() => {
 
-        
-        event.emit("conversation-accepted" , {
-            ...conversation , 
-            isReadable : true 
-        } ) ; 
+
+        event.emit("conversation-accepted", {
+            ...conversation,
+            isReadable: true
+        });
         setIsReadable(true)
-    }, [isReadable , conversation]);
+    }, [isReadable, conversation]);
 
 
     const onBlock = useCallback(() => {
@@ -472,11 +562,11 @@ export default function Conversation({ navigation, route }) {
         <ImageBackground style={styles.container} source={sima}>
             {
                 !isGroup && members &&
-                <ConversationHeader isArchived = { isArchived } lightContent={sima != null} user={members[0].user} onPickSima={onPickSima} conversation = { conversation } />
+                <ConversationHeader isArchived={isArchived} lightContent={sima != null} user={members[0].user} onPickSima={onPickSima} conversation={conversation} />
             }
             {
                 isGroup && members &&
-                <ConversationHeader isArchived = { isArchived } lightContent={sima != null} members={members} onPickSima={onPickSima}  conversation = { conversation }  />
+                <ConversationHeader isArchived={isArchived} lightContent={sima != null} members={members} onPickSima={onPickSima} conversation={conversation} />
 
             }
             <View style={styles.body}>
