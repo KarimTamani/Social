@@ -110,11 +110,38 @@ export default function TimeProvider({ children }) {
 
             var currentTime = new Date(Number(timetamps));
 
-            var dateString = DAYS[currentTime.getDay()] + ', ' + currentTime.getDate() + ' ' + MONTHS[currentTime.getMonth()] + ', ' + currentTime.getFullYear();
+            var dateString =  currentTime.getDate() + ' ' + MONTHS[currentTime.getMonth()] + ' ' + currentTime.getFullYear();
 
      
             return dateString;
         },
+
+
+
+
+        getHourlyPerdiod(timetamps) { 
+            const currentTime = timing.getTime();
+            var periodTime = Math.trunc( (currentTime - timetamps) / (1000 * 60) );
+
+            if (periodTime / DAY >= 1) {
+                return timing.castTime(timetamps)
+            }
+
+
+            var timeDate = new Date(Number(timetamps)) ; 
+
+            var hours =timeDate.getHours() ; 
+            var minutes = timeDate.getMinutes()  ; 
+
+
+            if (hours < 10) 
+                hours = "0" + hours ; 
+            if (minutes < 10) 
+                minutes = "0" + minutes ; 
+            
+        
+            return `${hours}:${minutes}` ; 
+        }
 
 
 

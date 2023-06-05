@@ -13,7 +13,7 @@ import { AuthContext } from "../../../providers/AuthContext";
 import { useRealTime } from "../../../providers/RealTimeContext";
 import LoadingConversation from "../loadings/LoadingConversation";
 import LoadingActivity from "../post/loadingActivity";
-
+import { useTiming} from "../../../providers/TimeProvider" ;  
 
 const LIMIT = 10;
 const LOAD_CONVERSATIONS = gql`
@@ -107,7 +107,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
 
-
+    const timing = useTiming() ; 
 
     const load_conversations = async (query, previousConversations) => {
 
@@ -461,9 +461,9 @@ export default function ConversationsList({ openConversation, query, asParticipa
                 </View>
                 <View style={styles.info}>
                     {
-                        item.newMessages == 0 &&
+                     
                         <Text style={styles.time}>
-                            قبل ساعة
+                              {item.messages && item.messages.length > 0 &&  timing.getPeriod( item.messages[0].createdAt )    }
                         </Text>
                     }
                     {
@@ -473,7 +473,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
                         </Text>
                     }
                 </View>
-            </TouchableOpacity >
+            </TouchableOpacity>
         )
     }, [conversations, user]);
 
@@ -555,9 +555,10 @@ const lightStyles = StyleSheet.create({
 
     time: {
         color: "#888",
-        fontSize: 12,
+        fontSize: 10,
         fontFamily: textFonts.regular,
         textAlignVertical: "top",
+
 
         flex: 1
     },
@@ -636,7 +637,7 @@ const darkStyles = {
 
     time: {
         color: "#888",
-        fontSize: 12,
+        fontSize: 10,
         fontFamily: textFonts.regular,
         textAlignVertical: "top",
 

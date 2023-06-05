@@ -48,7 +48,6 @@ export default function Conversation({ navigation, route }) {
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
     
-
  
 
     const loadMessages = async (conversationId, sender, members) => {
@@ -68,6 +67,35 @@ export default function Conversation({ navigation, route }) {
                     id
                   }
                   type
+
+                  post {
+                    id 
+                    title 
+                    type 
+                    media { 
+                        id path
+                    }
+                    createdAt 
+                    numComments 
+                    liked
+                    likes  
+                    isFavorite 
+                    reel { 
+                        thumbnail { 
+                            id  path 
+                        } 
+                        views
+                    }
+                    user { 
+                        id
+                        name 
+                        lastname 
+                        profilePicture { 
+                            id path 
+                        } 
+                        validated 
+                    }
+                  }
                 }
               }
             
@@ -231,9 +259,8 @@ export default function Conversation({ navigation, route }) {
         })()
     }, []);
 
-
     useEffect(() => {
-        if (conversation) { 
+        if (conversation && conversation.id ) { 
 
             const subscription = client.subscribe({
                 query : gql`
@@ -307,10 +334,11 @@ export default function Conversation({ navigation, route }) {
                 openImage={openImage}
                 openVideo={openVideo}
                 showSender={showSender}
-                lastSeenAt={memberLastSeen}
+                lastSeenAt={memberLastSeen} 
+                navigation = {navigation }
             />
         )
-    }, [messages, sender, memberLastSeen]);
+    }, [messages, sender, memberLastSeen , navigation]);
 
 
     const keyExtractor = useCallback((item, index) => {
