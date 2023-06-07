@@ -296,7 +296,7 @@ function Post(props) {
                     onRequestClose={toggleSender}
                 >
                     <Slider onClose={toggleSender} percentage={0.3}>
-                        <Sender />
+                        <Sender postId={post.id} />
                     </Slider>
                 </Modal>
             }

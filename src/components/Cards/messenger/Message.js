@@ -356,5 +356,18 @@ const darkStyles = {
     ...lightStyles,
     whiteText: {
         color: darkTheme.textColor
-    }
+    } , 
+    postTitle: {
+        fontFamily: textFonts.regular,
+        fontSize: 10,
+        lineHeight: 16,
+        marginTop: 8 , 
+        color: darkTheme.secondaryTextColor
+    },
+    fullanme: {
+        fontFamily: textFonts.semiBold,
+        fontSize: 10,
+        paddingRight: 10 , 
+        color: darkTheme.textColor
+    },
 }

@@ -1,10 +1,10 @@
 import { View , Text , StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import { textFonts } from "../../design-system/font";
 
-export default function SmallFollowButton({text =  "متابعة" , style , textStyle , loading = false , onPress}) { 
+export default function SmallFollowButton({text =  "متابعة" , style , textStyle , loading = false , onPress , disable = false }) { 
 
     return(
-        <TouchableOpacity style={[styles.container , style ]} onPress={ onPress }>
+        <TouchableOpacity style={[styles.container , style ]} onPress={ onPress } disabled={disable}>
             {
                 !loading &&
                 <Text style={[styles.buttonText , textStyle]}>

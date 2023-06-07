@@ -13,7 +13,7 @@ import { AuthContext } from "../../../providers/AuthContext";
 import { useRealTime } from "../../../providers/RealTimeContext";
 import LoadingConversation from "../loadings/LoadingConversation";
 import LoadingActivity from "../post/loadingActivity";
-import { useTiming} from "../../../providers/TimeProvider" ;  
+import { useTiming } from "../../../providers/TimeProvider";
 
 const LIMIT = 10;
 const LOAD_CONVERSATIONS = gql`
@@ -107,7 +107,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
 
-    const timing = useTiming() ; 
+    const timing = useTiming();
 
     const load_conversations = async (query, previousConversations) => {
 
@@ -123,8 +123,8 @@ export default function ConversationsList({ openConversation, query, asParticipa
                 asParticipant
             }
         }).then(async response => {
-            
-      
+
+
             var userAuth = await auth.getUserAuth();
 
             var newConversations = response.data.getConversations || response.data.getArchivedConversations;
@@ -162,7 +162,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
             setLoading(false);
 
         }).catch(error => {
-            console.log(error) ; 
+            console.log(error);
 
             setLoading(false);
             setFirstFetch(false);
@@ -277,16 +277,16 @@ export default function ConversationsList({ openConversation, query, asParticipa
         }
 
 
-        const simatChanged = ( conversationId , simat )  => {
+        const simatChanged = (conversationId, simat) => {
 
-            const index = conversations.findIndex(conversation => conversation.id == conversationId ) ; 
-            if (index >= 0) { 
+            const index = conversations.findIndex(conversation => conversation.id == conversationId);
+            if (index >= 0) {
                 var cloneConversations = [...conversations];
-                
+
                 cloneConversations[index] = {
-                    ...cloneConversations[index] , 
-                    simat : simat
-                } 
+                    ...cloneConversations[index],
+                    simat: simat
+                }
                 setConversations(cloneConversations);
             }
         }
@@ -297,7 +297,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
         realTime.addListener("NEW_MESSAGE", newMessage)
         realTime.addListener("CONVERSATION_SAW", conversationSaw);
         event.addListener("conversation-accepted", conversationAccepted);
-        event.addListener("simat-changed" , simatChanged) ; 
+        event.addListener("simat-changed", simatChanged);
 
         return () => {
 
@@ -307,7 +307,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
             realTime.removeListener("CONVERSATION_SAW", conversationSaw);
 
             event.removeListener("conversation-accepted", conversationAccepted);
-            event.removeListener("simat-changed" , simatChanged)  ; 
+            event.removeListener("simat-changed", simatChanged);
 
         }
 
@@ -456,14 +456,28 @@ export default function ConversationsList({ openConversation, query, asParticipa
                                 مجموعة جديدة
                             </Text>
                         }
+                        {
+                            item.messages && item.messages.length > 0 && item.messages[0].type == "post" && myMessage &&
+                            <Text style={[styles.lastMessage, item.unseenMessages > 0 && styles.unseen.message]}>
+                                قمت بمشاركة منشور
+                            </Text>
+
+                        }
+                        {
+                            item.messages && item.messages.length > 0 && item.messages[0].type == "post" && !myMessage &&
+                            <Text style={[styles.lastMessage, item.unseenMessages > 0 && styles.unseen.message]}>
+                            قام بمشاركة منشور
+                            </Text>
+
+                        }
 
                     </View>
                 </View>
                 <View style={styles.info}>
                     {
-                     
+
                         <Text style={styles.time}>
-                              {item.messages && item.messages.length > 0 &&  timing.getPeriod( item.messages[0].createdAt )    }
+                            {item.messages && item.messages.length > 0 && timing.getPeriod(item.messages[0].createdAt)}
                         </Text>
                     }
                     {
@@ -478,23 +492,13 @@ export default function ConversationsList({ openConversation, query, asParticipa
     }, [conversations, user]);
 
     const keyExtractor = useCallback((item, index) => {
-        return index;
+        return item.id;
     }, []);
-
-
     const reachEnd = useCallback(() => {
-
-
-
         if (!loading && !end && !firstFetch) {
-
-
             setConversations([...conversations, { id: 0, type: "loading" }])
             setLoading(true);
-
         }
-
-
     }, [loading, conversations, end, firstFetch])
 
     return (
@@ -522,7 +526,8 @@ const lightStyles = StyleSheet.create({
     container: {
         flex: 1,
 
-    }, active: {
+    }
+    , active: {
         backgroundColor: "#00FF00",
         width: 16,
         height: 16,

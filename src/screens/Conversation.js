@@ -147,6 +147,7 @@ export default function Conversation({ navigation, route }) {
             const index = members.findIndex(member => member.user.id == newMessage.sender.id);
             newMessage.sender = members[index].user
 
+            console.log(newMessage) ; 
             setMessages([newMessage, ...messages]);
             seeConversation(conversation.id);
         }
@@ -160,9 +161,6 @@ export default function Conversation({ navigation, route }) {
         if (conversation) {
             realTime.addListener("NEW_MESSAGE_CONVERSATION_" + conversation.id, onNewMessage);
             realTime.addListener("CONVERSATION_SAW_" + conversation.id, onConversationSaw);
-
-
-
 
             return () => {
                 realTime.removeListener("NEW_MESSAGE_CONVERSATION_" + conversation.id, onNewMessage);

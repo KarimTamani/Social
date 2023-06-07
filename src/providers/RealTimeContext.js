@@ -62,6 +62,34 @@ const RealTimeProvider = ({ children, userAuth }) => {
                             sender {
                                 id
                             }
+                            post {
+                              id 
+                              title 
+                              type 
+                              media { 
+                                  id path
+                              }
+                              createdAt 
+                              numComments 
+                              liked
+                              likes  
+                              isFavorite 
+                              reel { 
+                                  thumbnail { 
+                                      id  path 
+                                  } 
+                                  views
+                              }
+                              user { 
+                                  id
+                                  name 
+                                  lastname 
+                                  profilePicture { 
+                                      id path 
+                                  } 
+                                  validated 
+                              }
+                            }
                             type
                         }
                     }
@@ -248,6 +276,7 @@ const RealTimeProvider = ({ children, userAuth }) => {
                                 path
                               }
                             }
+                             
                             user {
                               id
                               lastname
