@@ -71,13 +71,33 @@ export default function AcceptingConversation({ conversation, members, onAccept,
     }, [conversation, members, isGroup]);
 
     const refuse = useCallback(() => {
-
-
-        onRefuse && onRefuse()
-    }, [conversation, members, isGroup]);
+        if (conversation ) {
+            setIsRefusing(true) ; 
+            client.mutate({
+                mutation: gql`
+                mutation DeleteConversation($conversationId: ID!) {
+                    deleteConversation(conversationId: $conversationId) {
+                      id 
+                      type 
+                     
+                    }
+                  }
+                ` ,
+                variables: {
+                    conversationId: conversation.id
+                }
+            }).then(response => {
+                setIsRefusing(false) ; 
+                if (response) {
+                    onRefuse && onRefuse() ;  
+                }
+            }).catch(error => {  
+                setIsRefusing(false) ; 
+            })
+        }
+    }, [conversation]);
 
     const block = useCallback(() => {
-
         onBlock && onBlock();
     }, [conversation, members, isGroup])
 
@@ -165,7 +185,6 @@ const lightStyles = StyleSheet.create({
     buttons: {
         flexDirection: "row-reverse",
         borderRadius: 48,
-
         overflow: "hidden"
     },
 

@@ -44,14 +44,14 @@ export default function App() {
         I18nManager.allowRTL(false);
         return await Updates.reloadAsync();
       }
-
+      /*
       await loadAsync({
         "Noto-Regular": require("./src/assets/fonts/NotoSansArabic-Regular.ttf"),
         "Noto-Medium": require("./src/assets/fonts/NotoSansArabic-Medium.ttf"),
         "Noto-SemiBold": require("./src/assets/fonts/NotoSansArabic-SemiBold.ttf"),
         "Noto-Bold": require("./src/assets/fonts/NotoSansArabic-Bold.ttf"),
       });
-
+      */
       const storedTheme = await AsyncStorage.getItem("theme");
 
       if (storedTheme) {

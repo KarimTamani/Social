@@ -1,20 +1,45 @@
-import { useCallback, useContext, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
 import darkTheme from "../../../design-system/darkTheme";
 import { textFonts } from "../../../design-system/font";
 import ThemeContext from "../../../providers/ThemeContext";
 import LoadingModal from "../loadings/LoadingModal";
-import {ApolloContext} from "../../../providers/ApolloContext";
+import { ApolloContext } from "../../../providers/ApolloContext";
 import { gql } from "@apollo/client";
+import Confirmation from "../Confirmation";
+import { useEvent } from "../../../providers/EventProvider";
 
-export default function ConversationOptions({ onClose, toggleSimas, conversation , isArchived = false }) {
+export default function ConversationOptions({ navigation, onClose, toggleSimas, conversation, isArchived = false }) {
 
 
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
     const [loading, setLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState(null);
-    const client = useContext(ApolloContext)
+    const client = useContext(ApolloContext);
+
+
+    const [title, setTitle] = useState("");
+    const [message, setMessage] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [showDeletingConfirmation, setShowDeletingConfirmation] = useState(false);
+    const event = useEvent()
+
+
+    useEffect(() => {
+
+        if (conversation) {
+            if (conversation.type == "group") {
+                setTitle("خروج من المجموعة");
+                setMessage("هل فعلا تريد الخروج من هذه المجموعة ؟")
+            } else {
+                setTitle("حذف المحادثة");
+                setMessage("هل انت متأكد من حذف هذه  المحادثة ؟")
+
+            }
+        }
+    }, [conversation])
+
 
     const archiveConversation = useCallback(() => {
         if (conversation) {
@@ -31,7 +56,7 @@ export default function ConversationOptions({ onClose, toggleSimas, conversation
                     conversationId: conversation.id
                 }
             }).then(response => {
-                
+
                 setLoading(false);
             }).catch(error => {
                 setLoading(false);
@@ -39,11 +64,11 @@ export default function ConversationOptions({ onClose, toggleSimas, conversation
         }
 
 
-    }, [conversation]) ; 
+    }, [conversation]);
 
 
-    const unArchiveConversation = useCallback(() => { 
-        if (conversation) { 
+    const unArchiveConversation = useCallback(() => {
+        if (conversation) {
             setLoading(true);
             setLoadingMessage("ازالة المحادثة من المحفوظات ...")
             client.mutate({
@@ -57,13 +82,58 @@ export default function ConversationOptions({ onClose, toggleSimas, conversation
                     conversationId: conversation.id
                 }
             }).then(response => {
-                
+
                 setLoading(false);
             }).catch(error => {
                 setLoading(false);
             })
         }
-    } , [ conversation])
+    }, [conversation]);
+
+
+    const deleteConversation = useCallback(() => {
+
+        if (conversation && navigation) {
+
+            setIsDeleting(true) ; 
+            client.mutate({
+                mutation: gql`
+                mutation DeleteConversation($conversationId: ID!) {
+                    deleteConversation(conversationId: $conversationId) {
+                      id 
+                      type 
+                     
+                    }
+                  }
+                ` ,
+                variables: {
+                    conversationId: conversation.id
+                }
+            }).then(response => {
+                console.log(response) ; 
+                setIsDeleting(false) ; 
+                setShowDeletingConfirmation( false) ; 
+                if (response) {
+                    event.emit("delete-conversation", conversation.id);
+                    navigation.navigate('Messenger')                    
+                }
+            }).catch(error => {
+                setIsDeleting(false) ; 
+            })
+
+
+
+        }
+    }, [conversation, navigation]);
+
+
+
+    const toggleDeletConfirmation = useCallback(() => {
+        setShowDeletingConfirmation(!showDeletingConfirmation);
+    }, [showDeletingConfirmation])
+
+
+
 
     const options = [
         {
@@ -72,17 +142,18 @@ export default function ConversationOptions({ onClose, toggleSimas, conversation
         {
             text: "ابلاغ"
         },
-        
-        
+
+
         (!isArchived) ? {
             text: "حفظ المحادثة",
             onPress: archiveConversation
-        } :  {
+        } : {
             text: "ازالة المحادثة من المحفوظات",
             onPress: unArchiveConversation
-        } ,
+        },
         {
-            text: "حذف المحادتة"
+            text: "حذف المحادتة",
+            onPress: toggleDeletConfirmation
         },
         {
             text: "تغيير السمة",
@@ -122,6 +193,24 @@ export default function ConversationOptions({ onClose, toggleSimas, conversation
                     loadingMessage={loadingMessage}
                 />
             }
+            {
+                showDeletingConfirmation &&
+
+                <Modal
+                    transparent
+                    onRequestClose={toggleDeletConfirmation}
+                >
+                    <Confirmation
+                        title={title}
+                        message={message}
+                        loading={isDeleting}
+                        onConfirm={deleteConversation}
+
+                    />
+                </Modal>
+            }
+
+
         </TouchableOpacity>
 
     )

@@ -185,7 +185,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
 
     useEffect(() => {
         setFirstFetch(true);
-        setFirstFetch(true);
+
         setEnd(false);
         setLoading(false);
         if (query)
@@ -292,23 +292,41 @@ export default function ConversationsList({ openConversation, query, asParticipa
         }
 
 
+        const deleteConversation = (conversationId) => {
+            const index = conversations.findIndex(conversation => conversation.id == conversationId)
+            if (index >= 0) {
+                var cloneConversations = [...conversations];
+                cloneConversations.splice(index, 1);
+                setConversations(cloneConversations);
+
+            }
+        }
+
+
+        const groupCreated = async () => {
+            setFirstFetch(true);
+            setEnd(false);
+            setLoading(false);
+            load_conversations("", []);
+        };
+
+        event.addListener("group-created" , groupCreated)  ;
+        event.addListener("delete-conversation", deleteConversation);
         event.addListener("conversation-seen", conversationSeen);
         event.addListener("message-sent", messageSent);
         realTime.addListener("NEW_MESSAGE", newMessage)
         realTime.addListener("CONVERSATION_SAW", conversationSaw);
         event.addListener("conversation-accepted", conversationAccepted);
         event.addListener("simat-changed", simatChanged);
-
         return () => {
-
             event.removeListener("conversation-seen", conversationSeen);
             event.removeListener("message-sent", messageSent);
             realTime.removeListener("NEW_MESSAGE", newMessage)
             realTime.removeListener("CONVERSATION_SAW", conversationSaw);
-
+            event.removeListener("delete-conversation", deleteConversation);
             event.removeListener("conversation-accepted", conversationAccepted);
             event.removeListener("simat-changed", simatChanged);
-
+            event.removeListener("group-created" , groupCreated)  ;
         }
 
 
@@ -466,7 +484,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
                         {
                             item.messages && item.messages.length > 0 && item.messages[0].type == "post" && !myMessage &&
                             <Text style={[styles.lastMessage, item.unseenMessages > 0 && styles.unseen.message]}>
-                            قام بمشاركة منشور
+                                قام بمشاركة منشور
                             </Text>
 
                         }

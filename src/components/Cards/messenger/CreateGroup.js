@@ -11,6 +11,7 @@ import { ApolloContext } from "../../../providers/ApolloContext";
 import { gql } from "@apollo/client";
 import { getMediaUri } from "../../../api";
 import LoadingActivity from "../post/loadingActivity";
+import { useEvent } from "../../../providers/EventProvider";
 
 
 const LIMIT = 10;
@@ -33,12 +34,15 @@ export default function CreateGroup({ navigation }) {
     const [isCreating, setIsCreating] = useState(false);
 
 
+    
+    const event = useEvent() ; 
+    
     const load_users = async (previousUsers, previousFollowers, previousFollowings, query) => {
 
         const followersOffset = previousFollowers.length;
         const followingOffset = previousFollowings.length;
 
-
+    
         client.query({
             query: gql`
             
@@ -234,13 +238,7 @@ export default function CreateGroup({ navigation }) {
        
             if (response) {
 
-                var group = response.data.createGroup;
-                group.members = members.map(member => ({
-                    user : member 
-                })); 
-
-                group.messages = [];
-
+                event.emit("group-created") ; 
                 setIsCreating( false ) ; 
                 navigation && navigation.goBack()
             }

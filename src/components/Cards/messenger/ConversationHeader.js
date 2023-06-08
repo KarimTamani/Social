@@ -10,15 +10,12 @@ import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
 import { getMediaUri } from "../../../api";
 
-export default function ConversationHeader({ user, allowPhone = false, onPickSima, lightContent = false, members , conversation , isArchived = false }) {
+export default function ConversationHeader({ navigation , user, allowPhone = false, onPickSima, lightContent = false, members , conversation , isArchived = false }) {
 
     const [showOptions, setShowOptions] = useState(false);
     const [showSimas, setShowSimas] = useState(false);
 
-
-    useEffect(() => { 
-        console.log(conversation) ; 
-    } , [conversation])
+ 
 
     const toggleOptions = useCallback(() => {
         setShowOptions(!showOptions);
@@ -100,6 +97,7 @@ export default function ConversationHeader({ user, allowPhone = false, onPickSim
                             toggleSimas={toggleSimas}
                             conversation = { conversation }  
                             isArchived = { isArchived }
+                            navigation = { navigation }
                         />
 
                     </Modal>
@@ -199,6 +197,7 @@ export default function ConversationHeader({ user, allowPhone = false, onPickSim
                             toggleSimas={toggleSimas}
                             conversation = { conversation }  
                             isArchived = { isArchived }
+                            navigation = { navigation }
                         />
 
                     </Modal>

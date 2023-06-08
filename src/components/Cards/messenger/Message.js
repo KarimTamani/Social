@@ -91,7 +91,6 @@ export default function Message({ message, openImage, openVideo, showSender, las
                             style={[styles.contentText, myMessage && styles.sendContentText, { flexDirection: "column" }]}>
                             <Text style={[styles.text, { marginBottom: 4 }, !myMessage && styles.whiteText]}>
                                 {message.content}
-
                             </Text>
                             {sending && message.type == "text" &&
                                 <ActivityIndicator color={"white"} style={[styles.loading, { marginRight: 8 }]} size={16}></ActivityIndicator>}
@@ -115,11 +114,9 @@ export default function Message({ message, openImage, openVideo, showSender, las
                 );
             case "image":
                 return (
-                    <TouchableOpacity onPress={() => openImage(message.media.uri)}>
+                    <TouchableOpacity onPress={() => openImage(message.media.uri)} >
                         <Image source={{ uri: message.media.uri }} style={[styles.messageImage, myMessage && { alignSelf: "flex-end" }]} />
-
-                        <View style={[styles.recivingInfo]}>
-
+                        <View style={[styles.recivingInfo  , {marginBottom : 8 },!myMessage && { alignSelf: "flex-start" } ]}>
                             {myMessage && !sending &&
                                 <FontAwesome5 name="check-double" style={[styles.check, lastSeenAt && lastSeenAt > message.createdAt && styles.seenMessage]} />}
                             <Text style={styles.time}>
@@ -138,7 +135,7 @@ export default function Message({ message, openImage, openVideo, showSender, las
                             isLooping
                             source={{ uri: message.media.uri }}
                             shouldPlay={false} />
-                        <View style={[styles.recivingInfo]}>
+                        <View style={[styles.recivingInfo ,   {marginBottom : 8 },!myMessage && { alignSelf: "flex-start" }]}>
                             {myMessage && !sending &&
                                 <FontAwesome5 name="check-double" style={[styles.check, lastSeenAt && lastSeenAt > message.createdAt && styles.seenMessage]} />}
                             <Text style={styles.time}>
@@ -180,13 +177,13 @@ export default function Message({ message, openImage, openVideo, showSender, las
                                         !post.user.profilePicture &&
                                         <Image source={require("../../../assets/illustrations/gravater-icon.png")} style={styles.posterUserImage} />
                                     }
-                                    <Text style={styles.fullanme}>
+                                    <Text style={[styles.fullanme, !myMessage && styles.whiteText]}>
                                         {post.user.lastname} {post.user.name}
                                     </Text>
                                 </View>
                                 {
                                     post.title &&
-                                    <Text style={styles.postTitle}>
+                                    <Text style={[styles.postTitle, !myMessage && styles.whiteText]}>
                                         {post.title}
                                     </Text>
                                 }
@@ -233,8 +230,6 @@ export default function Message({ message, openImage, openVideo, showSender, las
             </View>
             <View style={styles.contentSection}>
                 {renderContent()}
-
-
             </View>
         </View>
 
@@ -349,14 +344,25 @@ const lightStyles = StyleSheet.create({
         width: "100%",
         height: 160,
         borderRadius: 12,
+        marginTop: 8
     },
-    recivingInfo: { flexDirection: "row-reverse", alignItems: "center" }
+    recivingInfo: {
+        flexDirection: "row-reverse",
+        alignItems: "center",
+
+        
+
+
+    },
+    
+    
 });
 const darkStyles = {
     ...lightStyles,
     whiteText: {
         color: darkTheme.textColor
-    } , 
+    },
+    /*
     postTitle: {
         fontFamily: textFonts.regular,
         fontSize: 10,
@@ -370,4 +376,5 @@ const darkStyles = {
         paddingRight: 10 , 
         color: darkTheme.textColor
     },
+    */
 }

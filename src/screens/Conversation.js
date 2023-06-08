@@ -11,17 +11,13 @@ import { createRNUploadableFile, getFileType, IMAGE, VIDEO } from "../providers/
 import { AuthContext } from "../providers/AuthContext";
 import { getMediaUri } from "../api";
 import LoadingActivity from "../components/Cards/post/loadingActivity";
-
 import { useRealTime } from "../providers/RealTimeContext";
 import { useEvent } from "../providers/EventProvider";
 import ConversationMembers from "../components/Cards/messenger/conversationMembers";
 import AcceptingConversation from "../components/Cards/messenger/AcceptingConversation";
-
-
 const LIMIT = 10;
 
 export default function Conversation({ navigation, route }) {
-
 
     var [messages, setMessages] = useState([]);
     const realTime = useRealTime();
@@ -46,9 +42,6 @@ export default function Conversation({ navigation, route }) {
     const [memberLastSeen, setMemberLastSeen] = useState(route.params?.conversation?.members[0]?.lastSeenAt);
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
-
-    
- 
 
     const loadMessages = async (conversationId, sender, members) => {
 
@@ -147,7 +140,7 @@ export default function Conversation({ navigation, route }) {
             const index = members.findIndex(member => member.user.id == newMessage.sender.id);
             newMessage.sender = members[index].user
 
-            console.log(newMessage) ; 
+            console.log(newMessage);
             setMessages([newMessage, ...messages]);
             seeConversation(conversation.id);
         }
@@ -209,20 +202,20 @@ export default function Conversation({ navigation, route }) {
                     }
                 }).then(async response => {
 
-                    var loadedConversation = response.data.getConversation ; 
+                    var loadedConversation = response.data.getConversation;
                     setConversation({ ...loadedConversation, members });
-                  
+
                     if (loadedConversation) {
 
-                
+
                         setIsReadable(loadedConversation.isReadable);
                         if (loadedConversation.simat) {
                             setSima({
                                 ...loadedConversation.simat,
                                 uri: getMediaUri(loadedConversation.simat.path)
                             });
-    
-    
+
+
                         }
 
                         setMemberLastSeen(
@@ -258,43 +251,43 @@ export default function Conversation({ navigation, route }) {
     }, []);
 
     useEffect(() => {
-        if (conversation && conversation.id ) { 
+        if (conversation && conversation.id) {
 
             const subscription = client.subscribe({
-                query : gql`
+                query: gql`
                 subscription Subscription($conversationId: ID!) {
                     simatChanged(conversationId: $conversationId) {
                       id
                       path
                     }
-                }` , 
+                }` ,
 
-                variables : { 
-                    conversationId : conversation.id 
+                variables: {
+                    conversationId: conversation.id
                 }
-            }).subscribe((response) => { 
-                if (response && response.data) { 
-                    var newSimat = response.data.simatChanged   ; 
+            }).subscribe((response) => {
+                if (response && response.data) {
+                    var newSimat = response.data.simatChanged;
 
 
-                    if (newSimat) { 
-                        setSima({ 
-                            ...newSimat , 
-                            uri : getMediaUri(newSimat.path)  
-                        }) 
-                    }else { 
-                        setSima(null) ; 
+                    if (newSimat) {
+                        setSima({
+                            ...newSimat,
+                            uri: getMediaUri(newSimat.path)
+                        })
+                    } else {
+                        setSima(null);
                     }
                 }
-                 
+
             })
 
 
-            return () => { 
-                subscription.unsubscribe() ; 
+            return () => {
+                subscription.unsubscribe();
             }
         }
-    } , [conversation])
+    }, [conversation])
 
 
     const seeConversation = (conversationId) => {
@@ -312,6 +305,7 @@ export default function Conversation({ navigation, route }) {
                 event.emit("conversation-seen", conversationId)
             }
         })
+
     }
 
     const renderItem = useCallback(({ item, index }) => {
@@ -332,11 +326,11 @@ export default function Conversation({ navigation, route }) {
                 openImage={openImage}
                 openVideo={openVideo}
                 showSender={showSender}
-                lastSeenAt={memberLastSeen} 
-                navigation = {navigation }
+                lastSeenAt={memberLastSeen}
+                navigation={navigation}
             />
         )
-    }, [messages, sender, memberLastSeen , navigation]);
+    }, [messages, sender, memberLastSeen, navigation]);
 
 
     const keyExtractor = useCallback((item, index) => {
@@ -538,9 +532,9 @@ export default function Conversation({ navigation, route }) {
                 conversationId: conversation.id
             }
         }).then(response => {
-            if (response) { 
+            if (response) {
 
-                event.emit("simat-changed" ,  conversation.id , image ) ; 
+                event.emit("simat-changed", conversation.id, image);
             }
         }).catch(error => {
 
@@ -574,25 +568,31 @@ export default function Conversation({ navigation, route }) {
     }, [isReadable, conversation]);
 
 
+
+    
+    const onRefuse = useCallback(() => {
+        event.emit("delete-conversation", conversation.id);
+        navigation.navigate('Messenger')
+
+    }, [conversation])
+
     const onBlock = useCallback(() => {
 
     }, [])
 
 
-    const onRefuse = useCallback(() => {
-
-    }, [])
+    
 
 
     return (
         <ImageBackground style={styles.container} source={sima}>
             {
                 !isGroup && members &&
-                <ConversationHeader isArchived={isArchived} lightContent={sima != null} user={members[0].user} onPickSima={onPickSima} conversation={conversation} />
+                <ConversationHeader isArchived={isArchived} lightContent={sima != null} user={members[0].user} onPickSima={onPickSima} navigation={navigation} conversation={conversation} />
             }
             {
                 isGroup && members &&
-                <ConversationHeader isArchived={isArchived} lightContent={sima != null} members={members} onPickSima={onPickSima} conversation={conversation} />
+                <ConversationHeader isArchived={isArchived} lightContent={sima != null} members={members} onPickSima={onPickSima} conversation={conversation} navigation={navigation} />
 
             }
             <View style={styles.body}>
