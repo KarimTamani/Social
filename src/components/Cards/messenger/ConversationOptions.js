@@ -9,6 +9,19 @@ import { gql } from "@apollo/client";
 import Confirmation from "../Confirmation";
 import { useEvent } from "../../../providers/EventProvider";
 
+
+const EXIT_GROUP_TITLE = "خروج من المجموعة";
+const EXIT_GROUP_MESSAGE = "هل فعلا تريد الخروج من هذه المجموعة ؟";
+
+
+const DELETE_CONVERSATION_TITLE = "حذف المحادثة";
+const DELETE_CONVERSATION_MESSAGE = "هل انت متأكد من حذف هذه المحادثة ؟";
+
+
+const BLOCK_TITLE = "حظر المستخدم";
+const BLOCK_MESSAGE = "هل انت متأكد من حضر";
+
+
 export default function ConversationOptions({ navigation, onClose, toggleSimas, conversation, isArchived = false }) {
 
 
@@ -22,23 +35,14 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
     const [isDeleting, setIsDeleting] = useState(false);
-    const [showDeletingConfirmation, setShowDeletingConfirmation] = useState(false);
-    const event = useEvent()
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [operation, setOperation] = useState();
+
+    const event = useEvent();
 
 
-    useEffect(() => {
 
-        if (conversation) {
-            if (conversation.type == "group") {
-                setTitle("خروج من المجموعة");
-                setMessage("هل فعلا تريد الخروج من هذه المجموعة ؟")
-            } else {
-                setTitle("حذف المحادثة");
-                setMessage("هل انت متأكد من حذف هذه  المحادثة ؟")
 
-            }
-        }
-    }, [conversation])
 
 
     const archiveConversation = useCallback(() => {
@@ -95,7 +99,7 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
 
         if (conversation && navigation) {
 
-            setIsDeleting(true) ; 
+            setLoading(true);
             client.mutate({
                 mutation: gql`
                 mutation DeleteConversation($conversationId: ID!) {
@@ -110,34 +114,124 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
                     conversationId: conversation.id
                 }
             }).then(response => {
-                console.log(response) ; 
-                setIsDeleting(false) ; 
-                setShowDeletingConfirmation( false) ; 
+
+                setLoading(false);
+                toggleConfirmation(false);
+
                 if (response) {
                     event.emit("delete-conversation", conversation.id);
-                    navigation.navigate('Messenger')                    
+                    navigation.navigate('Messenger')
                 }
             }).catch(error => {
-                setIsDeleting(false) ; 
+                setLoading(false);
             })
+        }
+    }, [conversation, navigation]);
+
+    const toggleConfirmation = useCallback(() => {
+        setShowConfirmation(!showConfirmation);
+    }, [showConfirmation])
 
 
+    const openBlockConfirmation = useCallback(() => {
+        if (conversation && conversation.members.length >= 1) {
+            var user = conversation.members[0].user;
+            setTitle(BLOCK_TITLE);
+            setMessage(BLOCK_MESSAGE + " " + user.name + " " + user.lastname + " ؟ ");
+            setOperation("BLOCK");
+            toggleConfirmation();
+        }
+    }, [])
 
+    const openDeletionConfirmation = useCallback(() => {
+
+        if (conversation) {
+            if (conversation.type == "group") {
+                setTitle(EXIT_GROUP_TITLE);
+                setMessage(EXIT_GROUP_MESSAGE)
+            } else {
+                setTitle(DELETE_CONVERSATION_TITLE);
+                setMessage(DELETE_CONVERSATION_MESSAGE)
+            }
+        }
+        setOperation("DELETE");
+        toggleConfirmation();
+    }, [conversation, navigation, showConfirmation])
+
+
+    const openProfile = useCallback(() => {
+        if (conversation && conversation.members.length >= 1) {
+            var user = conversation.members[0].user;
+            navigation.navigate("Profile", { userId: user.id });
         }
     }, [conversation, navigation]);
 
 
+    const blockUser = useCallback(() => {
 
-    const toggleDeletConfirmation = useCallback(() => {
-        setShowDeletingConfirmation(!showDeletingConfirmation);
-    }, [showDeletingConfirmation])
 
+        if (conversation && conversation.members.length >= 1) {
+            var user = conversation.members[0].user;
+
+            /*
+                   setIsLoading( true ) ; 
+                   client.mutate({ 
+                       mutation : gql`
+                       mutation Mutation($userId: ID!) {
+                           toggleBlock(userId: $userId)
+                       }`, 
+                       variables : {
+                           userId : user.id 
+                       }
+                   }).then(response => {
+                       console.log(response); 
+                       if (response) { 
+                           
+                           event.emit("blocked-user" , user) ; 
+                           toggleConfirmation() ; 
+                           onClose && onClose() ; 
+                           setIsLoading( false ) ; 
+                       }
+                   }).catch( error => {
+                       console.log( error ) ; 
+                       setIsLoading( false ) ; 
+                   })  ; 
+           
+                   */
+
+            event.emit("blocked-user", user);
+            toggleConfirmation();
+            onClose && onClose();
+
+
+        }
+
+
+
+
+
+
+    }, [conversation, navigation]);
+
+
+    const handleConfirmation = useCallback(() => {
+
+        if (operation === "DELETE") {
+            deleteConversation();
+        }
+        if (operation === "BLOCK") {
+            blockUser();
+
+        }
+
+    }, [operation, conversation, navigation])
 
 
 
     const options = [
         {
-            text: "حظر"
+            text: "حظر",
+            onPress: openBlockConfirmation
         },
         {
             text: "ابلاغ"
@@ -153,7 +247,7 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
         },
         {
             text: "حذف المحادتة",
-            onPress: toggleDeletConfirmation
+            onPress: openDeletionConfirmation
         },
         {
             text: "تغيير السمة",
@@ -163,7 +257,8 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
             }, [])
         },
         {
-            text: "زيارة الملف الشخصي"
+            text: "زيارة الملف الشخصي",
+            onPress: openProfile
         }
         , {
             text: "كتم الاشعارات"
@@ -194,17 +289,18 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
                 />
             }
             {
-                showDeletingConfirmation &&
+                showConfirmation &&
 
                 <Modal
                     transparent
-                    onRequestClose={toggleDeletConfirmation}
+                    onRequestClose={toggleConfirmation}
                 >
                     <Confirmation
                         title={title}
                         message={message}
-                        loading={isDeleting}
-                        onConfirm={deleteConversation}
+                        loading={loading}
+                        onConfirm={handleConfirmation}
+                        onClose={toggleConfirmation}
 
                     />
                 </Modal>

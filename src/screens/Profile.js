@@ -18,6 +18,7 @@ import { getMediaUri } from "../api";
 import { useEvent } from "../providers/EventProvider";
 import { Entypo } from '@expo/vector-icons';
 import LoadingProfile from "../components/Cards/loadings/LoadingProfile";
+import ProfileNotFound from "../components/Cards/profile/ProfileNotFound";
 
 
 
@@ -40,6 +41,8 @@ export default function Profile({ route, navigation }) {
     const [toggleBio, setToggleBio] = useState(false);
     const [follow, setFollow] = useState(false);
     const [numFollowers, setNumFollowers] = useState(0);
+    const [notFound, setNotFound] = useState(false);
+
 
 
     const openCoversation = useCallback(() => {
@@ -88,27 +91,20 @@ export default function Profile({ route, navigation }) {
         });
     }
 
-
-
-
-
     useEffect(() => {
-
-
         (async () => {
-
             if (!userId) {
                 var userAuth = await auth.getUserAuth();
-
                 if (userAuth) {
                     userId = userAuth.user.id;
-
                     event.on("edit-profile", () => {
                         getUser(userAuth.user.id).then(async response => {
+
                             setUser(response.data.getUserById)
                             await auth.updateUser(response.data.getUserById);
 
                             event.emit("update-profile", response.data.getUserById);
+
                         });
                     })
                 }
@@ -116,9 +112,14 @@ export default function Profile({ route, navigation }) {
             if (userId)
                 // at this level we have an id
                 getUser(userId).then(response => {
-                    setUser(response.data.getUserById);
-                    setFollow(response.data.getUserById.isFollowed);
-                    setNumFollowers(response.data.getUserById.numFollowers)
+                    if (response && response.data.getUserById) {
+                        setUser(response.data.getUserById);
+                        setFollow(response.data.getUserById.isFollowed);
+                        setNumFollowers(response.data.getUserById.numFollowers);
+                    }
+                    else {
+                        setNotFound(true);
+                    }
                 });
         })();
         return () => {
@@ -126,30 +127,31 @@ export default function Profile({ route, navigation }) {
         }
     }, []);
 
-
     useEffect(() => {
         if (user) {
-
             const updateUserPostNumber = () => {
                 setUser({
                     ...user,
                     numPosts: user.numPosts + 1
                 })
             }
-
-
-            const decreaseUserPostNumber = (post) => { 
+            const decreaseUserPostNumber = (post) => {
                 setUser({
                     ...user,
                     numPosts: user.numPosts - 1
                 })
-                
             }
-            event.addListener("delete-post" , decreaseUserPostNumber) ; 
+            const userBlocked = (userId) => {
+                setUser(null);
+                setNotFound(true);
+            }
+            event.addListener("delete-post", decreaseUserPostNumber);
             event.addListener("new-post", updateUserPostNumber);
+            event.addListener("blocked-user", userBlocked);
             return () => {
-                event.removeListener("new-post", updateUserPostNumber) ; 
-                event.removeListener("delete-post" , decreaseUserPostNumber) ; 
+                event.removeListener("new-post", updateUserPostNumber);
+                event.removeListener("delete-post", decreaseUserPostNumber);
+                event.removeListener("blocked-user", userBlocked);
             }
         }
 
@@ -215,8 +217,11 @@ export default function Profile({ route, navigation }) {
 
 
 
-    if (!user) {
+    if (!user && !notFound) {
         return (<LoadingProfile />)
+    }
+    else if (notFound) {
+        return (<ProfileNotFound />)
     }
 
     return (
@@ -224,7 +229,7 @@ export default function Profile({ route, navigation }) {
 
 
             <ScrollView style={{ zIndex: 1 }}>
-                <ProfileHeader myProfile={!userId} onBack={back} navigation={navigation} />
+                <ProfileHeader myProfile={!userId} user={user} onBack={back} navigation={navigation} />
                 {
                     openSocialMedia &&
                     <TouchableOpacity style={styles.background} activeOpacity={1} onPressIn={toggleSocialMedia}>
@@ -373,12 +378,14 @@ const lightStyles = StyleSheet.create({
     fullname: {
         fontSize: 16,
         marginTop: 8,
-        fontFamily: textFonts.bold
+        fontFamily: textFonts.bold,
+        fontWeight: "bold",
 
     },
     username: {
         color: "#888",
         fontFamily: textFonts.bold,
+        fontWeight: "bold",
         fontSize: 12,
 
     },
@@ -437,10 +444,11 @@ const lightStyles = StyleSheet.create({
     infoTitle: {
         color: "#212121",
         fontSize: 12,
-        fontFamily: textFonts.bold
+        fontFamily: textFonts.bold,
+        fontWeight: "bold",
     },
     infoValue: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#666",
         fontSize: 12
     },

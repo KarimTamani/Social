@@ -186,7 +186,7 @@ const lightStyles = StyleSheet.create({
     },
     label: {
         color: "#212121",
-        fontFamily: textFonts.semiBold
+        fontFamily: textFonts.bold
     },
     row: {
         flexDirection: "row",
@@ -269,7 +269,7 @@ const darkStyles = {
     label: {
         
         color: darkTheme.textColor , 
-        fontFamily: textFonts.semiBold
+        fontFamily: textFonts.bold
     
     } , 
    

@@ -43,6 +43,7 @@ const lightStyles = StyleSheet.create({
     } , 
     title : { 
         fontFamily : textFonts.bold , 
+        fontWeight : "bold" , 
         marginRight : 16 
     }
 
@@ -61,6 +62,7 @@ const darkStyles = {
     } , 
     title : { 
         fontFamily : textFonts.bold , 
+        fontWeight : "bold" , 
         marginRight : 16 , 
         color : darkTheme.textColor 
     }

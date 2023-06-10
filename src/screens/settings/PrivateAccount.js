@@ -42,7 +42,7 @@ const lightStyles = StyleSheet.create({
         backgroundColor: "white"
     },
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         textAlign: "center",
         fontSize: 16,
         marginVertical: 16
@@ -77,7 +77,7 @@ const darkStyles = {
         backgroundColor: darkTheme.backgroudColor 
     },
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         textAlign: "center",
         fontSize: 16,
         marginVertical: 16 , 

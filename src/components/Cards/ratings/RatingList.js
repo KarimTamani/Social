@@ -122,7 +122,8 @@ const lightStyles = StyleSheet.create({
 
         textAlignVertical: "center",
         fontSize: 12,
-        fontFamily: textFonts.bold
+        fontFamily: textFonts.bold , 
+        fontWeight : "bold" , 
 
     },
 
@@ -164,6 +165,7 @@ const darkStyles = {
         fontSize: 12,
         fontFamily: textFonts.bold , 
         color : darkTheme.textColor , 
+        fontWeight : "bold" , 
 
     },
 

@@ -28,8 +28,9 @@ const lightStyles = StyleSheet.create({
         borderRadius : 8 ,  
         width : 218 , 
     } , 
-    text : { 
-        fontFamily : textFonts.semiBold
+    text : {  
+        fontFamily : textFonts.bold , 
+        fontWeight : "bold"
     } , 
     icon : { 
         fontSize : 24  , 

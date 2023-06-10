@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
     },
     username: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         fontSize: 12
     },
     comment: {

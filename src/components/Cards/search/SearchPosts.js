@@ -135,53 +135,56 @@ export default function SearchPosts({ type, query, navigation }) {
 
     useEffect(() => {
 
+        const userBlocked = (user) => {
+            setPosts(posts.filter(post => post.type == "loading" || post.user.id != user.id));
+        }
+
+        const updatePostLikes = (postId, value, numLikes) => {
+
+            const index = posts.findIndex(post => post.type != "loading" && post.id == postId);
+            if (index >= 0) {
+                var newPostsState = [...posts];
+                newPostsState[index] = {
+                    ...posts[index],
+                    liked: value,
+                    likes: numLikes
+                };
+                setPosts(newPostsState);
+            }
+
+        }
+        const updatePostComments = (postId, value) => {
+            const index = posts.findIndex(post => post.type != "loading" && post.id == postId);
+
+            if (index >= 0) {
+                var newPostsState = [...posts];
+                newPostsState[index] = {
+                    ...posts[index],
+                    numComments: value,
+                };
+                setPosts(newPostsState);
+            }
+
+        }
 
 
         if (type == "reel") {
-            const updatePostLikes = (postId, value, numLikes) => {
-
-                const index = posts.findIndex(post => post.type != "loading" && post.id == postId);
-                if (index >= 0) {
-                    var newPostsState = [...posts];
-                    newPostsState[index] = {
-                        ...posts[index],
-                        liked: value,
-                        likes: numLikes
-                    };
-                    setPosts(newPostsState);
-                }
-
-            }
-            const updatePostComments = (postId, value) => {
-                const index = posts.findIndex(post => post.type != "loading" && post.id == postId);
-
-                if (index >= 0) {
-
-                    console.log("updating num of comments ", value);
-
-                    var newPostsState = [...posts];
-                    newPostsState[index] = {
-                        ...posts[index],
-                        numComments: value,
-                    };
-                    setPosts(newPostsState);
-                }
-
-            }
-
-
-
-
-
             event.addListener("update-post-likes", updatePostLikes);
             event.addListener("update-post-comments", updatePostComments);
-
-            return () => {
-                event.removeListener("update-post-likes", updatePostLikes);
-                event.removeListener("update-post-comments", updatePostComments);
-
-            }
         }
+
+
+        event.addListener("blocked-user", userBlocked);
+        return () => {
+            event.removeListener("update-post-likes", updatePostLikes);
+            event.removeListener("update-post-comments", updatePostComments);
+            event.removeListener("blocked-user", userBlocked);
+
+        }
+
+
+
+
     }, [type, event, posts]);
 
 
@@ -202,10 +205,10 @@ export default function SearchPosts({ type, query, navigation }) {
 
 
         const editPost = (editablePost) => {
-       
+
             const index = posts.findIndex(post => post.type != "loading" && post.id == editablePost.id);
             if (index >= 0) {
- 
+
                 var newPostsState = [...posts];
                 newPostsState[index] = {
                     ...editablePost
@@ -254,10 +257,10 @@ const lightStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#eee"
     }
-}) ; 
+});
 
 
-const darkStyles ={ 
+const darkStyles = {
     container: {
         flex: 1,
         backgroundColor: darkTheme.secondaryBackgroundColor

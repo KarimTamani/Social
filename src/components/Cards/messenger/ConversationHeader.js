@@ -314,7 +314,7 @@ const darkStyles = {
     ...lightStyles,
 
     username: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: darkTheme.textColor,
         fontSize: 13
     },

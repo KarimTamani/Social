@@ -560,7 +560,7 @@ const lightStyles = StyleSheet.create({
         flexDirection: "row-reverse"
     },
     fullname: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         paddingRight: 16
     },
     username: {
@@ -643,7 +643,7 @@ const lightStyles = StyleSheet.create({
         alignItems: "flex-end"
     },
     hashtagName: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         fontSize: 12
     },
     numPosts: {
@@ -670,7 +670,7 @@ const darkStyles = {
     },
 
     fullname: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         paddingRight: 16,
         color: darkTheme.textColor
     },

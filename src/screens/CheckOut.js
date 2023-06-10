@@ -104,7 +104,7 @@ const lightStyles = StyleSheet.create({
     },
     buttonText: {
         color: "white",
-        fontFamily: textFonts.semiBold
+        fontFamily: textFonts.bold
     },
 })
 

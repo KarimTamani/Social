@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from "react-native";
-import exploreData from "../assets/explore";
+ 
 import { textFonts } from "../design-system/font"
 import { AntDesign } from '@expo/vector-icons';
 import ThemeContext from "../providers/ThemeContext";
@@ -170,12 +170,19 @@ export default function Explore({ navigation }) {
                 setPosts(newPostsState);
             }
         }
+
+
+        const userBlocked = (user) => {
+            setPosts( posts.filter(post => post.type == "loading" || post.type == "stories" || post.type == "reels" || post.user.id != user.id) );
+        }
         event.addListener("delete-post", deletePost);
         event.addListener("edit-post", editPost);
+        event.addListener("blocked-user", userBlocked);
 
         return () => {
             event.removeListener("delete-post", deletePost);
             event.removeListener("edit-post", editPost);
+            event.removeListener("blocked-user", userBlocked);
         }
 
     }, [posts])

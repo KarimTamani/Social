@@ -10,7 +10,7 @@ import ThemeContext from "../../providers/ThemeContext";
 import darkTheme from "../../design-system/darkTheme";
 
 
-export default function ProfileHeader({ myProfile, onBack, navigation }) {
+export default function ProfileHeader({ myProfile, onBack, navigation , user }) {
 
 
     const [showOptions, setShowOptions] = useState(false);
@@ -58,6 +58,7 @@ export default function ProfileHeader({ myProfile, onBack, navigation }) {
                 >
                     <ProfileOptions
                         onClose={toggleOptions}
+                        user = {user }
                         toggleProfileSender = { toggleProfileSender }
                     />
 

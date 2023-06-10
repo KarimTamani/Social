@@ -130,6 +130,7 @@ const lightStyles = StyleSheet.create({
     },
     name: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         color: "#212121",
         marginBottom: 8
     },
@@ -150,7 +151,7 @@ const lightStyles = StyleSheet.create({
     },
     followingText: {
         color: "#212121",
-        fontFamily: textFonts.semiBold
+        fontFamily: textFonts.bold
     },
     floatOne: {
         transform: [{
@@ -194,6 +195,6 @@ const darkStyles = {
     } , 
     followingText: {
         color: darkTheme.textColor,
-        fontFamily: textFonts.semiBold
+        fontFamily: textFonts.bold
     },
 }

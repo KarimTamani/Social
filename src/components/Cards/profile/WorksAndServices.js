@@ -128,7 +128,7 @@ const lightStyles = StyleSheet.create({
         borderRadius: 26
     },
     createText: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         paddingHorizontal: 8
     } , 
     createIcon : { 
@@ -150,7 +150,7 @@ const darkStyles = {
         borderColor : darkTheme.borderColor 
     }, 
     createText: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         paddingHorizontal: 8 , 
         color  : darkTheme.textColor , 
     }, 

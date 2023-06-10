@@ -58,6 +58,7 @@ const lightStyles = StyleSheet.create({
     title : {
         textAlign : "center" , 
         fontFamily : textFonts.bold, 
+        fontWeight : "bold" , 
         fontSize : 16 , 
         marginBottom : 12 
     } , 
@@ -93,6 +94,7 @@ const darkStyles = {
     title : {
         textAlign : "center" , 
         fontFamily : textFonts.bold, 
+        fontWeight : "bold" , 
         fontSize : 16 , 
         marginBottom : 12 , 
         color : darkTheme.textColor ,  

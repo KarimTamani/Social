@@ -81,18 +81,18 @@ export default function CommentsList({ navigation, route }) {
       if (notificationData.type == "story-comment") {
         var storyComment = JSON.parse(notificationData.storyComment);
 
-        console.log(storyComment) ; 
+        console.log(storyComment);
 
         const index = storiesComments.findIndex(comment => comment.storyComment.id == storyComment.id);
-        
-        
+
+
         if (index >= 0) {
-          
-          console.log("found") ; 
-          
+
+          console.log("found");
+
           storyComment = storiesComments[index].storyComment;
-        
-        
+
+
           (async () => {
             const userAuth = await auth.getUserAuth();
             if (userAuth) {
@@ -338,12 +338,39 @@ export default function CommentsList({ navigation, route }) {
         }
       }
       setComments(comments);
+
+    }
+    const userBlocked = (user) => {
+      setComments(comments.filter(comment => {
+
+        if (comment.type == "loading")
+          return true;
+
+        if (comment.comment && comment.comment?.user.id == user.id)
+          return false;
+
+        if (comment.replay && comment.replay?.user.id == user.id)
+          return false;
+
+        if (comment.storyComment && comment.storyComment?.user.id == user.id)
+          return false;
+
+
+
+      }));
     }
 
-    event.addListener("like-story", likeStory)
+
+
+    event.addListener("blocked-user", userBlocked);
+    event.addListener("like-story", likeStory);
+
+
+
 
     return () => {
       event.removeListener("like-story", likeStory);
+      event.removeListener("blocked-user", userBlocked);
     }
 
 
@@ -797,7 +824,7 @@ const lightStyles = StyleSheet.create({
     marginLeft: 16
   },
   bold: {
-    fontFamily: textFonts.semiBold,
+    fontFamily: textFonts.bold,
     color: "#212121"
   },
   list: {
@@ -821,7 +848,7 @@ const darkStyles = {
 
   },
   bold: {
-    fontFamily: textFonts.semiBold,
+    fontFamily: textFonts.bold,
     color: darkTheme.textColor
   },
 }

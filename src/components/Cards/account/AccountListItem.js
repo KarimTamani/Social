@@ -45,7 +45,7 @@ const lightStyles = StyleSheet.create({
 
     } , 
     cardTitle : { 
-        fontFamily : textFonts.semiBold , 
+        fontFamily : textFonts.bold , 
         marginTop : 16 , 
         fontSize : 12 
     }
@@ -65,7 +65,7 @@ const darkStyles = {
     },
      
     cardTitle : { 
-        fontFamily : textFonts.semiBold , 
+        fontFamily : textFonts.bold , 
         marginTop : 16 , 
         fontSize : 12 , 
         color : darkTheme.textColor  

@@ -644,6 +644,7 @@ const styles = StyleSheet.create({
 
         color: "white",
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         fontSize: 12
     },
 
@@ -684,7 +685,7 @@ const styles = StyleSheet.create({
     },
     shareText: {
 
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "white",
         fontSize: 12
     },

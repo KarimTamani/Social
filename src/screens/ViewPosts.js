@@ -77,13 +77,19 @@ export default function ViewPosts({ navigation, route }) {
             }
         }
 
+        const userBlocked = (user) => {
+            setPosts( posts.filter(post => post.type == "loading" || post.type == "stories" || post.type == "reels" || post.user.id != user.id) );
+        }
+
+
         event.addListener("delete-post", deletePost); 
         event.addListener("edit-post" ,editPost ) ; 
-       
+        event.addListener("blocked-user", userBlocked);
 
         return () => {
             event.removeListener("delete-post", deletePost);
             event.removeListener("edit-post" ,editPost ) ; 
+            event.removeListener("blocked-user", userBlocked);
         }
     } , [posts])
 

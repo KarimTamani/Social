@@ -336,7 +336,7 @@ const lightStyles = StyleSheet.create({
 
     },
     fullanme: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         fontSize: 10,
         paddingRight: 10
     },
@@ -371,7 +371,7 @@ const darkStyles = {
         color: darkTheme.secondaryTextColor
     },
     fullanme: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         fontSize: 10,
         paddingRight: 10 , 
         color: darkTheme.textColor

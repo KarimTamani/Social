@@ -126,7 +126,7 @@ const lightStyles = StyleSheet.create({
         marginTop: 8
     },
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
     },
 
     label: {
@@ -137,7 +137,7 @@ const lightStyles = StyleSheet.create({
 
     activeValue: {
         color: "#1A6ED8",
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         fontSize: 12,
         flex: 2,
         textAlign: "right",
@@ -189,7 +189,7 @@ const darkStyles = {
     },
 
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color : darkTheme.textColor 
    
     },

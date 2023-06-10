@@ -43,6 +43,8 @@ export default function Conversation({ navigation, route }) {
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
+    const [disableInput, setDisableInput] = useState(false);
+
     const loadMessages = async (conversationId, sender, members) => {
 
         client.query({
@@ -110,7 +112,10 @@ export default function Conversation({ navigation, route }) {
                     message.myMessage = true
                 } else {
                     const index = members.findIndex(member => member.user.id == message.sender.id);
-                    message.sender = members[index].user;
+
+                    if (index >= 0)
+
+                        message.sender = members[index].user;
                 }
                 return message;
             });
@@ -140,7 +145,7 @@ export default function Conversation({ navigation, route }) {
             const index = members.findIndex(member => member.user.id == newMessage.sender.id);
             newMessage.sender = members[index].user
 
-            console.log(newMessage);
+
             setMessages([newMessage, ...messages]);
             seeConversation(conversation.id);
         }
@@ -151,13 +156,19 @@ export default function Conversation({ navigation, route }) {
         }
 
 
+        const blockedUser = (user) => {
+            setDisableInput(true);
+        }
+
+
         if (conversation) {
             realTime.addListener("NEW_MESSAGE_CONVERSATION_" + conversation.id, onNewMessage);
             realTime.addListener("CONVERSATION_SAW_" + conversation.id, onConversationSaw);
-
+            event.addListener("blocked-user", blockedUser);
             return () => {
                 realTime.removeListener("NEW_MESSAGE_CONVERSATION_" + conversation.id, onNewMessage);
                 realTime.removeListener("CONVERSATION_SAW_" + conversation.id, onConversationSaw);
+                event.removeListener("blocked-user", blockedUser);
             }
         }
     }, [conversation, messages])
@@ -569,7 +580,7 @@ export default function Conversation({ navigation, route }) {
 
 
 
-    
+
     const onRefuse = useCallback(() => {
         event.emit("delete-conversation", conversation.id);
         navigation.navigate('Messenger')
@@ -581,7 +592,7 @@ export default function Conversation({ navigation, route }) {
     }, [])
 
 
-    
+
 
 
     return (
@@ -621,7 +632,7 @@ export default function Conversation({ navigation, route }) {
                 }
             </View>
             {
-                !fetchingConversation && isReadable !== false &&
+                !fetchingConversation && isReadable !== false && !disableInput &&
                 <View style={styles.input}>
                     <ConversartionInput onSend={onSend} />
                 </View>

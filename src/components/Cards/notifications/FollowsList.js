@@ -120,13 +120,19 @@ export default function FollowsList({ navigation , route  }) {
                 setFollowers([{ follow : newFollow} , ...followers]) ; 
             }
         }
+        const userBlocked = (user) => {
+            setFollowers(followers.filter(follower => follower.type == "loading" || follower.follow.user.id != user.id));
+        }
+        
 
         event.addListener("new-following" , updateFollwingState) ; 
         realTime.addListener("NEW_FOLLOW" , onNewFollow) ; 
+        event.addListener("blocked-user", userBlocked);
 
         return () => { 
             event.removeListener("new-following" , updateFollwingState) ; 
             realTime.removeListener("NEW_FOLLOW"  , onNewFollow) ; 
+            event.removeListener("blocked-user", userBlocked);
         }
     } , [followers])
 
@@ -276,7 +282,7 @@ const lightStyles = StyleSheet.create({
         fontFamily: textFonts.regular
     },
     bold: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#212121"
     },
     unfollowText: {
@@ -311,7 +317,7 @@ const darkStyles = {
         fontSize: 12,
     } , 
     bold: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: darkTheme.textColor
     },
 

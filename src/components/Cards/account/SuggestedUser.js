@@ -25,7 +25,7 @@ function SuggestedUser({ user , navigation }) {
     }, [user])
 
     const toggleFollowing = useCallback(() => {
-
+        var previousValue = following ;  
         setFollowing(!following);
         setLoading(true) ; 
  
@@ -40,7 +40,9 @@ function SuggestedUser({ user , navigation }) {
                 userId : user.id
             }
         }).then(response => {
-            
+
+    
+
             if (response) {
                 setLoading( false ) ; 
                 event.emit("new-following" , {
@@ -49,10 +51,11 @@ function SuggestedUser({ user , navigation }) {
                     pageSource : "suggest-users"
                 }) ; 
 
-            }
+            } 
 
         }).catch(error => {
-            setFollow(!previousValue) ; 
+            console.log (error) ; 
+            setFollowing( previousValue) ; 
             setLoading( false ) ; 
         })
       
@@ -119,7 +122,7 @@ const lightStyles = StyleSheet.create({
         borderRadius: 48
     },
     fullname: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         fontSize: 12,
         marginTop: 8
     },
@@ -168,7 +171,7 @@ const darkStyles = {
        
     },
     fullname: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         fontSize: 12,
         marginTop: 8,
         color: darkTheme.textColor,

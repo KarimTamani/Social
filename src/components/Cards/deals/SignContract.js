@@ -88,7 +88,7 @@ const lightStyles = StyleSheet.create({
     },
     title: {
         color: "#1A6ED8",
-        fontFamily: textFonts.semiBold
+        fontFamily: textFonts.bold
     },
     contractButton: {
         backgroundColor: "#eee",

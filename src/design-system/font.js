@@ -1,8 +1,8 @@
 const textFonts  = { 
-    bold : "Noto-Bold" , 
-    regular: "Noto-Regular" , 
-    semiBold : "Noto-SemiBold" , 
-    medium : "Noto-Medium"
+    bold : "Roboto" , 
+    regular: "Roboto" , 
+    semiBold : "Roboto" , 
+    medium : "Roboto"
 } ; 
 
 export  { textFonts }

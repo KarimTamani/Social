@@ -79,7 +79,7 @@ const lightStyles = StyleSheet.create({
     },
     activeValue: {
         color: "#1A6ED8",
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         fontSize: 12
     },
     item: {

@@ -8,6 +8,7 @@ import { gql } from "@apollo/client";
 import { getMediaUri } from "../../../api";
 import LoadingActivity from "../post/loadingActivity";
 import { useRealTime } from "../../../providers/RealTimeContext";
+import { useEvent } from "../../../providers/EventProvider";
 
 
 
@@ -29,6 +30,8 @@ export default function LikesList({ navigation, route }) {
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles; 
 
+
+    const event = useEvent() ; 
     
     useEffect(() => {
 
@@ -152,18 +155,23 @@ export default function LikesList({ navigation, route }) {
             if ( index < 0) {
                 setLikes([{like : newLike} , ...likes]) ; 
             }else{ 
-                console.log("push tp the top")
+           
                 likes.splice(index ,1 ) ; 
                 setLikes([{like : newLike} , ...likes]) ; 
             }
         } ; 
-
+        const userBlocked = (user) => {
+            setLikes(likes.filter(like => like.type == "loading" || like.like.user.id != user.id));
+        }
 
         realTime.addListener("NEW_LIKE" , onNewLike) ; 
-
+        event.addListener("blocked-user", userBlocked);
+        
+        
 
         return () => { 
-            realTime.removeListener("NEW_LIKE" , onNewLike) ; 
+            realTime.removeListener("NEW_LIKE" , onNewLike) ;
+            event.removeListener("blocked-user", userBlocked); 
         }
 
 
@@ -388,7 +396,7 @@ const lightStyles = StyleSheet.create({
         marginLeft: 16
     },
     bold: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#212121"
     },
 });
@@ -407,7 +415,7 @@ const darkStyles = {
         color: darkTheme.secondaryTextColor,
     } , 
     bold: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: darkTheme.textColor
     },
 

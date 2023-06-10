@@ -109,7 +109,7 @@ const lightStyles = StyleSheet.create({
         justifyContent: "center"
     },
     fullname: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
     },
     username: {
         color: "#666",
@@ -135,7 +135,7 @@ const darkStyles = {
 
     },
     fullname: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: darkTheme.textColor,
     },
     username: {

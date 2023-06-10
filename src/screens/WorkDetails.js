@@ -218,7 +218,7 @@ const lightStyles = StyleSheet.create({
 
     },
     name: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
 
     },
     category: {
@@ -228,7 +228,7 @@ const lightStyles = StyleSheet.create({
     },
 
     screenTitle: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         paddingRight: 8
     },
     outlineButton: {
@@ -253,7 +253,7 @@ const lightStyles = StyleSheet.create({
         fontSize: 14
     },
     keywords: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#1A6ED8"
     },
     image: {
@@ -291,7 +291,7 @@ const lightStyles = StyleSheet.create({
     },
     interactionValue: {
         paddingRight: 6,
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#666"
 
     },
@@ -310,7 +310,7 @@ const lightStyles = StyleSheet.create({
         alignSelf : "center" 
     } , 
     title  :{ 
-        fontFamily : textFonts.semiBold , 
+        fontFamily : textFonts.bold , 
         marginTop : 16, 
         fontSize : 16  
     } , 
@@ -323,7 +323,7 @@ const lightStyles = StyleSheet.create({
 const darkStyles = { 
     ...lightStyles , 
     title  :{ 
-        fontFamily : textFonts.semiBold , 
+        fontFamily : textFonts.bold , 
         marginTop : 16, 
         fontSize : 16 , 
         color : darkTheme.textColor  
@@ -340,7 +340,7 @@ const darkStyles = {
         fontSize: 14
     },
     name: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color : darkTheme.textColor 
 
     },
@@ -367,7 +367,7 @@ const darkStyles = {
     },
     interactionValue: {
         paddingRight: 6,
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#666", 
         color : darkTheme.secondaryTextColor 
     } , 

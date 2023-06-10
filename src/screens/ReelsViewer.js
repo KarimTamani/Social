@@ -250,12 +250,20 @@ export default function ReelsViewer({ navigation, route }) {
                 }
             }
         }
+        
+        const userBlocked = (user) => {
+            setReels(reels.filter(post => post.type == "loading" || post.user.id != user.id));
+        }
+        
         event.addListener("delete-post", deletePost);
         event.addListener("edit-post" ,editPost ) ; 
+        event.addListener("blocked-user", userBlocked);
+        
 
         return() => {
             event.removeListener("delete-post", deletePost);
             event.removeListener("edit-post", editPost);
+            event.removeListener("blocked-user", userBlocked);
         }
     } , [reels])
 

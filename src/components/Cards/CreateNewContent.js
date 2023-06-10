@@ -68,6 +68,6 @@ const styles = StyleSheet.create({
     },
     text: {
         color: "#666",
-        fontFamily: textFonts.semiBold
+        fontFamily: textFonts.bold
     }
 })

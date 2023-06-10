@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: "white",
-        fontFamily: textFonts.semiBold
+        fontFamily: textFonts.bold
     },
     outline: {
         backgroundColor: "transparent",

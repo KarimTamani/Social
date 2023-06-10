@@ -166,17 +166,17 @@ const lightStyles = StyleSheet.create({
 
     },
     screenTitle: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         paddingRight: 8
     },
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         marginTop: 16,
         fontSize: 16
     },
 
     keywords: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#1A6ED8"
     },
     image: {
@@ -233,7 +233,7 @@ const darkStyles=  {
         backgroundColor: darkTheme.secondaryBackgroundColor
     },
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         marginTop: 16,
         fontSize: 16 , 
         color : darkTheme.textColor

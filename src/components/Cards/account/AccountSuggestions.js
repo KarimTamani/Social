@@ -37,7 +37,6 @@ export default function AccountSuggestions({ navigation }) {
                     profilePicture {
                         id path 
                     }
-                    
                     }
                 }
             
@@ -166,7 +165,7 @@ const lightStyles = StyleSheet.create({
         borderRadius: 6, 
     },
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         marginBottom: 16 , 
         
     },
@@ -181,6 +180,7 @@ const lightStyles = StyleSheet.create({
     },
     emptyMessage: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" ,  
         color: "#555", fontSize: 12
     }
 });
@@ -189,7 +189,7 @@ const lightStyles = StyleSheet.create({
 const darkStyles = {
     ...lightStyles,
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         marginBottom: 16,
         color: darkTheme.textColor
     } , 
@@ -204,6 +204,7 @@ const darkStyles = {
     } , 
     emptyMessage: {
         fontFamily: textFonts.bold, 
+        fontWeight : "bold" , 
         fontSize: 12 , 
         color: darkTheme.textColor
     } 

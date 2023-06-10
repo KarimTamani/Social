@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
         width : "80%" 
     } , 
     header : { 
-        fontFamily : textFonts.semiBold  , 
+        fontFamily : textFonts.bold  , 
         fontSize : 16 , 
         borderBottomColor : "#eee" , 
         borderBottomWidth : 1 , 

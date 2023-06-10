@@ -104,7 +104,7 @@ const lightStyles = StyleSheet.create({
     filter: {
         marginLeft: 16,
         color: "#666",
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         padding: 4,
         fontSize: 14,
         paddingHorizontal: 12,
@@ -134,7 +134,7 @@ const darkStyles = {
     filter: {
         marginLeft: 16,
         color: darkTheme.secondaryTextColor,
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         padding: 4,
         fontSize: 14,
         paddingHorizontal: 12,

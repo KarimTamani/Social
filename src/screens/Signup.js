@@ -383,6 +383,7 @@ const lightStyles = StyleSheet.create({
     },
     title: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         fontSize: 18
     },
     row: {
@@ -465,6 +466,7 @@ const darkStyles = {
     },
     title: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         fontSize: 18 , 
         color : darkTheme.textColor
     },showButton: {

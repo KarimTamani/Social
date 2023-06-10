@@ -354,7 +354,7 @@ const lightStyles = StyleSheet.create({
 
     },
     fullname: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         flex: 1,
         textAlign: "right",
         fontSize: 12
@@ -426,7 +426,7 @@ const darkStyles = {
     }
     ,
     fullname: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         flex: 1,
         textAlign: "right",
         fontSize: 12,

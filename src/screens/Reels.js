@@ -131,6 +131,10 @@ export default function Reels({ navigation, route }) {
             }
         }
 
+        const userBlocked = (user) => {
+            setReels(reels.filter(post => post.type == "loading" || post.user.id != user.id));
+        }
+        event.addListener("blocked-user", userBlocked);
         event.addListener("update-post-likes", updatePostLikes);
         event.addListener("update-post-comments", updatePostComments);
         event.addListener("update-post-favorite", updatePostFavorite);
@@ -146,6 +150,7 @@ export default function Reels({ navigation, route }) {
             event.removeListener("update-profile", updateProfile);
             event.removeListener("delete-post", deletePost);
             event.removeListener("edit-post" ,editPost ) ; 
+            event.removeListener("blocked-user", userBlocked);
         }
     }, [reels]);
 
@@ -226,7 +231,7 @@ export default function Reels({ navigation, route }) {
             }
         }).catch(error => {
             setLoading(false);
-            console.log(error);
+       
         })
 
     }, [time]);
@@ -238,9 +243,7 @@ export default function Reels({ navigation, route }) {
                 <View style={styles.reel}>
                     <LoadingReel />
                 </View>
-
             )
-
         const focus = viewableList.findIndex((itemIndex) => itemIndex == index) >= 0 && !blur;
 
 
@@ -253,7 +256,7 @@ export default function Reels({ navigation, route }) {
     }, [viewableList, blur]);
 
     const keyExtractor = useCallback((item, index) => {
-        return index;
+        return item.id;
     }, []);
 
     // always keep track of the viewable item in list 

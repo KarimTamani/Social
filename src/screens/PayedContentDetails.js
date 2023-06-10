@@ -144,11 +144,11 @@ const lightStyles = StyleSheet.create({
 
     },
     screenTitle: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         paddingRight: 8
     },
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         marginTop: 16,
         fontSize: 16
     },
@@ -172,7 +172,7 @@ const lightStyles = StyleSheet.create({
 
     },
     name: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
 
     },
     description: {
@@ -220,7 +220,7 @@ const darkStyles = {
     } , 
    
     name: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color : darkTheme.textColor 
 
     },

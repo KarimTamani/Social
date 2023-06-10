@@ -90,7 +90,7 @@ const lightStyles = StyleSheet.create({
         padding: 16
     },
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#212121",
         fontSize: 14,
 

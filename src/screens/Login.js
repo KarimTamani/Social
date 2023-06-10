@@ -231,7 +231,7 @@ const lightStyles = StyleSheet.create({
     },
     title: {
         color: "#212121",
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
     },
     input: {
         marginVertical: 16,
@@ -305,7 +305,7 @@ const darkStyles = {
     },  
     title: {
         color: darkTheme.textColor,
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
     },
     showButton: {
 

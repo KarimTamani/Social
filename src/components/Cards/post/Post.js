@@ -121,6 +121,7 @@ function Post(props) {
 
 
     const toggleLike = () => {
+        setLike(!like);
         if (!like) {
             setNumLikes(numLikes + 1);
             event.emit("update-post-likes", post.id, true, numLikes + 1);
@@ -128,13 +129,10 @@ function Post(props) {
             setNumLikes(numLikes - 1);
             event.emit("update-post-likes", post.id, false, numLikes - 1);
         }
-        setLike(!like);
-
     }
 
     const likePost = useCallback(() => {
         toggleLike();
-
         client.mutate({
             mutation: gql`
                 mutation Like($postId: ID!) {
@@ -145,9 +143,10 @@ function Post(props) {
                 postId: post.id
             }
         }).then(response => {
+    
 
         }).catch(error => {
-            toggleLike();
+
         })
 
     }, [like, numLikes]);
@@ -562,7 +561,8 @@ const lightStyles = StyleSheet.create({
 
         textAlignVertical: "center",
         fontSize: 12,
-        fontFamily: textFonts.bold
+        fontFamily: textFonts.bold , 
+        fontWeight : "bold" , 
 
     },
 
@@ -645,7 +645,7 @@ const lightStyles = StyleSheet.create({
     },
     shareText: {
 
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#666",
         fontSize: 12
     },
@@ -681,6 +681,7 @@ const darkStyles = {
         textAlignVertical: "center",
         fontSize: 12,
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         color: darkTheme.textColor,
 
     },
@@ -692,7 +693,7 @@ const darkStyles = {
     },
     shareText: {
 
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: darkTheme.textColor,
 
         fontSize: 12
@@ -720,7 +721,7 @@ const darkStyles = {
     },
     interactionValue: {
         paddingRight: 6,
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: darkTheme.textColor,
         fontSize: 12
 

@@ -408,7 +408,7 @@ const lightStyles = StyleSheet.create({
         height: 32,
         textAlign: "center",
         textAlignVertical: "center",
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "white",
         borderRadius: 32
     },
@@ -434,7 +434,7 @@ const lightStyles = StyleSheet.create({
         color: "#FFD700"
     },
     unseen: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         message: {
             color: "#212121"
         }
@@ -501,7 +501,7 @@ const darkStyles = {
     },
 
     unseen: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         message: {
             color: darkTheme.textColor
         }

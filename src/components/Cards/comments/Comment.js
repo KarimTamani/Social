@@ -379,7 +379,7 @@ const lightStyles = StyleSheet.create({
     },
     name: {
 
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         fontSize: 12
     },
     commentContent: {
@@ -412,7 +412,8 @@ const lightStyles = StyleSheet.create({
 
     },
     bold: {
-        fontFamily: textFonts.bold
+        fontFamily: textFonts.bold , 
+        fontWeight : "bold" , 
     },
     replays: {
         marginTop: 8,
@@ -427,7 +428,7 @@ const darkStyles = {
     ...lightStyles,
     name: {
 
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: darkTheme.textColor , 
 
         fontSize: 12

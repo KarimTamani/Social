@@ -161,7 +161,7 @@ const lightStyles = StyleSheet.create({
         flex: 0
     },
     createText: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         paddingHorizontal: 8
     },
     header: {
@@ -188,7 +188,7 @@ const darkStyles = {
         borderColor : darkTheme.borderColor 
     }, 
     createText: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         paddingHorizontal: 8 , 
         color  : darkTheme.textColor , 
     }, 

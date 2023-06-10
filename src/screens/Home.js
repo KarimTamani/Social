@@ -198,27 +198,32 @@ export default function Home({ navigation }) {
             }
         }
 
-        const editPost = ( editablePost) => { 
+        const editPost = (editablePost) => {
             const index = posts.findIndex(post => post.type != "loading" && post.type != "stories" && post.type != "reels" && post.id == editablePost.id);
-            if (index >= 0) { 
+            if (index >= 0) {
                 var newPostsState = [...posts];
                 newPostsState[index] = {
                     ...editablePost
-                } 
-      
+                }
+
                 setPosts(newPostsState);
             }
         }
 
-        
+
+        const userBlocked = (user) => {
+            setPosts( posts.filter(post => post.type == "loading" || post.type == "stories" || post.type == "reels" || post.user.id != user.id) );
+        }
+
+
         event.addListener("update-post-likes", updatePostLikes);
         event.addListener("update-post-comments", updatePostComments);
         event.addListener("update-post-favorite", updatePostFavorite);
         event.addListener("update-profile", updateProfile);
         event.addListener("new-post", addNewPost);
         event.addListener("delete-post", deletePost);
-        event.addListener("edit-post" ,editPost ) ; 
-
+        event.addListener("edit-post", editPost);
+        event.addListener("blocked-user", userBlocked);
         return () => {
             event.removeListener('new-post', addNewPost);
             event.removeListener("update-post-likes", updatePostLikes);
@@ -226,7 +231,8 @@ export default function Home({ navigation }) {
             event.removeListener("update-post-favorite", updatePostFavorite);
             event.removeListener("update-profile", updateProfile);
             event.removeListener("delete-post", deletePost);
-            event.removeListener("edit-post" ,editPost ) ; 
+            event.removeListener("edit-post", editPost);
+            event.removeListener("blocked-user", userBlocked);
         }
     }, [posts])
 
@@ -404,7 +410,8 @@ const lightStyles = StyleSheet.create({
     stories: {
         backgroundColor: "white",
         paddingVertical: 16,
-        marginTop: 16
+        marginTop: 16,
+
     },
 
 });

@@ -102,7 +102,7 @@ const lightStyles = StyleSheet.create({
         marginBottom: 56
     },
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         marginTop: 16
     },
     row: {
@@ -126,7 +126,7 @@ const lightStyles = StyleSheet.create({
 const darkStyles  = {
     ...lightStyles , 
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         marginTop: 16 , 
         color : darkTheme.textColor
     },

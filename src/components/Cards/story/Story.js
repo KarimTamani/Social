@@ -154,7 +154,8 @@ const styles = StyleSheet.create({
     addText: {
         color: "white",
         fontSize: 14,
-        fontFamily: textFonts.bold
+        fontFamily: textFonts.bold , 
+        fontWeight : "bold" , 
     },
     addIcon: {
         color: "white",
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
         textAlign: "right",
         paddingBottom: 12,
         paddingRight: 6,
-        fontFamily: textFonts.semiBold
+        fontFamily: textFonts.bold
 
     }
 })

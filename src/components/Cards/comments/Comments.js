@@ -446,6 +446,7 @@ const lightStyles = StyleSheet.create({
     },
     header: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         fontSize: 16,
         paddingHorizontal: 16
     },
@@ -532,6 +533,7 @@ const lightStyles = StyleSheet.create({
     },
     bold: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
     },
     blue: {
         color: "#1A6ED8"
@@ -543,6 +545,7 @@ const darkStyles = {
 
     header: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         fontSize: 16,
         paddingHorizontal: 16,
         color: darkTheme.textColor
@@ -568,6 +571,7 @@ const darkStyles = {
     },
     bold: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         color: darkTheme.textColor
     },
     commentInputContainer: {

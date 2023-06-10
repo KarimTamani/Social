@@ -181,7 +181,7 @@ const lightStyles = StyleSheet.create({
     },
     text: {
         color: "#1A6ED8",
-        fontFamily: textFonts.semiBold
+        fontFamily: textFonts.bold
     },
     mediaContainer: {
         width: 48,

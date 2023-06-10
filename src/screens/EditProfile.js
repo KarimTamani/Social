@@ -200,6 +200,7 @@ const lightStyles = StyleSheet.create({
     },
     headerText: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         textAlign: "center",
         fontSize: 18,
         marginVertical: 16
@@ -228,6 +229,7 @@ const darkStyles = {
     },
     headerText: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         textAlign: "center",
         fontSize: 18,
         marginVertical: 16,

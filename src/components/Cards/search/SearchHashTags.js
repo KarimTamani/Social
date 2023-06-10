@@ -153,7 +153,7 @@ const lightStyles = StyleSheet.create({
         alignItems: "flex-end"
     },
     hashtagName: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         fontSize: 12
     },
     numPosts: {

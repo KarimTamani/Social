@@ -161,7 +161,8 @@ const lightStyles = StyleSheet.create({
     hashtagName: {
         fontFamily: textFonts.bold,
         fontSize: 16,
-        textAlign: "right"
+        textAlign: "right" , 
+        fontWeight : "bold"
     },
     follow: {
         padding: 8,
@@ -197,6 +198,7 @@ const darkStyles = {
     },
     hashtagName: {
         fontFamily: textFonts.bold,
+        fontWeight : "bold" , 
         fontSize: 16,
         textAlign: "right" , 
         color : darkTheme.textColor

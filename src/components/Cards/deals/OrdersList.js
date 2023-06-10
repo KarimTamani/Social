@@ -148,7 +148,7 @@ const lightStyles = StyleSheet.create({
         paddingRight: 12,
     },
     serviceTitle: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#333",
         fontSize: 14
     },
@@ -192,7 +192,7 @@ const darkStyles = {
     },
     serviceTitle  :  { 
         
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#333",
         fontSize: 14 , 
         color : darkTheme.textColor 

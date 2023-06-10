@@ -303,6 +303,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
         }
 
 
+
         const groupCreated = async () => {
             setFirstFetch(true);
             setEnd(false);
@@ -310,7 +311,37 @@ export default function ConversationsList({ openConversation, query, asParticipa
             load_conversations("", []);
         };
 
-        event.addListener("group-created" , groupCreated)  ;
+
+        const blcokedUser = (user) => {
+
+            var cloneConversations = [...conversations];
+            var conversationsToDelete = [];
+
+            for (let index = 0; index < cloneConversations.length; index++) {
+
+                cloneConversations[index].members = cloneConversations[index].members.filter(member => member.user.id != user.id);
+
+                if (cloneConversations[index].type == "group") {
+                    if (cloneConversations[index].members.length == 1)
+                        conversationsToDelete.push( index ) ; 
+                }else {
+                    if (cloneConversations[index].members.length == 0)
+                        conversationsToDelete.push( index ) ; 
+                }
+            }
+
+            for ( let index = 0 ; index < conversationsToDelete.length ; index ++) { 
+                cloneConversations.splice( conversationsToDelete[index] , 1 )
+            } 
+
+
+            setConversations(cloneConversations) ; 
+
+        }
+
+
+        event.addListener("blocked-user", blcokedUser);
+        event.addListener("group-created", groupCreated);
         event.addListener("delete-conversation", deleteConversation);
         event.addListener("conversation-seen", conversationSeen);
         event.addListener("message-sent", messageSent);
@@ -326,7 +357,8 @@ export default function ConversationsList({ openConversation, query, asParticipa
             event.removeListener("delete-conversation", deleteConversation);
             event.removeListener("conversation-accepted", conversationAccepted);
             event.removeListener("simat-changed", simatChanged);
-            event.removeListener("group-created" , groupCreated)  ;
+            event.removeListener("group-created", groupCreated);
+            event.removeListener("blocked-user", blcokedUser);
         }
 
 
@@ -596,7 +628,7 @@ const lightStyles = StyleSheet.create({
         height: 32,
         textAlign: "center",
         textAlignVertical: "center",
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "white",
         borderRadius: 32
     },
@@ -622,7 +654,7 @@ const lightStyles = StyleSheet.create({
         color: "#FFD700"
     },
     unseen: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         message: {
             color: "#212121"
         }
@@ -678,7 +710,7 @@ const darkStyles = {
     },
 
     unseen: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         message: {
             color: darkTheme.textColor
         }

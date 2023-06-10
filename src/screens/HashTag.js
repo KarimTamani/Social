@@ -159,6 +159,12 @@ export default function HashTag({ route, navigation }) {
             }
 
         }
+
+        
+        const userBlocked = (user) => {
+            setPosts(posts.filter(post => post.type == "loading" || post.user.id != user.id));
+        }
+        event.addListener("blocked-user", userBlocked);
         event.addListener("delete-post", deletePost);
         event.addListener("edit-post", editPost);
         event.addListener("update-post-likes", updatePostLikes);
@@ -169,6 +175,7 @@ export default function HashTag({ route, navigation }) {
             event.removeListener("update-post-comments", updatePostComments);
             event.removeListener("delete-post", deletePost);
             event.removeListener("edit-post", editPost);
+            event.removeListener("blocked-user", userBlocked);
         }
     }, [event, posts])
 

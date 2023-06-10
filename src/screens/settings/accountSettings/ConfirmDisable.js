@@ -68,7 +68,7 @@ const lightStyles = StyleSheet.create({
         backgroundColor: "white",
     },
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: "#212121",
         fontSize: 16,
 
@@ -112,7 +112,7 @@ const darkStyles = {
         backgroundColor: darkTheme.backgroudColor
     },
     title: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         color: darkTheme.textColor,
         
 

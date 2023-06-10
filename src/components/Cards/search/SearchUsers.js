@@ -9,6 +9,7 @@ import { AuthContext } from "../../../providers/AuthContext";
 import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
 import { getMediaUri } from "../../../api";
+import { useEvent } from "../../../providers/EventProvider";
 const LIMIT = 10;
 
 export default function SearchUsers({ query, navigation }) {
@@ -22,6 +23,8 @@ export default function SearchUsers({ query, navigation }) {
     const [end, setEnd] = useState(false);
 
 
+    const event = useEvent();
+
     const [currentUser, setCurrentUser] = useState(null);
     const auth = useContext(AuthContext);
 
@@ -31,9 +34,6 @@ export default function SearchUsers({ query, navigation }) {
 
 
     useEffect(() => {
-
-
-
         if (!currentUser) {
             (async () => {
                 const userAuth = await auth.getUserAuth();
@@ -72,10 +72,6 @@ export default function SearchUsers({ query, navigation }) {
 
             setLoading(false);
             setFirstFetch(false);
-
-
-
-
         }).catch(error => {
             setLoading(false);
             setFirstFetch(false);
@@ -83,12 +79,24 @@ export default function SearchUsers({ query, navigation }) {
 
     }
 
+    useEffect(() => {
+
+        const userBlocked = (user) => {
+            setUsers(users.filter(u => u.id != user.id));
+        } ; 
+        
+        event.addListener("blocked-user", userBlocked);
+
+        return () => {
+            event.removeListener("blocked-user", userBlocked);
+        }
+    }, [users]);
 
     useEffect(() => {
 
-        setFirstFetch(true) ; 
-        setEnd(false) ; 
-        setLoading(false) ; 
+        setFirstFetch(true);
+        setEnd(false);
+        setLoading(false);
         if (query)
             search_users(query, [])
         else
@@ -97,7 +105,7 @@ export default function SearchUsers({ query, navigation }) {
 
     useEffect(() => {
         if (loading)
-            search_users(query, users.filter(user => user.type != "loading") );
+            search_users(query, users.filter(user => user.type != "loading"));
     }, [loading])
 
     const openProfile = useCallback((userId) => {
@@ -136,7 +144,7 @@ export default function SearchUsers({ query, navigation }) {
             </TouchableOpacity>
         )
 
-    }, [navigation, currentUser , styles]);
+    }, [navigation, currentUser, styles]);
 
 
 
@@ -181,14 +189,14 @@ export default function SearchUsers({ query, navigation }) {
 
 const lightStyles = StyleSheet.create({
     container: {
-        flex: 1 , 
-        padding : 16 , 
-        paddingBottom : 0
+        flex: 1,
+        padding: 16,
+        paddingBottom: 0
     },
     user: {
         flexDirection: "row",
-        alignItems: "center" , 
-        marginBottom : 12
+        alignItems: "center",
+        marginBottom: 12
     },
 
     userImage: {
@@ -203,7 +211,7 @@ const lightStyles = StyleSheet.create({
         paddingRight: 16
     },
     fullname: {
-        fontFamily: textFonts.semiBold,
+        fontFamily: textFonts.bold,
         fontSize: 12
     },
     username: {
@@ -212,20 +220,20 @@ const lightStyles = StyleSheet.create({
         fontSize: 12
     }
 
-}); 
+});
 
 
-const darkStyles = { 
-    ...lightStyles , 
+const darkStyles = {
+    ...lightStyles,
     username: {
         fontFamily: textFonts.regular,
         color: darkTheme.secondaryTextColor,
         fontSize: 12
-    } , 
+    },
     fullname: {
-        fontFamily: textFonts.semiBold,
-        fontSize: 12 , 
+        fontFamily: textFonts.bold,
+        fontSize: 12,
         color: darkTheme.textColor,
-        
+
     },
 }
