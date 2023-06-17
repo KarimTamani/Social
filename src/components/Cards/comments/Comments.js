@@ -113,9 +113,7 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
                     postId: post.id
                 }
             }).then(response => {
-
-
-                console.log(response);
+ 
                 if (response) {
                     setComments([...comments.filter(comment => comment.type != "loading"), ...response.data.getPostComments]);
 

@@ -11,6 +11,7 @@ import { ApolloContext } from "../../../providers/ApolloContext";
 import { gql } from "@apollo/client";
 import { useEvent } from "../../../providers/EventProvider";
 import LikeHeart from "../post/LikeHeart";
+import { useTiming } from "../../../providers/TimeProvider";
 
 const LIMIT = 5;
 
@@ -28,6 +29,7 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
     const client = useContext(ApolloContext);
     const events = useEvent();
 
+    const timing = useTiming()
 
     const likeComment = useCallback(() => {
         // like a comment or a replay 
@@ -131,6 +133,7 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
                  
                   replay
                   liked
+                  createdAt 
                   user {
                     name lastname
                     id
@@ -152,12 +155,15 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
 
             else
                 setIsLoading(false);
+
+ 
+
             if (response) {
                 console.log("set replayis")
                 setReplays([...replays, ...response.data.getCommentReplays]);
             }
         }).catch(error => {
-            console.log(error);
+      
             setFirstFetch(false);
         })
 
@@ -183,7 +189,7 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
                 loadReplies()
             }
         }
-    }, [showReplays , replays]);
+    }, [showReplays, replays]);
 
 
     const keyExtractor = useCallback((item, index) => {
@@ -196,7 +202,6 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
 
 
     const loadMore = useCallback(() => {
-
         loadReplies();
     }, [replays, comment, firstFetch, isLoading]);
 
@@ -221,7 +226,7 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
                         {comment.user.validated && <AntDesign name="checkcircle" style={styles.blueIcon} />} {comment.user.name} {comment.user.lastname}
                     </Text>
                     <Text style={styles.time}>
-                        قبل دقيقة واحدة
+                        {timing.getPeriod(comment.createdAt)}
                     </Text>
                 </View>
                 {
@@ -231,7 +236,7 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
                         <LikeHeart
                             style={styles.interactionIcon}
                             like={like}
-                            color = {themeContext.getTheme() == "light" ? null : darkTheme.textColor  }
+                            color={themeContext.getTheme() == "light" ? null : darkTheme.textColor}
                         />
 
                     </TouchableOpacity>
@@ -412,8 +417,8 @@ const lightStyles = StyleSheet.create({
 
     },
     bold: {
-        fontFamily: textFonts.bold , 
-        fontWeight : "bold" , 
+        fontFamily: textFonts.bold,
+        fontWeight: "bold",
     },
     replays: {
         marginTop: 8,
@@ -429,16 +434,16 @@ const darkStyles = {
     name: {
 
         fontFamily: textFonts.bold,
-        color: darkTheme.textColor , 
+        color: darkTheme.textColor,
 
         fontSize: 12
     }
     ,
     commentText: {
-     
+
         fontFamily: textFonts.regular,
         fontSize: 12,
-        color: darkTheme.secondaryTextColor , 
+        color: darkTheme.secondaryTextColor,
         marginVertical: 8
 
     },

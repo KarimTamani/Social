@@ -76,6 +76,7 @@ export default function Conversation({ navigation, route }) {
                     likes  
                     isFavorite 
                     reel { 
+                        id
                         thumbnail { 
                             id  path 
                         } 

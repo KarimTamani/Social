@@ -48,6 +48,7 @@ export default function ProfileVideos({ navigation, route }) {
                     id path 
                   }
                   reel { 
+                    id
                     views 
                     thumbnail { 
                         id path 

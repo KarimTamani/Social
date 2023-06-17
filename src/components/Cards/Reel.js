@@ -20,6 +20,7 @@ import { useEvent } from "../../providers/EventProvider";
 import LikeHeart from "./post/LikeHeart";
 import { AuthContext } from "../../providers/AuthContext";
 import Confirmation from "./Confirmation";
+import { useTiming } from "../../providers/TimeProvider";
 
 
 
@@ -70,6 +71,30 @@ function Reel(props) {
 
     const client = useContext(ApolloContext);
 
+    const timting = useTiming() ; 
+
+    useEffect(() => {
+
+
+        if (focus) {
+
+            client.mutate({
+                mutation: gql`
+                mutation SeeReel($reelId: ID!) {
+                    seeReel(reelId: $reelId)
+                }` ,
+                variables: {
+                    reelId: props?.reel?.reel?.id
+                }
+            }).then(response => {
+ 
+            }).catch(error => {
+       
+            });
+        }
+
+
+    }, [focus])
 
     useEffect(() => {
 
@@ -101,7 +126,7 @@ function Reel(props) {
     }, [props])
 
 
-   
+
 
 
     const processHashTag = (text, hashtags) => {
@@ -122,8 +147,6 @@ function Reel(props) {
             hashtagName: hashtag
         })
     }, [navigation])
-
-
 
     const toggleLike = () => {
         if (!like) {
@@ -283,10 +306,10 @@ function Reel(props) {
     }, [reel]);
     const closeConfirmation = useCallback(() => {
         setShowDeleteConfirmation(false);
-    }, []) ; 
+    }, []);
 
 
-    
+
     const editPost = useCallback(() => {
         setShowOptions(false);
         navigation && navigation.navigate('EditPost', {
@@ -328,7 +351,9 @@ function Reel(props) {
                     onRequestClose={toggleSender}
                 >
                     <Slider onClose={toggleSender} percentage={0.3}>
-                        <Sender />
+                        <Sender  
+                            postId = { reel.id }
+                        />
                     </Slider>
                 </Modal>
             }
@@ -459,7 +484,8 @@ function Reel(props) {
 
 
                             <Text style={styles.time}>
-                                قبل دقيقة واحدة
+                                
+                                { timting.getPeriod (reel.createdAt)}
                             </Text>
                         </View>
                         {
@@ -529,8 +555,8 @@ const postCoparator = (prevProps, nextProps) => {
 
 
 
-    if (previousPost.title != nextPost.title) 
-        return false; 
+    if (previousPost.title != nextPost.title)
+        return false;
     if (prevProps.focus != nextProps.focus)
         return false;
 
@@ -644,7 +670,7 @@ const styles = StyleSheet.create({
 
         color: "white",
         fontFamily: textFonts.bold,
-        fontWeight : "bold" , 
+        fontWeight: "bold",
         fontSize: 12
     },
 

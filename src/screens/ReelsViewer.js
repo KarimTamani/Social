@@ -49,6 +49,7 @@ export default function ReelsViewer({ navigation, route }) {
                     likes  
                     isFavorite
                     reel { 
+                        id
                         thumbnail { 
                             id  path 
                         } 

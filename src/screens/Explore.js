@@ -67,6 +67,7 @@ export default function Explore({ navigation }) {
                         validated 
                     }
                     reel { 
+                        id
                         thumbnail { 
                             id  path 
                         } 

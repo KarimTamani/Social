@@ -54,6 +54,7 @@ export default function Favorites({ navigation }) {
                         validated 
                     }
                     reel { 
+                        id
                         thumbnail { 
                             id  path 
                         } 

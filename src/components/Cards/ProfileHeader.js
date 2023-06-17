@@ -5,19 +5,25 @@ import { Feather } from '@expo/vector-icons';
 import { useCallback, useContext, useState } from "react";
 import ProfileOptions from "./profile/ProfileOptions";
 import Sender from "../../components/Cards/Sender";
-import Slider from "../../components/Cards/Slider" ; 
+import Slider from "../../components/Cards/Slider";
 import ThemeContext from "../../providers/ThemeContext";
 import darkTheme from "../../design-system/darkTheme";
 
 
-export default function ProfileHeader({ myProfile, onBack, navigation , user }) {
+export default function ProfileHeader({ myProfile, onBack, navigation, user }) {
 
 
     const [showOptions, setShowOptions] = useState(false);
     const [showSender, setShowSender] = useState(false);
     const openSettings = useCallback(() => {
-        navigation.navigate("SettingsRoute");
-    }, [navigation]);
+        navigation.navigate("SettingsRoute", {
+            screen: "Settings",
+            params: {
+
+                user
+            }
+        });
+    }, [navigation, user]);
 
 
     const toggleOptions = useCallback(() => {
@@ -27,7 +33,7 @@ export default function ProfileHeader({ myProfile, onBack, navigation , user }) 
     const toggleProfileSender = useCallback(() => {
         setShowSender(!showSender);
 
-    }, [showSender]) ; 
+    }, [showSender]);
 
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
@@ -58,8 +64,8 @@ export default function ProfileHeader({ myProfile, onBack, navigation , user }) 
                 >
                     <ProfileOptions
                         onClose={toggleOptions}
-                        user = {user }
-                        toggleProfileSender = { toggleProfileSender }
+                        user={user}
+                        toggleProfileSender={toggleProfileSender}
                     />
 
                 </Modal>
@@ -74,7 +80,7 @@ export default function ProfileHeader({ myProfile, onBack, navigation , user }) 
                     <Slider
                         onClose={toggleProfileSender}
                     >
-                        <Sender 
+                        <Sender
 
                         />
                     </Slider>
@@ -98,12 +104,12 @@ const lightStyles = StyleSheet.create({
     icon: {
         fontSize: 24
     }
-}) ; 
+});
 
-const darkStyles = { 
-    ...lightStyles , 
+const darkStyles = {
+    ...lightStyles,
     icon: {
-        fontSize: 24 , 
-        color : darkTheme.textColor 
+        fontSize: 24,
+        color: darkTheme.textColor
     }
 }

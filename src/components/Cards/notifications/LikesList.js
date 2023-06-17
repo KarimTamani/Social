@@ -9,6 +9,7 @@ import { getMediaUri } from "../../../api";
 import LoadingActivity from "../post/loadingActivity";
 import { useRealTime } from "../../../providers/RealTimeContext";
 import { useEvent } from "../../../providers/EventProvider";
+import { useTiming } from "../../../providers/TimeProvider";
 
 
 
@@ -21,27 +22,28 @@ export default function LikesList({ navigation, route }) {
     const [likes, setLikes] = useState([]);
 
 
-    const realTime = useRealTime() ; 
+    const realTime = useRealTime();
     const [firstFetch, setFirstFetch] = useState(true);
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
 
-    
+
     const themeContext = useContext(ThemeContext);
-    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles; 
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
 
-    const event = useEvent() ; 
-    
+    const timing = useTiming();
+    const event = useEvent();
+
     useEffect(() => {
 
-        if (!route || !route.params || !route.params.notificationData) 
-            return ; 
+        if (!route || !route.params || !route.params.notificationData)
+            return;
         const notificationData = route.params.notificationData;
 
         if (notificationData && notificationData.post) {
 
-         
+
             const post = JSON.parse(notificationData.post);
 
             if (post.type != "reel")
@@ -92,6 +94,7 @@ export default function LikesList({ navigation, route }) {
                         path
                       }
                       reel {
+                        id 
                         thumbnail {
                           id
                           path
@@ -147,36 +150,36 @@ export default function LikesList({ navigation, route }) {
             loadNotfications(likes.filter(like => like.type != "loading").length);
     }, [loading])
 
-    useEffect(() => { 
+    useEffect(() => {
 
 
-        const onNewLike = ( newLike ) => {
-            const index = likes.findIndex(like => like.like.post.id == newLike.post.id) ; 
-            if ( index < 0) {
-                setLikes([{like : newLike} , ...likes]) ; 
-            }else{ 
-           
-                likes.splice(index ,1 ) ; 
-                setLikes([{like : newLike} , ...likes]) ; 
+        const onNewLike = (newLike) => {
+            const index = likes.findIndex(like => like.like.post.id == newLike.post.id);
+            if (index < 0) {
+                setLikes([{ like: newLike }, ...likes]);
+            } else {
+
+                likes.splice(index, 1);
+                setLikes([{ like: newLike }, ...likes]);
             }
-        } ; 
+        };
         const userBlocked = (user) => {
             setLikes(likes.filter(like => like.type == "loading" || like.like.user.id != user.id));
         }
 
-        realTime.addListener("NEW_LIKE" , onNewLike) ; 
+        realTime.addListener("NEW_LIKE", onNewLike);
         event.addListener("blocked-user", userBlocked);
-        
-        
 
-        return () => { 
-            realTime.removeListener("NEW_LIKE" , onNewLike) ;
-            event.removeListener("blocked-user", userBlocked); 
+
+
+        return () => {
+            realTime.removeListener("NEW_LIKE", onNewLike);
+            event.removeListener("blocked-user", userBlocked);
         }
 
 
 
-    } , [likes])
+    }, [likes])
 
     const keyExtractor = useCallback((item, index) => {
         return index
@@ -306,12 +309,19 @@ export default function LikesList({ navigation, route }) {
                     !item.like.user.profilePicture &&
                     <Image source={require("../../../assets/illustrations/gravater-icon.png")} style={styles.userImage} />
                 }
-                {
+
+                <View style={styles.notificationContent}>
+
                     <Text style={styles.text} numberOfLines={2} ellipsizeMode="tail">
                         ساهم <Text style={styles.bold}>{fullname}</Text> في {postType} {otherLikers}
                     </Text>
 
-                }
+
+                    <Text style={styles.time}>
+                        {timing.getPeriod(item.like.createdAt)}
+                    </Text>
+                </View>
+
                 {
                     imageSource &&
                     <Image style={styles.image} source={{ uri: imageSource }} />
@@ -325,7 +335,7 @@ export default function LikesList({ navigation, route }) {
 
             </TouchableOpacity>
         )
-    }, [ styles]);
+    }, [styles]);
 
 
     const reachEnd = useCallback(() => {
@@ -377,12 +387,21 @@ const lightStyles = StyleSheet.create({
         paddingHorizontal: 16
     },
     text: {
-        flex: 1,
+        
         color: "#666",
         fontSize: 12,
+
         fontFamily: textFonts.regular,
-        lineHeight: 26,
+ 
     },
+
+    notificationContent : { 
+        flex : 1 
+    } , 
+    time : { 
+        fontSize : 10 , 
+        color : "#888"
+    } , 
     image: {
         width: 48,
         height: 64,
@@ -397,26 +416,26 @@ const lightStyles = StyleSheet.create({
     },
     bold: {
         fontFamily: textFonts.bold,
-        color: "#212121"
+        color: "#212121" , 
+        fontWeight : "bold"
     },
 });
 
 const darkStyles = {
     ...lightStyles,
-    text: {
-        
-        
-        
-        flex: 1,
-        color: "#666",
+    text: {    
         fontSize: 12,
         fontFamily: textFonts.regular,
-        lineHeight: 26,
+   
         color: darkTheme.secondaryTextColor,
-    } , 
+    },
     bold: {
         fontFamily: textFonts.bold,
-        color: darkTheme.textColor
+        color: darkTheme.textColor , 
+        fontWeight : "bold"
     },
-
+    time : { 
+        fontSize : 10 , 
+        color : darkTheme.secondaryTextColor 
+    } , 
 }

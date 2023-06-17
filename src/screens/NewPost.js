@@ -184,6 +184,7 @@ export default function NewPost({ navigation }) {
                         id path 
                     }
                     reel {
+                        
                         id 
                         views 
                         thumbnail { 

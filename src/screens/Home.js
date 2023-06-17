@@ -283,6 +283,7 @@ export default function Home({ navigation }) {
                         likes  
                         numComments 
                         reel { 
+                            id
                             thumbnail { 
                                 id  path 
                             } 

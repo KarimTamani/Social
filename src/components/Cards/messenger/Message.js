@@ -18,22 +18,17 @@ export default function Message({ message, openImage, openVideo, showSender, las
 
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
-
-
     if (themeContext.getTheme() == "dark") {
-
         textBackground = [darkTheme.secondaryBackgroundColor, darkTheme.secondaryBackgroundColor];
     }
     if (myMessage) {
         textBackground = ['#BAD0FD', "#BBD2FE"];
     }
 
-
-
     const timing = useTiming();
-
     const openPost = useCallback(() => {
 
+        console.log(message.post) ; 
         navigation.navigate("ViewPosts", {
             getPosts: () => [message.post],
             title: "مشاراكات"

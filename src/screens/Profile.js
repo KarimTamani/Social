@@ -19,6 +19,7 @@ import { useEvent } from "../providers/EventProvider";
 import { Entypo } from '@expo/vector-icons';
 import LoadingProfile from "../components/Cards/loadings/LoadingProfile";
 import ProfileNotFound from "../components/Cards/profile/ProfileNotFound";
+import PrivateContentMessage from "../components/Cards/profile/PrivateContentMessage";
 
 
 
@@ -99,12 +100,9 @@ export default function Profile({ route, navigation }) {
                     userId = userAuth.user.id;
                     event.on("edit-profile", () => {
                         getUser(userAuth.user.id).then(async response => {
-
                             setUser(response.data.getUserById)
                             await auth.updateUser(response.data.getUserById);
-
                             event.emit("update-profile", response.data.getUserById);
-
                         });
                     })
                 }
@@ -311,8 +309,6 @@ export default function Profile({ route, navigation }) {
                     }
                     <View style={styles.profileInfo}>
                         <View style={styles.info}>
-
-
                             <Text style={styles.infoTitle}>
                                 المنشورات
                             </Text>
@@ -320,9 +316,7 @@ export default function Profile({ route, navigation }) {
                                 {user.numPosts}
                             </Text>
                         </View>
-
                         <View style={styles.info}>
-
                             <Text style={styles.infoTitle}>
                                 متابعون
                             </Text>
@@ -331,7 +325,6 @@ export default function Profile({ route, navigation }) {
                             </Text>
                         </View>
                         <View style={styles.info}>
-
                             <Text style={styles.infoTitle}>
                                 يتبع
                             </Text>
@@ -342,11 +335,14 @@ export default function Profile({ route, navigation }) {
                     </View>
                 </View>
                 {
-                    user &&
-
+                    user && (!userId || follow || !user.private) &&
                     <View style={[styles.posts, !userId && { marginBottom: 56 }]}>
                         <ProfilePostsRoute userId={user.id} navigation={navigation} />
                     </View>
+                }
+                {
+                    user && userId && !follow && user.private &&
+                    <PrivateContentMessage />
                 }
             </ScrollView>
 

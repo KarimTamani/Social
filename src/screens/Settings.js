@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Modal } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Modal, Switch } from "react-native";
 import Header from "../components/Cards/Header";
 import { Entypo } from '@expo/vector-icons';
 import { textFonts } from "../design-system/font";
@@ -10,14 +10,19 @@ import { AuthContext } from "../providers/AuthContext";
 import darkTheme from "../design-system/darkTheme";
 import { ApolloContext } from "../providers/ApolloContext";
 import { gql } from "@apollo/client";
+import { useEvent } from "../providers/EventProvider";
 
 
 
-export default function Settings({ navigation }) {
+export default function Settings({ navigation, route }) {
+
+    var user = route.params?.user;
+    const [isPrivate, setIsPrivate] = useState(route.params?.user?.private);
 
     const [showPrivateAccount, setShowPrivateAccount] = useState(false);
 
     const client = useContext(ApolloContext);
+    const event = useEvent() ; 
 
     const togglePrivateAccount = useCallback(() => {
         setShowPrivateAccount(!showPrivateAccount);
@@ -73,7 +78,9 @@ export default function Settings({ navigation }) {
         {
             name: "حساب خاص",
             icon: require("../assets/icons/CompositeLayer.png"),
-            onPress: togglePrivateAccount
+            onPress: togglePrivateAccount,
+            isToggling: true , 
+
 
         },
 
@@ -114,24 +121,44 @@ export default function Settings({ navigation }) {
                             }
                         }`
                     }).then(async response => {
-                        console.log(response)
+
                         if (response.data) {
                             await auth.logOut();
                             navigation.navigate("HomeNavigation", { screen: "Home" })
                         }
                     })
-                    
+
                 })()
             }, [navigation])
         }
     ]
-
     const themeContext = useContext(ThemeContext);
-
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles
 
+    const togglePrivacy = useCallback(() => { 
+        
+        setShowPrivateAccount( false ) ; 
 
+        client.query({
+            query : gql`
+            mutation Mutation {
+                togglePrivate {
+                  id  
+                  private  
+                }
+              }`
+        }).then(response => {
 
+    
+            if ( response && response.data.togglePrivate) {
+                console.log( response.data.togglePrivate.private) ; 
+                setIsPrivate(response.data.togglePrivate.private  ) ;
+                event.emit("edit-profile") ; 
+            }
+        }) 
+              
+
+    } , [isPrivate , user ])
 
     return (
         <View style={styles.container}>
@@ -143,7 +170,24 @@ export default function Settings({ navigation }) {
                 {
                     routes.map((route, index) => (
                         <TouchableOpacity style={styles.route} onPress={route.onPress} key={index}>
-                            <Image source={route.icon} style={styles.icon} />
+                            {
+
+                                route.isToggling &&
+                                <Switch
+                                    trackColor={{ false: '#aaaa', true: '#1A6ED8aa' }}
+                                    thumbColor={!isPrivate ? '#eeee' : '#1A6ED8'}
+                                    ios_backgroundColor="#3e3e3e"
+                                    value={isPrivate}
+                                    onValueChange={togglePrivacy}
+                                    style={styles.switcher}
+                                />
+
+                            }
+                            {
+                                !route.isToggling &&
+                                <Image source={route.icon} style={styles.icon} />
+
+                            }
                             <Text style={styles.routeText}>
                                 {route.name}
                             </Text>
@@ -153,7 +197,7 @@ export default function Settings({ navigation }) {
                 }
             </ScrollView>
             {
-                showPrivateAccount &&
+                showPrivateAccount && !isPrivate && 
                 <Modal
                     transparent
                     onRequestClose={togglePrivateAccount}
@@ -162,7 +206,9 @@ export default function Settings({ navigation }) {
                         onClose={togglePrivateAccount}
                         percentage={0.4}
                     >
-                        <PrivateAccount />
+                        <PrivateAccount 
+                            togglePrivate={togglePrivacy}
+                        />
                     </Slider>
                 </Modal>
             }
@@ -205,6 +251,10 @@ const lightStyles = StyleSheet.create({
         resizeMode: "contain",
         marginLeft: 16,
         marginRight: 8
+    } , 
+    switcher : { 
+
+        height: 24,
     }
 })
 

@@ -28,7 +28,7 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user }) {
 
     const toggleConfirmation = useCallback(() => {
         setShowConfirmation(!showConfirmation);
-    }, [showConfirmation  ])
+    }, [showConfirmation])
 
 
     const showBlockMessage = useCallback(() => {
@@ -41,7 +41,7 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user }) {
     }, [user , showConfirmation]);
 
     const block = useCallback(() => {
-        /*
+  
         setIsLoading( true ) ; 
         client.mutate({ 
             mutation : gql`
@@ -65,12 +65,9 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user }) {
             setIsLoading( false ) ; 
         })  ; 
 
-        */
+     
 
-        event.emit("blocked-user" , user) ; 
-        toggleConfirmation() ; 
-        onClose && onClose() ; 
-  
+    
     }, [user , onClose]);
 
 

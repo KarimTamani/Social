@@ -177,6 +177,7 @@ export default function Reels({ navigation, route }) {
                     likes  
                     isFavorite
                     reel { 
+                        id 
                         thumbnail { 
                             id  path 
                         } 

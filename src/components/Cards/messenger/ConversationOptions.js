@@ -34,7 +34,7 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
 
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
-    const [isDeleting, setIsDeleting] = useState(false);
+  
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [operation, setOperation] = useState();
 
@@ -173,43 +173,31 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
         if (conversation && conversation.members.length >= 1) {
             var user = conversation.members[0].user;
 
-            /*
-                   setIsLoading( true ) ; 
-                   client.mutate({ 
-                       mutation : gql`
+
+            setIsLoading(true);
+            client.mutate({
+                mutation: gql`
                        mutation Mutation($userId: ID!) {
                            toggleBlock(userId: $userId)
-                       }`, 
-                       variables : {
-                           userId : user.id 
-                       }
-                   }).then(response => {
-                       console.log(response); 
-                       if (response) { 
-                           
-                           event.emit("blocked-user" , user) ; 
-                           toggleConfirmation() ; 
-                           onClose && onClose() ; 
-                           setIsLoading( false ) ; 
-                       }
-                   }).catch( error => {
-                       console.log( error ) ; 
-                       setIsLoading( false ) ; 
-                   })  ; 
-           
-                   */
+                       }`,
+                variables: {
+                    userId: user.id
+                }
+            }).then(response => {
+         
+                if (response) {
 
-            event.emit("blocked-user", user);
-            toggleConfirmation();
-            onClose && onClose();
-
+                    event.emit("blocked-user", user);
+                    toggleConfirmation();
+                    onClose && onClose();
+                    setIsLoading(false);
+                }
+            }).catch(error => {
+                console.log(error);
+                setIsLoading(false);
+            });
 
         }
-
-
-
-
-
 
     }, [conversation, navigation]);
 

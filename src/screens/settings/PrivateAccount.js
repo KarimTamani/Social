@@ -4,7 +4,7 @@ import PrimaryButton from "../../components/Buttons/PrimaryButton";
 import darkTheme from "../../design-system/darkTheme";
 import { textFonts } from "../../design-system/font";
 import ThemeContext from "../../providers/ThemeContext";
-export default function PrivateAccount({ navigation }) {
+export default function PrivateAccount({ navigation , togglePrivate }) {
 
     const themeContext = useContext(ThemeContext) ; 
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles
@@ -28,7 +28,7 @@ export default function PrivateAccount({ navigation }) {
 
                 <PrimaryButton
                     title={"تبديل الى حساب خاص"}
-                    
+                    onPress={ togglePrivate }
                 />
             </View>
 

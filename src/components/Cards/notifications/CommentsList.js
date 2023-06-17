@@ -13,6 +13,7 @@ import { useEvent } from "../../../providers/EventProvider";
 import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
 import { useRealTime } from "../../../providers/RealTimeContext";
+import { useTiming } from "../../../providers/TimeProvider";
 
 const LIMIT = 3;
 
@@ -35,6 +36,8 @@ export default function CommentsList({ navigation, route }) {
   const event = useEvent();
   const auth = useContext(AuthContext);
   const realTime = useRealTime();
+
+  const timing = useTiming()
 
 
   const themeContext = useContext(ThemeContext);
@@ -107,13 +110,7 @@ export default function CommentsList({ navigation, route }) {
             }
           })();
         }
-
-
-
       }
-
-
-
     }
   }, [route])
   const loadNotfications = async (postOffset, replayOffset, storyOffset) => {
@@ -149,6 +146,7 @@ export default function CommentsList({ navigation, route }) {
                         path
                       }
                       reel {
+                        id 
                         thumbnail {
                           id
                           path
@@ -171,6 +169,7 @@ export default function CommentsList({ navigation, route }) {
                         }
                         type 
                         reel {
+                          id
                             thumbnail { 
                                 id path 
                             }
@@ -667,9 +666,7 @@ export default function CommentsList({ navigation, route }) {
         {
           !user.profilePicture &&
           <Image source={require("../../../assets/illustrations/gravater-icon.png")} style={styles.userImage} />
-
         }
-
         {
           item.comment &&
           <View style={styles.commentContainer}>
@@ -684,6 +681,10 @@ export default function CommentsList({ navigation, route }) {
               record &&
               <RecordPlayer uri={record} />
             }
+            <Text style={styles.time}>
+              {timing.getPeriod(item.comment.createdAt)}
+            </Text>
+
           </View>
 
         }
@@ -701,6 +702,10 @@ export default function CommentsList({ navigation, route }) {
               record &&
               <RecordPlayer uri={record} />
             }
+            <Text style={styles.time}>
+              {timing.getPeriod(item.replay.createdAt)}
+            </Text>
+
           </View>
 
         }
@@ -712,6 +717,9 @@ export default function CommentsList({ navigation, route }) {
             </Text>
             <Text style={[styles.comment, styles.bold]} numberOfLines={2} ellipsizeMode="tail">
               {item.storyComment.comment}
+            </Text>
+            <Text style={styles.time}>
+              {timing.getPeriod(item.storyComment.createdAt)}
             </Text>
           </View>
         }

@@ -56,6 +56,7 @@ export default function HashTag({ route, navigation }) {
                         validated 
                     }
                     reel { 
+                        id
                         thumbnail { 
                             id  path 
                         } 

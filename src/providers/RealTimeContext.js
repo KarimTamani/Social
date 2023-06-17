@@ -75,6 +75,7 @@ const RealTimeProvider = ({ children, userAuth }) => {
                               likes  
                               isFavorite 
                               reel { 
+                                id
                                   thumbnail { 
                                       id  path 
                                   } 
@@ -150,6 +151,7 @@ const RealTimeProvider = ({ children, userAuth }) => {
                                 path
                               }
                               reel {
+                                id
                                 thumbnail {
                                   id
                                   path
@@ -195,6 +197,7 @@ const RealTimeProvider = ({ children, userAuth }) => {
                                 path
                               }
                               reel {
+                                id
                                 thumbnail {
                                   id
                                   path
@@ -227,6 +230,7 @@ const RealTimeProvider = ({ children, userAuth }) => {
                                   }
                                   type 
                                   reel {
+                                    id
                                       thumbnail { 
                                           id path 
                                       }

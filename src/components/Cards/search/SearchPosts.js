@@ -53,6 +53,7 @@ export default function SearchPosts({ type, query, navigation }) {
                         validated 
                     }
                     reel { 
+                        id
                         thumbnail { 
                             id  path 
                         } 
