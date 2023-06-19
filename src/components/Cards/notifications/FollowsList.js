@@ -10,15 +10,16 @@ import { getMediaUri } from "../../../api";
 import LoadingActivity from "../post/loadingActivity";
 import { useEvent } from "../../../providers/EventProvider";
 import { useRealTime } from "../../../providers/RealTimeContext";
+import { useTiming } from "../../../providers/TimeProvider";
 
 const LIMIT = 10;
 
 
-export default function FollowsList({ navigation , route  }) {
+export default function FollowsList({ navigation, route }) {
 
 
     const client = useContext(ApolloContext);
-    const event = useEvent() ; 
+    const event = useEvent();
 
 
     const themeContext = useContext(ThemeContext);
@@ -30,20 +31,20 @@ export default function FollowsList({ navigation , route  }) {
     const [firstFetch, setFirstFetch] = useState(true);
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
-    const realTime = useRealTime() ; 
-    
+    const realTime = useRealTime();
+    const timing = useTiming();
     useEffect(() => {
-        
-        if (!route || !route.params || !route.params.notificationData) 
-            return ; 
-        
-        const notificationData = route.params.notificationData ; 
 
-        if ( notificationData && notificationData.user) {
-            openProfile(notificationData.user.id) ; 
+        if (!route || !route.params || !route.params.notificationData)
+            return;
+
+        const notificationData = route.params.notificationData;
+
+        if (notificationData && notificationData.user) {
+            openProfile(notificationData.user.id);
         }
-        
-    } , [route])
+
+    }, [route])
 
 
     const loadNotfications = async (offset) => {
@@ -74,15 +75,15 @@ export default function FollowsList({ navigation , route  }) {
         }).then(response => {
             if (response && response.data) {
                 var newFollowers = response.data.getFollowersNotifications;
-                if (newFollowers.length < LIMIT ) 
-                    setEnd(true) ; 
- 
+                if (newFollowers.length < LIMIT)
+                    setEnd(true);
+
                 setFollowers([...(followers.filter(follower => follower.type != "loading")), ...newFollowers]);
-                
+
             }
 
 
-            
+
             setFirstFetch(false);
             setLoading(false);
         }).catch(error => {
@@ -94,47 +95,47 @@ export default function FollowsList({ navigation , route  }) {
     }
 
     useEffect(() => {
-        setFollowers([]) ; 
+        setFollowers([]);
         setFirstFetch(true);
         loadNotfications(followers.filter(follower => follower.type != "loading").length);
- 
+
     }, []);
 
 
-    useEffect(() => {   
-        const updateFollwingState = ({ userId, state }) => { 
-            const index = followers.findIndex(follower => follower.follow.user.id == userId) ; 
-            if ( index >= 0 ) { 
+    useEffect(() => {
+        const updateFollwingState = ({ userId, state }) => {
+            const index = followers.findIndex(follower => follower.follow.user.id == userId);
+            if (index >= 0) {
 
-                followers[index].follow.user.isFollowed = state ;
-                setFollowers([...followers]) ; 
-            } 
+                followers[index].follow.user.isFollowed = state;
+                setFollowers([...followers]);
+            }
         }
 
-        const onNewFollow = ( newFollow) => { 
-            const index = followers.findIndex(follower => follower.follow.user.id == newFollow.user.id) ; 
-            if (index < 0) { 
-                setFollowers([{ follow : newFollow} , ...followers]) ; 
-            }else {
-                followers.splice(index, 1 ) ;  
-                setFollowers([{ follow : newFollow} , ...followers]) ; 
+        const onNewFollow = (newFollow) => {
+            const index = followers.findIndex(follower => follower.follow.user.id == newFollow.user.id);
+            if (index < 0) {
+                setFollowers([{ follow: newFollow }, ...followers]);
+            } else {
+                followers.splice(index, 1);
+                setFollowers([{ follow: newFollow }, ...followers]);
             }
         }
         const userBlocked = (user) => {
             setFollowers(followers.filter(follower => follower.type == "loading" || follower.follow.user.id != user.id));
         }
-        
 
-        event.addListener("new-following" , updateFollwingState) ; 
-        realTime.addListener("NEW_FOLLOW" , onNewFollow) ; 
+
+        event.addListener("new-following", updateFollwingState);
+        realTime.addListener("NEW_FOLLOW", onNewFollow);
         event.addListener("blocked-user", userBlocked);
 
-        return () => { 
-            event.removeListener("new-following" , updateFollwingState) ; 
-            realTime.removeListener("NEW_FOLLOW"  , onNewFollow) ; 
+        return () => {
+            event.removeListener("new-following", updateFollwingState);
+            realTime.removeListener("NEW_FOLLOW", onNewFollow);
             event.removeListener("blocked-user", userBlocked);
         }
-    } , [followers])
+    }, [followers])
 
     useEffect(() => {
         if (loading)
@@ -162,9 +163,9 @@ export default function FollowsList({ navigation , route  }) {
                 if (response && response.data) {
 
                     setFollowers([...followers]);
-                    event.emit("new-following" , {
-                        userId  : follower.follow.user.id  , 
-                        state : response.data.toggleFollow 
+                    event.emit("new-following", {
+                        userId: follower.follow.user.id,
+                        state: response.data.toggleFollow
                     })
                 }
             });
@@ -182,12 +183,12 @@ export default function FollowsList({ navigation , route  }) {
         }
 
 
-    }, [loading, followers, end, firstFetch]) ; 
+    }, [loading, followers, end, firstFetch]);
 
 
-    const openProfile = useCallback((userId) => { 
+    const openProfile = useCallback((userId) => {
         navigation.navigate("Profile", { userId: userId });
-    } , [])
+    }, [])
 
     const renderItem = useCallback(({ item }) => {
         if (item.type == "loading") {
@@ -204,9 +205,16 @@ export default function FollowsList({ navigation , route  }) {
                     <Image source={require("../../../assets/illustrations/gravater-icon.png")} style={styles.userImage} />
 
                 }
-                <Text style={styles.text}>
-                    بدأ <Text style={styles.bold}>{item.follow.user.name} {item.follow.user.lastname}</Text> بمتابعتك
-                </Text>
+                <View style={styles.notificationContent}>
+
+                    <Text style={styles.text}>
+                        بدأ <Text style={styles.bold}>{item.follow.user.name} {item.follow.user.lastname}</Text> بمتابعتك
+                    </Text>
+                    
+                    <Text style={styles.time}>
+                        {timing.getPeriod(item.follow.createdAt)}
+                    </Text>
+                </View>
                 <SmallFollowButton
                     style={!item.follow.user.isFollowed ? styles.button : styles.unfollowButton}
                     textStyle={!item.follow.user.isFollowed ? styles.buttonText : styles.unfollowText}
@@ -216,15 +224,15 @@ export default function FollowsList({ navigation , route  }) {
 
             </TouchableOpacity>
         )
-    }, [followers , styles]);
+    }, [followers, styles]);
 
 
-    
+
     const keyExtractor = useCallback((item, index) => {
         return index;
     }, [followers])
 
-  
+
     return (
         <View style={styles.container}>
             {
@@ -258,7 +266,7 @@ const lightStyles = StyleSheet.create({
         justifyContent: "space-between",
         padding: 16,
         paddingVertical: 0,
-        marginTop: 16 ,  
+        marginTop: 16,
     },
     userImage: {
         width: 38,
@@ -276,14 +284,15 @@ const lightStyles = StyleSheet.create({
     text: {
         color: "#666",
         textAlign: "right",
-        flex: 1,
-        paddingRight: 12,
+ 
+ 
         fontSize: 12,
         fontFamily: textFonts.regular
     },
     bold: {
         fontFamily: textFonts.bold,
-        color: "#212121"
+        color: "#212121" , 
+        fontWeight : "bold"
     },
     unfollowText: {
         fontSize: 10,
@@ -303,7 +312,14 @@ const lightStyles = StyleSheet.create({
 
         flex: 1,
         marginBottom: 64
-    }
+    } , 
+    notificationContent : {
+
+    } , 
+    time : { 
+        fontSize : 10 , 
+        color : "#888"
+    } , 
 })
 
 const darkStyles = {
@@ -311,14 +327,17 @@ const darkStyles = {
     text: {
         color: darkTheme.secondaryTextColor,
         textAlign: "right",
-        flex: 1,
-        paddingRight: 12,
-        fontFamily: textFonts.regular , 
+ 
+        fontFamily: textFonts.regular,
         fontSize: 12,
-    } , 
+    },
     bold: {
         fontFamily: textFonts.bold,
-        color: darkTheme.textColor
+        color: darkTheme.textColor , 
+        fontWeight : "bold"
     },
-
+    time : { 
+        fontSize : 10 , 
+        color : darkTheme.secondaryTextColor 
+    } ,
 }

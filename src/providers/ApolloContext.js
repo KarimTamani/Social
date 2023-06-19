@@ -36,14 +36,23 @@ export const ApolloProvider = ({ children, userAuth }) => {
         var user = await AsyncStorage.getItem("user");
         var token = null;
 
+    
         if (user) {
             user = JSON.parse(user);
             token = user.token;
         }
 
+        if (headers?.Authorization) {
+            return {
+                headers: {
+                    ...headers,
+                }
+            }
+        }
         return {
-            ...headers,
+
             headers: {
+                ...headers,
                 Authorization: (token) ? (token) : (null)
             }
         }
@@ -80,9 +89,10 @@ export const ApolloProvider = ({ children, userAuth }) => {
             const errorLink = onError(({ graphQLErrors, networkError }) => {
                 if (graphQLErrors) {
                     graphQLErrors.forEach(({ extensions, message, locations, path }) => {
-                        if (extensions.code == 403)
+                        if (extensions.code == 403) {
                             // setError("Token expired loging out in 3 seconds");
                             event.emit("token-expired");
+                        }
                     });
                 }
             })

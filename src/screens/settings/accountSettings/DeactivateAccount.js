@@ -64,7 +64,8 @@ export default function DeactivateAccount({ navigation  }) {
                         title={"تعطيل"}
                         style={styles.button}
                         onPress = { openConfirmation }
-                    />
+
+                        />
                 </View>
 
             </ScrollView>

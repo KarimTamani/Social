@@ -467,9 +467,7 @@ function Reel(props) {
             <LinearGradient
                 colors={["#00000000", "#000000"]}
                 locations={[0, 0.8]}
-
                 style={styles.reelInfo}
-
             >
                 <View style={styles.footer}>
 

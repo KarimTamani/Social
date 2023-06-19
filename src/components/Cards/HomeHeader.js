@@ -9,13 +9,14 @@ import { ApolloContext } from "../../providers/ApolloContext";
 import { gql } from "@apollo/client";
 import { useEvent } from "../../providers/EventProvider";
 import { useRealTime } from "../../providers/RealTimeContext";
+import { AuthContext } from "../../providers/AuthContext";
 export default function HomeHeader({ navigation }) {
 
 
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
-    const realTime = useRealTime() ; 
+    const realTime = useRealTime();
 
 
     const onMessenger = useCallback(() => {
@@ -30,49 +31,58 @@ export default function HomeHeader({ navigation }) {
     const [unReadConversations, setUnReadConversations] = useState([]);
     const client = useContext(ApolloContext);
     const event = useEvent();
+    const auth = useContext(AuthContext);
 
     useEffect(() => {
-        client.query({
-            query: gql`
-            query Query {
-                getUnReadConversations {
-                    id     
-                  
-                }
-            }`
-        }).then(response => {
-            if (response && response.data)
-                setUnReadConversations(response.data.getUnReadConversations);
 
+        (async () => {
+            var userAuth = await auth.getUserAuth();
+            if (userAuth) {
+                client.query({
+                    query: gql`
+                    query Query {
+                        getUnReadConversations {
+                            id     
+                          
+                        }
+                    }`
+                }).then(response => {
+                    if (response && response.data)
+                        setUnReadConversations(response.data.getUnReadConversations);
+
+                })
+            }
         })
+
+
     }, []);
 
 
     useEffect(() => {
         const conversationSeen = (conversationId) => {
 
-            const index = unReadConversations.findIndex( conversation => conversation.id == conversationId) ; 
+            const index = unReadConversations.findIndex(conversation => conversation.id == conversationId);
             if (index >= 0) {
-                var cloneConversations = [...unReadConversations] ; 
-                cloneConversations.splice(index , 1) ; 
-                setUnReadConversations(cloneConversations) ; 
+                var cloneConversations = [...unReadConversations];
+                cloneConversations.splice(index, 1);
+                setUnReadConversations(cloneConversations);
             }
-        }   ; 
+        };
 
-        const onNewMessage = (newMessage) => { 
-            const conversationId = newMessage.conversationId;   
-            const index = unReadConversations.findIndex( conversation => conversation.id == conversationId) ; 
-            if ( index < 0) 
-                setUnReadConversations([...unReadConversations , { id : conversationId }]) ;     
+        const onNewMessage = (newMessage) => {
+            const conversationId = newMessage.conversationId;
+            const index = unReadConversations.findIndex(conversation => conversation.id == conversationId);
+            if (index < 0)
+                setUnReadConversations([...unReadConversations, { id: conversationId }]);
         }
 
         event.addListener("conversation-seen", conversationSeen);
-        realTime.addListener("NEW_MESSAGE" , onNewMessage)  ;
+        realTime.addListener("NEW_MESSAGE", onNewMessage);
 
-        return() => { 
-            event.removeListener("conversation-seen" , conversationSeen) ; 
-            realTime.removeListener("NEW_MESSAGE" , onNewMessage)  ;
-        
+        return () => {
+            event.removeListener("conversation-seen", conversationSeen);
+            realTime.removeListener("NEW_MESSAGE", onNewMessage);
+
         }
 
     }, [unReadConversations])

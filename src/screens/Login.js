@@ -35,7 +35,7 @@ export default function Login({ navigation }) {
     }
 
     const client = useContext(ApolloContext);
-    const auth = useContext(AuthContext) ; 
+    const auth = useContext(AuthContext);
 
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles
@@ -43,7 +43,7 @@ export default function Login({ navigation }) {
 
 
     const [showPassword, setShowPassword] = useState(false);
-    const [loading , setLoading] = useState(false ) ; 
+    const [loading, setLoading] = useState(false);
     const togglePasswordVisibility = useCallback(() => {
         setShowPassword(!showPassword);
     }, [showPassword]);
@@ -58,11 +58,11 @@ export default function Login({ navigation }) {
     const goSignup = useCallback(() => {
         navigation.navigate("Signup");
     }, []);
-    
-    
+
+
     const login = useCallback((values) => {
-        setLoading (true) ; 
-        setError(null) ; 
+        setLoading(true);
+        setError(null);
 
         client.query({
             query: gql`     
@@ -74,9 +74,11 @@ export default function Login({ navigation }) {
                     lastname 
                     username
                     validated
+                    disabled
                     profilePicture { 
                         id path 
                     }
+                    updatedAt 
                   }
                   token 
                 }
@@ -84,12 +86,32 @@ export default function Login({ navigation }) {
             ` ,
             variables: values
         }).then(async response => {
-            await auth.logIn(response.data.Login) ;
-            setLoading (false) ;   
-            navigation.navigate("HomeNavigation");
+
+         
+            if (response && response.data) {
+                if (!response.data.Login.user.disabled) {
+                    await auth.logIn(response.data.Login);
+                    setLoading(false);
+                    navigation.navigate("HomeNavigation");
+                }
+                else {
+                     
+                    setLoading( false ) ;
+                    
+                    navigation.navigate("ActivateAccount" , {
+                        login : response.data.Login 
+                    });
+                }
+            }else{
+                setLoading(false);
+
+                setError("لا يمكن تسجيل الدخول ، يرجى التحقق من البريد الإلكتروني / رقم الهاتف وكلمة المرور")
+                    
+            }
         }).catch(error => {
-            setLoading (false) ;   
-              
+            console.log ( error ) ; 
+            setLoading(false);
+
             setError("لا يمكن تسجيل الدخول ، يرجى التحقق من البريد الإلكتروني / رقم الهاتف وكلمة المرور")
         })
 
@@ -163,15 +185,15 @@ export default function Login({ navigation }) {
                                         style={styles.button}
                                         disabled={!isValid}
                                         onPress={handleSubmit}
-                                        loading= {loading}
+                                        loading={loading}
                                     />
                                     {
-                                        error  &&
+                                        error &&
                                         <Text style={errorStyle.errorMessage}>
-                                            { error }
+                                            {error}
                                         </Text>
                                     }
-                                  
+
                                 </View>
 
                             )
@@ -295,14 +317,14 @@ const lightStyles = StyleSheet.create({
     blueClickable: {
         color: "#1A6ED8"
     },
-    
-}) ; 
-const darkStyles = { 
-    ...lightStyles , 
+
+});
+const darkStyles = {
+    ...lightStyles,
     container: {
         flex: 1,
         backgroundColor: darkTheme.backgroudColor
-    },  
+    },
     title: {
         color: darkTheme.textColor,
         fontFamily: textFonts.bold,

@@ -35,6 +35,7 @@ import Favorites from "../screens/Favorites";
 import HashTag from "../screens/HashTag";
 import EditPost from "../screens/EditPost";
 import ArchivedConversations from "../components/Cards/messenger/ArchivedConversations";
+import ActivateAccount from "../screens/ActivateAccount";
 
 const Stack = createStackNavigator();
 
@@ -75,6 +76,7 @@ export default function RootNavigation({ initialRouteName = "AuthRoute" }) {
 
                 initialRouteName={initialRouteName}
             >
+                <Stack.Screen name="ActivateAccount" component={ActivateAccount}/>
                 <Stack.Screen name="HashTag" component={HashTag} />
                 <Stack.Screen name="EditPost" component={EditPost} />
                 <Stack.Screen name="Favorites" component={Favorites} />

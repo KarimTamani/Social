@@ -26,23 +26,19 @@ export default function Conversation({ navigation, route }) {
     const [conversation, setConversation] = useState(route.params?.conversation);
     const isGroup = route.params?.conversation?.type == "group";
     const isArchived = route.params?.archived;
-
     const [isReadable, setIsReadable] = useState(null);
     const [sender, setSender] = useState(null);
     const auth = useContext(AuthContext);
     const client = useContext(ApolloContext);
     const [fetchingConversation, setFetchingConversation] = useState(route.params?.conversation == null);
     const [firstFtech, setFirstFetch] = useState(true);
-
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
     const list = useRef();
-
     const event = useEvent();
     const [memberLastSeen, setMemberLastSeen] = useState(route.params?.conversation?.members[0]?.lastSeenAt);
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
-
     const [disableInput, setDisableInput] = useState(false);
 
     const loadMessages = async (conversationId, sender, members) => {
@@ -102,7 +98,7 @@ export default function Conversation({ navigation, route }) {
                 conversationId: conversationId
             }
         }).then(response => {
-
+            console.log(response)
             var newMessages = response.data.getMessages;
             newMessages = newMessages.map(message => {
                 if (message.media) {
@@ -130,38 +126,25 @@ export default function Conversation({ navigation, route }) {
 
         }).catch(error => {
             console.log(error);
-
         });
     }
 
-
-
-
     useEffect(() => {
-
         const onNewMessage = (newMessage) => {
             if (newMessage.media) {
                 newMessage.media.uri = getMediaUri(newMessage.media.path);
             }
             const index = members.findIndex(member => member.user.id == newMessage.sender.id);
             newMessage.sender = members[index].user
-
-
             setMessages([newMessage, ...messages]);
             seeConversation(conversation.id);
         }
-
-
         const onConversationSaw = (conversationMember) => {
             setMemberLastSeen(conversationMember.lastSeenAt);
         }
-
-
         const blockedUser = (user) => {
             setDisableInput(true);
         }
-
-
         if (conversation) {
             realTime.addListener("NEW_MESSAGE_CONVERSATION_" + conversation.id, onNewMessage);
             realTime.addListener("CONVERSATION_SAW_" + conversation.id, onConversationSaw);

@@ -226,14 +226,13 @@ export default function CommentsList({ navigation, route }) {
         limit: LIMIT
       }
     }).then(response => {
+ 
       if (response && response.data) {
         var newPostComments = response.data.getCommentPostNotification;
         var replayComments = response.data.getReplayCommentNotification;
         var newStoriesComments = response.data.getStoryCommentNotification;
 
-
         if (newPostComments.length < LIMIT && replayComments.length < LIMIT && newStoriesComments.length < LIMIT) {
-
           setEnd(true);
         }
 
@@ -816,6 +815,10 @@ const lightStyles = StyleSheet.create({
     flex: 1,
     justifyContent: "center"
   },
+  time : { 
+    fontSize : 10 , 
+    color : "#888"
+} , 
   comment: {
     fontSize: 12
   },
@@ -833,13 +836,12 @@ const lightStyles = StyleSheet.create({
   },
   bold: {
     fontFamily: textFonts.bold,
-    color: "#212121"
+    color: "#212121" , 
+    fontWeight : "bold"
   },
   list: {
-
     flex: 1,
     marginBottom: 64,
-
   },
 })
 
@@ -857,6 +859,11 @@ const darkStyles = {
   },
   bold: {
     fontFamily: textFonts.bold,
-    color: darkTheme.textColor
+    color: darkTheme.textColor , 
+    fontWeight : "bold"
   },
+  time : { 
+    fontSize : 10 , 
+    color : darkTheme.secondaryTextColor 
+} ,
 }
