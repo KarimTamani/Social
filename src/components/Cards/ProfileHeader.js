@@ -81,7 +81,7 @@ export default function ProfileHeader({ myProfile, onBack, navigation, user }) {
                         onClose={toggleProfileSender}
                     >
                         <Sender
-
+                            userId = {user.id}
                         />
                     </Slider>
 

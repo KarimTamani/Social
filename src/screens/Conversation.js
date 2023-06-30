@@ -88,7 +88,18 @@ export default function Conversation({ navigation, route }) {
                         validated 
                     }
                   }
+                  account {
+                    id
+                    name 
+                    lastname 
+                    username 
+                    profilePicture { 
+                        id path 
+                    } 
+                    validated 
                 }
+                } 
+                
               }
             
             ` ,
@@ -98,7 +109,7 @@ export default function Conversation({ navigation, route }) {
                 conversationId: conversationId
             }
         }).then(response => {
-            console.log(response)
+          
             var newMessages = response.data.getMessages;
             newMessages = newMessages.map(message => {
                 if (message.media) {

@@ -323,19 +323,19 @@ export default function ConversationsList({ openConversation, query, asParticipa
 
                 if (cloneConversations[index].type == "group") {
                     if (cloneConversations[index].members.length == 1)
-                        conversationsToDelete.push( index ) ; 
-                }else {
+                        conversationsToDelete.push(index);
+                } else {
                     if (cloneConversations[index].members.length == 0)
-                        conversationsToDelete.push( index ) ; 
+                        conversationsToDelete.push(index);
                 }
             }
 
-            for ( let index = 0 ; index < conversationsToDelete.length ; index ++) { 
-                cloneConversations.splice( conversationsToDelete[index] , 1 )
-            } 
+            for (let index = 0; index < conversationsToDelete.length; index++) {
+                cloneConversations.splice(conversationsToDelete[index], 1)
+            }
 
 
-            setConversations(cloneConversations) ; 
+            setConversations(cloneConversations);
 
         }
 
@@ -518,7 +518,20 @@ export default function ConversationsList({ openConversation, query, asParticipa
                             <Text style={[styles.lastMessage, item.unseenMessages > 0 && styles.unseen.message]}>
                                 قام بمشاركة منشور
                             </Text>
+                        }
 
+                        {
+                            item.messages && item.messages.length > 0 && item.messages[0].type == "account" && myMessage &&
+                            <Text style={[styles.lastMessage, item.unseenMessages > 0 && styles.unseen.message]}>
+                                قمت بمشاركة حساب
+                            </Text>
+
+                        }
+                        {
+                            item.messages && item.messages.length > 0 && item.messages[0].type == "account" && !myMessage &&
+                            <Text style={[styles.lastMessage, item.unseenMessages > 0 && styles.unseen.message]}>
+                                قام بمشاركة حساب
+                            </Text>
                         }
 
                     </View>

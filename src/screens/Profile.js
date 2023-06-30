@@ -195,17 +195,10 @@ export default function Profile({ route, navigation }) {
                 } else {
                     setNumFollowers(numFollowers - 1)
                 }
-
-
-
                 event.emit("new-following", {
                     userId: userId,
                     state: response.data.toggleFollow
                 });
-
-
-
-
             }
 
         }).catch(error => {

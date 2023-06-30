@@ -1,17 +1,17 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useState } from "react";
 import { FontAwesome } from '@expo/vector-icons';
 import { textFonts } from "../design-system/font";
 import { ApolloContext } from "../providers/ApolloContext";
 import { gql } from "@apollo/client";
 import { createRNUploadableFile } from "../providers/MediaProvider";
 import { useEvent } from "../providers/EventProvider";
-
+import PrimaryButton from "../components/Buttons/PrimaryButton" ; 
 export default function AddStory({ navigation, route }) {
 
     const media = route.params?.media;
     const client = useContext(ApolloContext);
-
+    const [isLoading , setIsLoading] = useState(false) ; 
     const event = useEvent();
 
 
@@ -21,7 +21,7 @@ export default function AddStory({ navigation, route }) {
 
 
     const share = useCallback(() => {
-
+        setIsLoading(true) ; 
         (async () => {
             const file = await createRNUploadableFile(media.uri);
             client.mutate({
@@ -48,11 +48,11 @@ export default function AddStory({ navigation, route }) {
                     var story = response.data.createStory;
                     story.liked = false;
                     event.emit("new-story", story);
-
                     navigation.goBack();
+                    setIsLoading(false) ; 
                 }
             }).catch(error => {
-                console.log(error);
+                setIsLoading( false ) ; 
             })
         })()
 
@@ -68,11 +68,18 @@ export default function AddStory({ navigation, route }) {
                         <TouchableOpacity onPress={clear}>
                             <FontAwesome name="times" size={24} color="red" />
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.outlineButton]} onPress={share}>
-                            <Text style={styles.outlineText}>
-                                شارك
-                            </Text>
-                        </TouchableOpacity>
+
+
+                        <PrimaryButton
+                            title={"شارك"}
+                            onPress={ share }
+                            style={styles.outlineButton} 
+                            textStyle={  styles.outlineText }
+                            loading ={ isLoading } 
+                        />
+
+              
+                        
                     </View>
                     <Image source={media} style={styles.storyImage} />
                 </View>

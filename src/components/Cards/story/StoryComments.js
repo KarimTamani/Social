@@ -5,8 +5,8 @@ import { gql } from "@apollo/client";
 import { getMediaUri } from "../../../api";
 import { textFonts } from "../../../design-system/font";
 import { useEvent } from "../../../providers/EventProvider";
-
-const { width  , height } = Dimensions.get("window");
+import LoadingActivity from "../../Cards/post/loadingActivity"
+const { width, height } = Dimensions.get("window");
 const LIMIT = 5;
 
 
@@ -14,68 +14,97 @@ export default function StoryComments({ story, currentStory }) {
 
     const [comments, setComments] = useState([]);
     const client = useContext(ApolloContext);
-    const event = useEvent()
-    useEffect(() => {
+    const event = useEvent();
+    const [loading, setLoading] = useState(false);
+    const [firstFetch, setFirstFetch] = useState(true);
+    const [end , setEnd] = useState( false ) ; 
+    const load_comments = (previousComments) => {
+        var offset = previousComments.length;
 
-
-
-        if (currentStory && story.id == currentStory && comments.length == 0) {
-
-
-
-
-            client.query({
-                query: gql`
-            query GetStoryComments($storyId: ID!, $offset: Int!, $limit: Int!, $mine: Boolean) {
-                getStoryComments(storyId: $storyId, offset: $offset, limit: $limit, mine: $mine) {
-                  createdAt
-                  id
-                  comment
-                  user {
-                    id
-                    name 
-                    lastname
-                    profilePicture {
-                      id path 
-                    }
-                  }
+        client.query({
+            query: gql`
+        query GetStoryComments($storyId: ID!, $offset: Int!, $limit: Int!, $mine: Boolean) {
+            getStoryComments(storyId: $storyId, offset: $offset, limit: $limit, mine: $mine) {
+              createdAt
+              id
+              comment
+              user {
+                id
+                name 
+                lastname
+                profilePicture {
+                  id path 
                 }
               }
-            
-            ` , variables: {
-                    offset: comments.length,
-                    limit: LIMIT,
-                    storyId: story.id,
-                    mine: false
-                }
-            }).then(response => {
+            }
+          }
+        
+        ` , variables: {
+                offset: offset,
+                limit: LIMIT,
+                storyId: story.id,
+                mine: false
+            }
+        }).then(response => {
+            var newComments = response.data.getStoryComments ;  
+            console.log( newComments ) ; 
+            setComments([...previousComments ,  ...newComments]);
+            if ( newComments.length < LIMIT) 
+                setEnd(true) ; 
+        
+            setFirstFetch(false) ; 
+            setLoading( false ) ; 
+        }).catch(error => {
+            setFirstFetch(false) ; 
+            setLoading(false) ;
+        })
+    }
 
-                setComments(response.data.getStoryComments);
-
-            })
+    useEffect(() => {
+        if (currentStory && story.id == currentStory && comments.length == 0) {
+            setFirstFetch( true ) ; 
+            load_comments([]) ; 
         }
-
     }, [story, currentStory]);
+
+    useEffect(() => {
+        if (loading) {             
+            load_comments(comments.filter(c => c.type != "loading")) ; 
+        }
+    } , [loading ])
 
 
     useEffect(() => {
-
         if (currentStory && story.id == currentStory) {
             event.on("story-comment", (comment) => {
                 setComments([comment, ...comments]);
             });
-
         }
-
         return () => {
             event.off("story-comment");
         }
+    }, [story, currentStory, comments]) ; 
 
 
-    }, [story, currentStory, comments])
+    
+    // whenever we reach the end of the list 
+    // set the state to be loading and increase the offset 
+    const reachEnd = useCallback(() => {
+
+        if (!loading && !end && !firstFetch) {
+            setComments([ ...comments ,  { id : 0 ,  type : "loading"} ])
+            setLoading(true) ; 
+        }
+
+    }, [loading, comments, end , firstFetch]);
 
 
     const renderitem = useCallback(({ item, index }) => {
+
+        if (item.type == "loading")
+            return(
+                <LoadingActivity style={styles.loadComment}/>
+            )
 
         return (
             <View style={styles.commentContainer}>
@@ -103,17 +132,33 @@ export default function StoryComments({ story, currentStory }) {
         return item.id
     }, [])
 
-    return (
+    if (!firstFetch)
+        return (
 
-        <View style={styles.container}>
-            <FlatList
-                data={comments}
-                keyExtractor={keyExtractor}
-                renderItem={renderitem}
-            />
-        </View>
+            <View style={styles.container}>
 
-    )
+                <FlatList
+                    data={comments}
+                    keyExtractor={keyExtractor}
+                    renderItem={renderitem}
+                    onEndReachedThreshold={0.2}
+                    onEndReached={reachEnd}
+                />
+
+
+
+            </View>
+
+        )
+    else if (firstFetch) {
+        return (
+            <View style={[styles.container, { backgroundColor: "transparent" }]}>
+
+                <LoadingActivity />
+            </View>
+        )
+
+    }
 }
 
 
@@ -139,7 +184,7 @@ const styles = StyleSheet.create({
     },
     username: {
         fontFamily: textFonts.bold,
-        fontWeight : "bold" , 
+        fontWeight: "bold",
         fontSize: 12
     },
     comment: {
@@ -152,5 +197,8 @@ const styles = StyleSheet.create({
         height: 32,
         resizeMode: "cover",
         borderRadius: 32
+    } , 
+    loadComment : { 
+        height : 56 
     }
 })

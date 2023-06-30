@@ -12,14 +12,9 @@ export default function Story({ stories, onPress, user, openAddStoryScreen, mine
     const [story, setStory] = useState(null);
 
     useEffect(() => {
-
-        
-   
-
         if (stories && stories.length > 0) {
             setStory(stories[0]);
         }
-
     }, [stories])
 
 

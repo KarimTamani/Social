@@ -8,7 +8,7 @@ import { ApolloContext } from "../../../providers/ApolloContext";
 import { gql } from "@apollo/client";
 import LoadingSuggestions from "../loadings/LoadingSuggestions";
 import { useEvent } from "../../../providers/EventProvider";
-
+import LoadingActivity from "../../Cards/post/loadingActivity" ; 
 const LIMIT = 10;
 
 export default function AccountSuggestions({ navigation }) {
@@ -18,8 +18,13 @@ export default function AccountSuggestions({ navigation }) {
     const event = useEvent();
     const client = useContext(ApolloContext);
     const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [firstFetch, setFirstFetch] = useState(true);
     const [refrechFollowersHandler, setRefrechFollowersHandler] = useState(false);
+
+
+
+    const [loading, setLoading] = useState(false);
+    const [end, setEnd] = useState(false);
 
     const load_more_users = async (previousUsers) => {
 
@@ -47,9 +52,18 @@ export default function AccountSuggestions({ navigation }) {
             }
         }).then(response => {
 
-            console.log(response) ; 
-            setUsers([...previousUsers, ...response.data.suggestUsers])
-            setLoading(false)
+            var newUsers = response.data.suggestUsers
+            
+            if ( newUsers.length < LIMIT) 
+                setEnd(true) ; 
+            
+
+            setUsers([...previousUsers, ...newUsers])
+            setFirstFetch(false)
+            setLoading(false) ; 
+        }).catch(error => { 
+            setFirstFetch(false) ; 
+            setLoading(false) ; 
         })
 
 
@@ -57,34 +71,34 @@ export default function AccountSuggestions({ navigation }) {
     }
 
     useEffect(() => {
-
-
-       
-
-       load_more_users([]);
-
-
-
-
+        setFirstFetch(true) ; 
+        setLoading( false ) ; 
+        setEnd ( false ) ; 
+        load_more_users([]);
     }, []);
+
+
+    useEffect(() => { 
+        if ( loading) { 
+            load_more_users(users.filter ( user => user.type !="loading")) ; 
+        }
+    } , [loading])
 
 
     useEffect(() => {
 
 
-        const handleFollowingStateChanged = ({ userId, state , sourcePage }) => {
+        const handleFollowingStateChanged = ({ userId, state, sourcePage }) => {
 
-            if (sourcePage == "suggest-users") 
-                return ; 
-
-
+            if (sourcePage == "suggest-users")
+                return;
 
             if (users.length == 0) {
                 if (refrechFollowersHandler)
                     clearTimeout(refrechFollowersHandler);
 
                 setRefrechFollowersHandler(setTimeout(() => {
-                    setLoading(true)
+                    setFirstFetch(true)
                     load_more_users([]);
                 }, 5000));
             }
@@ -97,12 +111,10 @@ export default function AccountSuggestions({ navigation }) {
                         ...cloneState[index],
                         isFollowed: state
                     };
-        
+
                     setUsers(cloneState)
                 }
             }
-
-
         }
         event.addListener("new-following", handleFollowingStateChanged);
 
@@ -114,14 +126,35 @@ export default function AccountSuggestions({ navigation }) {
 
 
     const renderItem = useCallback(({ item }) => {
+
+        if ( item.type == "loading") 
+            return (
+                <LoadingActivity style={styles.loadingUser}/>
+            )
+       
         return <SuggestedUser user={item} navigation={navigation} />
     }, [users]);
 
     const keyExtractor = useCallback((item, index) => {
         return item.id;
-    }, [users])
+    }, [users]);
 
-    if (!loading && users.length == 0)
+
+    const endReach = useCallback(() => {
+        if (!firstFetch && !end && !loading) {
+     
+            
+           
+            setLoading ( true ) ; 
+             
+            setUsers([ ...users , { id: 0, type: "loading" }])
+        }
+
+    }, [firstFetch, end, loading , users]);
+
+
+
+    if (!firstFetch && users.length == 0)
         return (
             <View style={styles.emptyContainer}>
                 <Text style={styles.emptyMessage}>
@@ -130,7 +163,7 @@ export default function AccountSuggestions({ navigation }) {
             </View>
         )
 
-    if (!loading)
+    if (!firstFetch)
         return (
             <View style={styles.container}>
                 <Text style={styles.title}>
@@ -142,11 +175,12 @@ export default function AccountSuggestions({ navigation }) {
                     keyExtractor={keyExtractor}
                     style={styles.list}
                     horizontal
+                    onEndReached={endReach}
                 />
 
             </View>
         )
-    if (loading)
+    if (firstFetch)
         return (
             <View style={styles.container}>
 
@@ -162,12 +196,13 @@ const lightStyles = StyleSheet.create({
     container: {
     },
     list: {
-        borderRadius: 6, 
+        borderRadius: 6,
+    
     },
     title: {
         fontFamily: textFonts.bold,
-        marginBottom: 16 , 
-        
+        marginBottom: 16,
+
     },
     emptyContainer: {
         backgroundColor: "#eee",
@@ -175,13 +210,16 @@ const lightStyles = StyleSheet.create({
         width: "100%",
         borderRadius: 16,
         alignItems: "center",
-        justifyContent: "center" , 
-        marginTop : 16
+        justifyContent: "center",
+        marginTop: 16
     },
     emptyMessage: {
         fontFamily: textFonts.bold,
-        fontWeight : "bold" ,  
+        fontWeight: "bold",
         color: "#555", fontSize: 12
+    } , 
+    loadingUser : { 
+        width : 120 
     }
 });
 
@@ -192,21 +230,21 @@ const darkStyles = {
         fontFamily: textFonts.bold,
         marginBottom: 16,
         color: darkTheme.textColor
-    } , 
-    emptyContainer : {
+    },
+    emptyContainer: {
         backgroundColor: darkTheme.backgroudColor,
         height: 120,
         width: "100%",
         borderRadius: 16,
         alignItems: "center",
-        justifyContent: "center" , 
-        marginTop : 16
-    } , 
+        justifyContent: "center",
+        marginTop: 16
+    },
     emptyMessage: {
-        fontFamily: textFonts.bold, 
-        fontWeight : "bold" , 
-        fontSize: 12 , 
+        fontFamily: textFonts.bold,
+        fontWeight: "bold",
+        fontSize: 12,
         color: darkTheme.textColor
-    } 
+    }
 
 }

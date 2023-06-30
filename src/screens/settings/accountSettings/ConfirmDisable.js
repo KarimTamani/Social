@@ -114,7 +114,8 @@ export default function ConfirmDisable({ route, navigation }) {
             }
       
         }).catch((err) => {
-            console.log (err) ; 
+
+            
             setLoading( false )  ; 
             setError(NOT_VALID_PASSWORD_ERROR ) ; 
         })

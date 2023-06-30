@@ -9,6 +9,7 @@ import { useCallback, useContext, useEffect } from "react";
 import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
 import { useTiming } from "../../../providers/TimeProvider";
+import { AuthContext } from "../../../providers/AuthContext";
 
 const WIDTH = Dimensions.get("screen").width;
 export default function Message({ message, openImage, openVideo, showSender, lastSeenAt, navigation }) {
@@ -18,6 +19,9 @@ export default function Message({ message, openImage, openVideo, showSender, las
 
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+
+    const auth = useContext(AuthContext) ; 
+
     if (themeContext.getTheme() == "dark") {
         textBackground = [darkTheme.secondaryBackgroundColor, darkTheme.secondaryBackgroundColor];
     }
@@ -28,13 +32,31 @@ export default function Message({ message, openImage, openVideo, showSender, las
     const timing = useTiming();
     const openPost = useCallback(() => {
 
-        console.log(message.post) ; 
         navigation.navigate("ViewPosts", {
             getPosts: () => [message.post],
             title: "مشاراكات"
         })
 
-    }, [message, navigation])
+    }, [message, navigation]); 
+
+
+    const openAccount = useCallback(() => {
+        (async() => {
+            var userAuth = await  auth.getUserAuth() ; 
+            
+            if (userAuth && userAuth.user) {
+                var currentUser = userAuth.user ; 
+                if (currentUser.id == message.account.id) { 
+                    navigation.navigate("AccountStack", { screen: "MyProfile" })
+                }else{
+                    navigation.navigate("Profile", { userId: message.account.id });
+                }
+            }
+        
+        }) ( )
+        
+
+    } , [message , navigation])
 
 
 
@@ -111,7 +133,7 @@ export default function Message({ message, openImage, openVideo, showSender, las
                 return (
                     <TouchableOpacity onPress={() => openImage(message.media.uri)} >
                         <Image source={{ uri: message.media.uri }} style={[styles.messageImage, myMessage && { alignSelf: "flex-end" }]} />
-                        <View style={[styles.recivingInfo  , {marginBottom : 8 },!myMessage && { alignSelf: "flex-start" } ]}>
+                        <View style={[styles.recivingInfo, { marginBottom: 8 }, !myMessage && { alignSelf: "flex-start" }]}>
                             {myMessage && !sending &&
                                 <FontAwesome5 name="check-double" style={[styles.check, lastSeenAt && lastSeenAt > message.createdAt && styles.seenMessage]} />}
                             <Text style={styles.time}>
@@ -130,7 +152,7 @@ export default function Message({ message, openImage, openVideo, showSender, las
                             isLooping
                             source={{ uri: message.media.uri }}
                             shouldPlay={false} />
-                        <View style={[styles.recivingInfo ,   {marginBottom : 8 },!myMessage && { alignSelf: "flex-start" }]}>
+                        <View style={[styles.recivingInfo, { marginBottom: 8 }, !myMessage && { alignSelf: "flex-start" }]}>
                             {myMessage && !sending &&
                                 <FontAwesome5 name="check-double" style={[styles.check, lastSeenAt && lastSeenAt > message.createdAt && styles.seenMessage]} />}
                             <Text style={styles.time}>
@@ -201,6 +223,45 @@ export default function Message({ message, openImage, openVideo, showSender, las
                         }
                     </LinearGradient>
                 );
+
+
+            case "account":
+
+
+                return (
+                    <TouchableOpacity onPress={ openAccount }>
+                        <LinearGradient
+                            colors={textBackground}
+                            style={[styles.contentText, myMessage && styles.sendContentText, styles.postContainer]}>
+
+                            <View style={styles.accountInfo}>
+
+                                {
+                                    message.account.profilePicture &&
+                                    <Image source={{ uri: getMediaUri(message.account.profilePicture.path) }} style={styles.accountImage} />
+                                }
+                                {
+                                    !message.account.profilePicture &&
+                                    <Image source={require("../../../assets/illustrations/gravater-icon.png")} style={styles.accountImage} />
+                                }
+
+
+                                <View style={styles.sharedAccountInfo}>
+
+                                    <Text style={[styles.accountFullanme, !myMessage && styles.whiteText]}>
+                                        {message.account.lastname} {message.account.name}
+                                    </Text>
+                                    <Text style={styles.accountUsername}>
+                                        @{message.account.username}
+                                    </Text>
+
+                                </View>
+                            </View>
+
+                        </LinearGradient>
+                    </TouchableOpacity>
+                )
+
             default:
                 break;
         }
@@ -344,13 +405,37 @@ const lightStyles = StyleSheet.create({
     recivingInfo: {
         flexDirection: "row-reverse",
         alignItems: "center",
+    },
 
-        
-
+    accountInfo: {
+        flexDirection: "row-reverse",
+        alignItems: "center"
 
     },
-    
-    
+
+    accountImage: {
+        width: 56,
+        height: 56 , 
+        borderRadius : 56 
+    },
+    sharedAccountInfo: {
+        width: "75%",
+        padding: 12
+
+    },
+    accountFullanme: {
+        textAlign: "right",
+        fontSize: 14,
+        fontWeight: "bold",
+        fontFamily: textFonts.bold
+    },
+    accountUsername: {
+        fontWeight: "100",
+        fontSize: 12,
+        color: "#888",
+        textAlign: "right"
+    }
+
 });
 const darkStyles = {
     ...lightStyles,

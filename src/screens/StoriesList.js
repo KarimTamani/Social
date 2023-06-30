@@ -149,7 +149,7 @@ export default function StoriesList({ route }) {
                     storyId: story.id
                 }
             }).then(response => {
-           
+                console.log (response)
                 if (response)
                     event.emit("like-story", response.data.toggleLikeStory, story)
              
@@ -157,6 +157,7 @@ export default function StoriesList({ route }) {
                     setLike(previousValue);
 
             }).catch(error => {
+                console.log (error)  ;
                 setLike(previousValue);
 
             })
@@ -196,7 +197,7 @@ export default function StoriesList({ route }) {
 
                             event.emit("story-comment", {
                                 comment: comment,
-                                id: response.data.commentStory,
+                                id: response.data.commentStory.id,
                                 user: userAuth.user
                             })
                         }

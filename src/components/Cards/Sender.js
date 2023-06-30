@@ -34,7 +34,7 @@ query Query($query : String , $offset: Int!, $limit: Int!, $asParticipant: Boole
 
 const LIMIT = 10;
 
-export default function Sender({ postId }) {
+export default function Sender({ postId, userId }) {
 
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
@@ -151,29 +151,55 @@ export default function Sender({ postId }) {
     const sendToConversation = useCallback((conversation) => {
         setConversationAsSending(conversation)
 
-
-        client.mutate({
-            mutation: gql`
+        if (postId) {
+            client.mutate({
+                mutation: gql`
             mutation Mutation($postId: ID!, $conversationId: ID!) {
                 sharePost(postId: $postId, conversationId: $conversationId) {
                   id 
                 }
             }` ,
-            variables: {
-                postId: postId,
-                conversationId: conversation.id
-            }
-        }).then(response => {
-            console.log(response)
-            if (response && response.data.sharePost)
-                setConversationAdDone(conversation)
-        }).catch(error => {
-            console.log(error);
-            setConversationAdDone(conversation, false)
-        })
+                variables: {
+                    postId: postId,
+                    conversationId: conversation.id
+                }
+            }).then(response => {
+                console.log(response)
+                if (response && response.data.sharePost)
+                    setConversationAdDone(conversation)
+            }).catch(error => {
+                console.log(error);
+                setConversationAdDone(conversation, false)
+            })
+        }else if (userId) { 
+            client.mutate({
+                mutation: gql`
+                mutation Mutation($userId: ID!, $conversationId: ID!) {
+                    shareAccount(userId: $userId, conversationId: $conversationId) {
+                      id 
+                      type
+                      account {
+                        id name 
+                        lastname
+                        lastActiveAt
+                      }
+                    }
+                } ` ,
+                variables: {
+                    userId: userId,
+                    conversationId: conversation.id
+                }
+            }).then(response => {
+                console.log(response)
+                if (response && response.data.shareAccount)
+                    setConversationAdDone(conversation)
+            }).catch(error => {
+                console.log(error);
+                setConversationAdDone(conversation, false)
+            })
+        }
 
-
-    }, [conversations, postId])
+    }, [conversations, postId , userId])
 
 
     const renderItem = useCallback(({ item }) => {
