@@ -196,6 +196,7 @@ export default function Conversation({ navigation, route }) {
                             user {
                                 id name lastname
                                 isActive 
+                                showState
                                 lastActiveAt 
                             }
                         }

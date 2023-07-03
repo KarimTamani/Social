@@ -181,7 +181,6 @@ export default function Settings({ navigation, route }) {
                                     onValueChange={togglePrivacy}
                                     style={styles.switcher}
                                 />
-
                             }
                             {
                                 !route.isToggling &&

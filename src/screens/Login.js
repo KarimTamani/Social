@@ -75,6 +75,10 @@ export default function Login({ navigation }) {
                     username
                     validated
                     disabled
+                    mute 
+                    allowMessaging 
+                    showState
+
                     profilePicture { 
                         id path 
                     }
@@ -95,9 +99,7 @@ export default function Login({ navigation }) {
                     navigation.navigate("HomeNavigation");
                 }
                 else {
-                     
                     setLoading( false ) ;
-                    
                     navigation.navigate("ActivateAccount" , {
                         login : response.data.Login 
                     });

@@ -62,7 +62,12 @@ export default function Profile({ route, navigation }) {
                   gender
                   phone
                   isFollowed 
+                  mute 
+                  allowMessaging 
+                  showState
                   pictureId 
+                  lastActiveAt
+                  isActive 
                   profilePicture { 
                     id path 
                   }
@@ -111,6 +116,9 @@ export default function Profile({ route, navigation }) {
                 // at this level we have an id
                 getUser(userId).then(response => {
                     if (response && response.data.getUserById) {
+
+
+
                         setUser(response.data.getUserById);
                         setFollow(response.data.getUserById.isFollowed);
                         setNumFollowers(response.data.getUserById.numFollowers);
@@ -277,9 +285,13 @@ export default function Profile({ route, navigation }) {
                                 </TouchableOpacity>
                             }
                             <FollowButton onPress={toggleFollow} follow={follow} />
-                            <TouchableOpacity style={styles.messageButton} onPress={openCoversation}>
-                                <Feather name="message-circle" style={styles.messageIcon} />
-                            </TouchableOpacity>
+                            {
+                                user && user.allowMessaging &&
+
+                                <TouchableOpacity style={styles.messageButton} onPress={openCoversation}>
+                                    <Feather name="message-circle" style={styles.messageIcon} />
+                                </TouchableOpacity>
+                            }
                         </View>
                     }
                     {

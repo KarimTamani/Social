@@ -30,6 +30,7 @@ query Query($query : String , $offset: Int!, $limit: Int!, $asParticipant: Boole
                   id path 
               }
               isActive 
+              showState
               lastActiveAt 
           }
       }
@@ -66,6 +67,7 @@ query Query($offset: Int!, $limit: Int!) {
                     id path 
                 }
                 isActive 
+                showState
                 lastActiveAt 
             }
         }
@@ -386,7 +388,8 @@ export default function ConversationsList({ openConversation, query, asParticipa
         }
         var isActive = false;
         if (item.members && item.members.length > 0) {
-            const index = item.members.findIndex((member) => member.user.isActive);
+            console.log(item.members) ; 
+            const index = item.members.findIndex((member) => member.user.isActive && member.user.showState);
             isActive = index >= 0;
         }
 

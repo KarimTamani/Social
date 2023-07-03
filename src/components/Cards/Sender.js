@@ -23,6 +23,9 @@ query Query($query : String , $offset: Int!, $limit: Int!, $asParticipant: Boole
        
           user {
               id name lastname username
+              
+              isActive 
+              showState 
               profilePicture {
                   id path 
               }   
@@ -217,7 +220,7 @@ export default function Sender({ postId, userId }) {
         }
         var isActive = false;
         if (item.members && item.members.length > 0) {
-            const index = item.members.findIndex((member) => member.user.isActive);
+            const index = item.members.findIndex((member) => member.user.isActive && member.user.showState);
             isActive = index >= 0;
         }
         return (
@@ -226,7 +229,7 @@ export default function Sender({ postId, userId }) {
 
                 <View>
                     {
-                        isActive &&
+                        isActive && 
                         <View style={styles.active}>
                         </View>
                     }

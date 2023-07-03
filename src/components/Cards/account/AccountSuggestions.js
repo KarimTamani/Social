@@ -8,7 +8,7 @@ import { ApolloContext } from "../../../providers/ApolloContext";
 import { gql } from "@apollo/client";
 import LoadingSuggestions from "../loadings/LoadingSuggestions";
 import { useEvent } from "../../../providers/EventProvider";
-import LoadingActivity from "../../Cards/post/loadingActivity" ; 
+import LoadingActivity from "../../Cards/post/loadingActivity";
 const LIMIT = 10;
 
 export default function AccountSuggestions({ navigation }) {
@@ -43,53 +43,38 @@ export default function AccountSuggestions({ navigation }) {
                         id path 
                     }
                     }
-                }
-            
-            ` ,
+                }`,
             variables: {
                 offset: offset,
                 limit: LIMIT
             }
         }).then(response => {
-
             var newUsers = response.data.suggestUsers
-            
-            if ( newUsers.length < LIMIT) 
-                setEnd(true) ; 
-            
-
+            if (newUsers.length < LIMIT)
+                setEnd(true);
             setUsers([...previousUsers, ...newUsers])
             setFirstFetch(false)
-            setLoading(false) ; 
-        }).catch(error => { 
-            setFirstFetch(false) ; 
-            setLoading(false) ; 
+            setLoading(false);
+        }).catch(error => {
+            setFirstFetch(false);
+            setLoading(false);
         })
-
-
-
     }
 
     useEffect(() => {
-        setFirstFetch(true) ; 
-        setLoading( false ) ; 
-        setEnd ( false ) ; 
+        setFirstFetch(true);
+        setLoading(false);
+        setEnd(false);
         load_more_users([]);
     }, []);
 
-
-    useEffect(() => { 
-        if ( loading) { 
-            load_more_users(users.filter ( user => user.type !="loading")) ; 
-        }
-    } , [loading])
-
-
     useEffect(() => {
-
-
+        if (loading) {
+            load_more_users(users.filter(user => user.type != "loading"));
+        }
+    }, [loading])
+    useEffect(() => {
         const handleFollowingStateChanged = ({ userId, state, sourcePage }) => {
-
             if (sourcePage == "suggest-users")
                 return;
 
@@ -127,11 +112,11 @@ export default function AccountSuggestions({ navigation }) {
 
     const renderItem = useCallback(({ item }) => {
 
-        if ( item.type == "loading") 
+        if (item.type == "loading")
             return (
-                <LoadingActivity style={styles.loadingUser}/>
+                <LoadingActivity style={styles.loadingUser} />
             )
-       
+
         return <SuggestedUser user={item} navigation={navigation} />
     }, [users]);
 
@@ -142,15 +127,15 @@ export default function AccountSuggestions({ navigation }) {
 
     const endReach = useCallback(() => {
         if (!firstFetch && !end && !loading) {
-     
-            
-           
-            setLoading ( true ) ; 
-             
-            setUsers([ ...users , { id: 0, type: "loading" }])
+
+
+
+            setLoading(true);
+
+            setUsers([...users, { id: 0, type: "loading" }])
         }
 
-    }, [firstFetch, end, loading , users]);
+    }, [firstFetch, end, loading, users]);
 
 
 
@@ -197,7 +182,7 @@ const lightStyles = StyleSheet.create({
     },
     list: {
         borderRadius: 6,
-    
+
     },
     title: {
         fontFamily: textFonts.bold,
@@ -217,9 +202,9 @@ const lightStyles = StyleSheet.create({
         fontFamily: textFonts.bold,
         fontWeight: "bold",
         color: "#555", fontSize: 12
-    } , 
-    loadingUser : { 
-        width : 120 
+    },
+    loadingUser: {
+        width: 120
     }
 });
 

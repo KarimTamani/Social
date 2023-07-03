@@ -9,12 +9,16 @@ import SimaPicker from "./SimaPicker";
 import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
 import { getMediaUri } from "../../../api";
+import { useTiming } from "../../../providers/TimeProvider";
 
 export default function ConversationHeader({ navigation , user, allowPhone = false, onPickSima, lightContent = false, members , conversation , isArchived = false }) {
 
     const [showOptions, setShowOptions] = useState(false);
     const [showSimas, setShowSimas] = useState(false);
 
+    const timing = useTiming() ; 
+
+    
  
 
     const toggleOptions = useCallback(() => {
@@ -39,6 +43,8 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
 
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+ 
+  
 
     if (user)
         return (
@@ -65,7 +71,7 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
                         </Text>
                         <Text style={[styles.status, lightContent && { color: "white" }]}>
                             {
-                                user.isActive ? "نشط الان" : "قبل ساعة"
+                                (user.isActive && user.showState) ? "نشط الان" : timing.getPeriod(user.lastActiveAt)
                             }
                         </Text>
                     </View>
@@ -79,7 +85,7 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
                             <Image source={require("../../../assets/illustrations/gravater-icon.png")} style={styles.userImage} />
                         }
                         {
-                            user.isActive &&
+                            (user.isActive && user.showState) &&
                             <View style={styles.active}>
                             </View>
                         }
@@ -128,9 +134,18 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
 
         var firstThree = members.slice(0, 3);
         var groupName = members.map(member => member.user.name + " " + member.user.lastname).join(",");
+        var isActive = members.findIndex(member => member.user.isActive && member.user.showState ) >= 0;
 
-        var isActive = members.findIndex(member => member.user.isActive) >= 0;
 
+        var lastActiveAt =  members[0].user.lastActiveAt ; 
+
+        if ( !isActive ) { 
+            members.forEach(member => {
+                if ( member.user.lastActiveAt > lastActiveAt) 
+                    lastActiveAt = member.user.lastActiveAt ; 
+            }) ; 
+        }
+ 
 
         return (
             <View style={styles.container}>
@@ -158,7 +173,7 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
                         </Text>
                         <Text style={[styles.status, lightContent && { color: "white" }]}>
                             {
-                                isActive ? "نشط الان" : "قبل ساعة"
+                                isActive ? "نشط الان" : timing.getPeriod(lastActiveAt)
                             }
                         </Text>
                     </View>
