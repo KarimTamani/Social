@@ -5,7 +5,7 @@ import { textFonts } from "../../design-system/font";
 import ThemeContext from "../../providers/ThemeContext";
 
 
-export default function PrimaryInput({ placeholder  ,  secure = false,showKeyBoard = true, inputStyle, onChange, inputRef, onFocus, rightContent, style, leftContent, value, multiline = false , onBlur , error = false }) {
+export default function PrimaryInput({ placeholder  ,  secure = false,showKeyBoard = true, inputStyle, onChange, inputRef, onFocus, rightContent, style, leftContent, value, multiline = false , onBlur , error = false , phone}) {
 
     var ref = inputRef;
     if (!ref) {
@@ -35,6 +35,7 @@ export default function PrimaryInput({ placeholder  ,  secure = false,showKeyBoa
                 {leftContent}
             </View>
             <TextInput
+              keyboardType={phone ? 'phone-pad' : null}
                 placeholder={placeholder}
                 style={[styles.textInput, inputStyle  ]}
                 onChangeText={onChange}

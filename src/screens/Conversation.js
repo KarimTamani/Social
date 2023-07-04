@@ -156,14 +156,24 @@ export default function Conversation({ navigation, route }) {
         const blockedUser = (user) => {
             setDisableInput(true);
         }
+        const toggleConversationNotification = ( conversationId , value) => { 
+             setConversation({
+                ...conversation , 
+                allowNotifications : value
+             })
+        }      
+
+
         if (conversation) {
             realTime.addListener("NEW_MESSAGE_CONVERSATION_" + conversation.id, onNewMessage);
             realTime.addListener("CONVERSATION_SAW_" + conversation.id, onConversationSaw);
             event.addListener("blocked-user", blockedUser);
+            event.addListener("toggle-conversation-notifications" ,  toggleConversationNotification)  ;
             return () => {
                 realTime.removeListener("NEW_MESSAGE_CONVERSATION_" + conversation.id, onNewMessage);
                 realTime.removeListener("CONVERSATION_SAW_" + conversation.id, onConversationSaw);
                 event.removeListener("blocked-user", blockedUser);
+                event.removeListener("toggle-conversation-notifications" ,  toggleConversationNotification)  ;
             }
         }
     }, [conversation, messages])
@@ -188,6 +198,7 @@ export default function Conversation({ navigation, route }) {
                         id
                         type
                         isReadable
+                        allowNotifications
                         simat {
                             id path 
                         }
@@ -465,14 +476,7 @@ export default function Conversation({ navigation, route }) {
 
             for (let index = 0; index < newMessages.length; index++) {
 
-                console.log(
-                    {
-                        content: newMessages[index].content,
-                        conversationId: conversationId,
-                        type: newMessages[index].type,
-                        media: newMessages[index].media
-                    }
-                )
+               
                 //list.current?.scrollToTop() ;  
                 client.mutate({
                     mutation: gql`
@@ -565,17 +569,12 @@ export default function Conversation({ navigation, route }) {
 
 
     const onAccept = useCallback(() => {
-
-
         event.emit("conversation-accepted", {
             ...conversation,
             isReadable: true
         });
         setIsReadable(true)
     }, [isReadable, conversation]);
-
-
-
 
     const onRefuse = useCallback(() => {
         event.emit("delete-conversation", conversation.id);

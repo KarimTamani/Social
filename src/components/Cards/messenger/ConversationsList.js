@@ -22,6 +22,7 @@ query Query($query : String , $offset: Int!, $limit: Int!, $asParticipant: Boole
       id 
       type
       unseenMessages 
+      allowNotifications
       members {
           lastSeenAt 
           user {
@@ -59,6 +60,7 @@ query Query($offset: Int!, $limit: Int!) {
         type
         unseenMessages 
         isArchived
+        allowNotifications
         members {
             lastSeenAt 
             user {
@@ -113,9 +115,6 @@ export default function ConversationsList({ openConversation, query, asParticipa
 
     const load_conversations = async (query, previousConversations) => {
 
-
-
-
         client.query({
             query: archived ? LOAD_ARCHIVED_CONVERSATIONS : LOAD_CONVERSATIONS,
             variables: {
@@ -164,7 +163,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
             setLoading(false);
 
         }).catch(error => {
-            console.log(error);
+   
 
             setLoading(false);
             setFirstFetch(false);
@@ -304,6 +303,23 @@ export default function ConversationsList({ openConversation, query, asParticipa
             }
         }
 
+ 
+        const toggleConversationNotification = ( conversationId , value) => { 
+            console.log (conversationId , value) ; 
+            const index = conversations.findIndex(conversation => conversation.id == conversationId)
+            if (index >= 0) {
+                var cloneConversations = [...conversations];
+                cloneConversations[index] = {
+                    ...cloneConversations[index],
+                    allowNotifications: value
+                }
+
+                console.log (value) ;  
+
+                setConversations(cloneConversations);
+            }
+        }      
+
 
 
         const groupCreated = async () => {
@@ -351,6 +367,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
         realTime.addListener("CONVERSATION_SAW", conversationSaw);
         event.addListener("conversation-accepted", conversationAccepted);
         event.addListener("simat-changed", simatChanged);
+        event.addListener("toggle-conversation-notifications" , toggleConversationNotification) ; 
         return () => {
             event.removeListener("conversation-seen", conversationSeen);
             event.removeListener("message-sent", messageSent);
@@ -361,6 +378,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
             event.removeListener("simat-changed", simatChanged);
             event.removeListener("group-created", groupCreated);
             event.removeListener("blocked-user", blcokedUser);
+            event.removeListener("toggle-conversation-notifications" , toggleConversationNotification) ; 
         }
 
 
@@ -388,7 +406,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
         }
         var isActive = false;
         if (item.members && item.members.length > 0) {
-            console.log(item.members) ; 
+     
             const index = item.members.findIndex((member) => member.user.isActive && member.user.showState);
             isActive = index >= 0;
         }

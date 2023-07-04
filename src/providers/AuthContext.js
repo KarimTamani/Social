@@ -44,6 +44,19 @@ export const AuthProvider = ({ children, onAuthChange }) => {
 
             }
         },
+
+        updateToken : async(token) => { 
+            try {
+                const userAuth = JSON.parse(await AsyncStorage.getItem("user"));
+                (userAuth).token = token;
+
+                await AsyncStorage.setItem("user", JSON.stringify(userAuth));
+ 
+            } catch (error) {
+                console.log(error);
+
+            } 
+        }
     }), [])
 
 

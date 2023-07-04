@@ -353,11 +353,7 @@ export default function Signup({ navigation }) {
                                 </Text>
                                 <Text style={[styles.text, styles.footerText]}>
                                     بالنقر على "‏إنشاء حساب‏"، فإنك توافق على ‏الشروط‏ و‏سياسة الخصوصية‏ و‏سياسة ملفات تعريف الارتباط‏. </Text>
-
                             </View>
-
-
-
                         )
 
                     }

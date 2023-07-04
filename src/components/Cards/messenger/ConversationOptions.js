@@ -34,13 +34,11 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
 
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
-  
+
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [operation, setOperation] = useState();
 
     const event = useEvent();
-
-
 
 
 
@@ -184,7 +182,7 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
                     userId: user.id
                 }
             }).then(response => {
-         
+
                 if (response) {
 
                     event.emit("blocked-user", user);
@@ -214,6 +212,26 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
 
     }, [operation, conversation, navigation])
 
+    const toggleNotifications = useCallback(() => {
+
+        client.mutate({
+            mutation : gql`
+            mutation MuteConversation($conversationId: ID!) {
+                muteConversation(conversationId: $conversationId)
+            }` , 
+            variables : { 
+                conversationId : conversation.id
+            }
+        }).then(response => {  
+            
+            if ( response) { 
+                event.emit("toggle-conversation-notifications", conversation.id, response.data.muteConversation);
+
+            }
+        })
+
+
+    }, [conversation])
 
 
     const options = [
@@ -221,6 +239,10 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
             text: "حظر",
             onPress: openBlockConfirmation
         },
+
+
+
+
         {
             text: "ابلاغ"
         },
@@ -249,9 +271,13 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
             onPress: openProfile
         }
         , {
-            text: "كتم الاشعارات"
+            text: (conversation?.allowNotifications) ? "كتم الاشعارات" : "تفعيل الإشعارات",
+            onPress: toggleNotifications
+
         }
-    ]
+    ];
+
+
 
     return (
         <TouchableOpacity style={styles.container} activeOpacity={1} onPress={onClose}>

@@ -255,10 +255,12 @@ export default function Profile({ route, navigation }) {
                     <Text style={styles.username}>
                         @{user.username}
                     </Text>
-
-                    <Text style={styles.label}>
-                        <Ionicons name="home-outline" style={styles.home} /> {user.country.name}
-                    </Text>
+                    {
+                        user.country && 
+                        <Text style={styles.label}>
+                            <Ionicons name="home-outline" style={styles.home} /> {user.country?.name}
+                        </Text>
+                    }
                     {
                         user.bio &&
                         <Text style={styles.bio} numberOfLines={!toggleBio ? 1 : null} ellipsizeMode="tail" onPress={() => setToggleBio(!toggleBio)}>

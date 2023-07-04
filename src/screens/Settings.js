@@ -18,7 +18,6 @@ export default function Settings({ navigation, route }) {
 
     var user = route.params?.user;
     const [isPrivate, setIsPrivate] = useState(route.params?.user?.private);
-
     const [showPrivateAccount, setShowPrivateAccount] = useState(false);
 
     const client = useContext(ApolloContext);
@@ -32,10 +31,12 @@ export default function Settings({ navigation, route }) {
 
     const routes = [
         {
-            name: "إضافة بريد الاكتروني",
+            name: "اضافة رقم الهاتف",
             icon: require("../assets/icons/email.png"),
             onPress: useCallback(() => {
-                navigation.navigate("AddCredentials")
+                navigation.navigate("AddCredentials" , { 
+                     user 
+                })
             }, [navigation])
         },
         {

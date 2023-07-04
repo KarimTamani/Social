@@ -60,7 +60,7 @@ export default function ProfileInfoForm({ onSubmit, user ,loading }) {
     var values = {
         name: user.name,
         lastname: user.lastname,
-        countryId: user.country.id,
+        countryId: user.country?.id,
         username: user.username,
         bio: user.bio,
 
