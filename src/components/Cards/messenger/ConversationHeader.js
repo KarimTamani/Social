@@ -40,10 +40,9 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
     }, [showSimas]);
 
 
-
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
- 
+    
   
 
     if (user)
@@ -51,7 +50,7 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
             <View style={styles.container}>
                 <View style={[styles.section, { flex: 1 }]}>
                     {
-                        !allowPhone && conversation && 
+                        !allowPhone && conversation && conversation?.id && conversation?.isReadable && 
                         <TouchableOpacity onPress={toggleOptions}>
                             <Entypo name="dots-three-vertical" style={[styles.headerIcon, lightContent && { color: "white" }]} />
                         </TouchableOpacity>

@@ -51,10 +51,7 @@ export default function AcceptingConversation({ conversation, members, onAccept,
                 acceptConversationInvite(conversationId: $conversationId) {
                     id 
                 }
-            }
-            
-            
-            `, 
+            }`, 
             variables : { 
                 conversationId : conversation.id
             }
@@ -66,8 +63,6 @@ export default function AcceptingConversation({ conversation, members, onAccept,
         }).catch(error => {
             setIsAccepting(false) ;  
         })
-
-
     }, [conversation, members, isGroup]);
 
     const refuse = useCallback(() => {
@@ -115,10 +110,7 @@ export default function AcceptingConversation({ conversation, members, onAccept,
                 <Text style={styles.headerText}>
                     هل تريد الانضمام لهذه المجموعة
                 </Text>
-
-
             }
-
             {
                 !isGroup &&
                 <View style={styles.buttons}>

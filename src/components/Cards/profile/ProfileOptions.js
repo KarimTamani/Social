@@ -14,16 +14,18 @@ const BLOCK_TITLE = "حظر المستخدم";
 const BLOCK_MESSAGE = "هل انت متأكد من حضر";
 
 
-export default function ProfileOptions({ onClose, toggleProfileSender, user }) {
+export default function ProfileOptions({ onClose, toggleProfileSender, user, onUnFollow }) {
 
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
 
     const [isLoading, setIsLoading] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
-    const [operation, setOperation ] = useState(null);
-    const event = useEvent() ; 
-    const client = useContext(ApolloContext) ; 
+    const [operation, setOperation] = useState(null);
+    const event = useEvent();
+    const client = useContext(ApolloContext);
+
+
 
 
     const toggleConfirmation = useCallback(() => {
@@ -34,50 +36,77 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user }) {
     const showBlockMessage = useCallback(() => {
 
         setTitle(BLOCK_TITLE);
-        setMessage(BLOCK_MESSAGE + " " + user.name + " " + user.lastname + " ؟ ") ; 
-        setOperation("BLOCK") ; 
+        setMessage(BLOCK_MESSAGE + " " + user.name + " " + user.lastname + " ؟ ");
+        setOperation("BLOCK");
         toggleConfirmation();
 
-    }, [user , showConfirmation]);
+    }, [user, showConfirmation]);
 
     const block = useCallback(() => {
-  
-        setIsLoading( true ) ; 
-        client.mutate({ 
-            mutation : gql`
+
+        setIsLoading(true);
+        client.mutate({
+            mutation: gql`
             mutation Mutation($userId: ID!) {
                 toggleBlock(userId: $userId)
-            }`, 
-            variables : {
-                userId : user.id 
+            }`,
+            variables: {
+                userId: user.id
             }
         }).then(response => {
-            console.log(response); 
-            if (response) { 
-                
-                event.emit("blocked-user" , user) ; 
-                toggleConfirmation() ; 
-                onClose && onClose() ; 
-                setIsLoading( false ) ; 
+
+            if (response) {
+
+                event.emit("blocked-user", user);
+                toggleConfirmation();
+                onClose && onClose();
+                setIsLoading(false);
             }
-        }).catch( error => {
-            console.log( error ) ; 
-            setIsLoading( false ) ; 
-        })  ; 
-
-     
-
-    
-    }, [user , onClose]);
+        }).catch(error => {
+            console.log(error);
+            setIsLoading(false);
+        });
 
 
+
+
+    }, [user, onClose]);
+
+
+    const toggleFollow = useCallback(() => {
+
+        onClose();
+        client.mutate({
+            mutation: gql`
+                mutation ToggleFollow($userId: ID!) {
+                    toggleFollow(userId: $userId)
+                }
+            ` ,
+            variables: {
+                userId: user.id
+            }
+        }).then(response => {
+            if (response) {
+                event.emit("new-following", {
+                    userId: user.id,
+                    state: response.data.toggleFollow
+                });
+                if (!response.data.toggleFollow)
+                    onUnFollow && onUnFollow();
+
+               
+            }
+        }).catch(error => {
+
+        })
+    }, [user]);
 
 
 
     const handleConfirmation = useCallback(() => {
-        if (operation == "BLOCK") 
-            block() ; 
-    }, [user , operation])
+        if (operation == "BLOCK")
+            block();
+    }, [user, operation])
 
     const options = [
         {
@@ -112,14 +141,16 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user }) {
 
             }, [])
 
-        }, {
-            text: "الغاء المتابعة",
-            onPress: useCallback(() => {
-
-            }, [])
-
         },
     ];
+    
+    if (user.isFollowed) {
+        options.push({
+            text: "الغاء المتابعة",
+            onPress: toggleFollow
+        })
+    }
+    
 
 
 

@@ -10,7 +10,7 @@ import ThemeContext from "../../providers/ThemeContext";
 import darkTheme from "../../design-system/darkTheme";
 
 
-export default function ProfileHeader({ myProfile, onBack, navigation, user }) {
+export default function ProfileHeader({ myProfile, onBack, navigation, user , onUnFollow }) {
 
 
     const [showOptions, setShowOptions] = useState(false);
@@ -66,6 +66,7 @@ export default function ProfileHeader({ myProfile, onBack, navigation, user }) {
                         onClose={toggleOptions}
                         user={user}
                         toggleProfileSender={toggleProfileSender}
+                        onUnFollow={onUnFollow}
                     />
 
                 </Modal>

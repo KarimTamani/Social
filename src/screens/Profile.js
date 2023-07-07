@@ -207,14 +207,32 @@ export default function Profile({ route, navigation }) {
                     userId: userId,
                     state: response.data.toggleFollow
                 });
+
+
+                setUser({
+                    ...user , 
+                    isFollowed : response.data.toggleFollow 
+                })
             }
 
         }).catch(error => {
             setFollow(!previousValue)
         })
-    }, [follow, numFollowers]);
+    }, [follow, numFollowers , user]);
 
 
+    
+    const onUnFollow = useCallback(() => {
+
+        setNumFollowers(numFollowers - 1)
+        setFollow(false);
+        setUser({
+            ...user , 
+            isFollowed : false 
+        })
+
+    }, [numFollowers , user]);
+    
 
     if (!user && !notFound) {
         return (<LoadingProfile />)
@@ -223,12 +241,12 @@ export default function Profile({ route, navigation }) {
         return (<ProfileNotFound />)
     }
 
+
     return (
         <View style={styles.container}>
 
-
             <ScrollView style={{ zIndex: 1 }}>
-                <ProfileHeader myProfile={!userId} user={user} onBack={back} navigation={navigation} />
+                <ProfileHeader onUnFollow={onUnFollow}  myProfile={!userId} user={user} onBack={back} navigation={navigation} />
                 {
                     openSocialMedia &&
                     <TouchableOpacity style={styles.background} activeOpacity={1} onPressIn={toggleSocialMedia}>
@@ -256,7 +274,7 @@ export default function Profile({ route, navigation }) {
                         @{user.username}
                     </Text>
                     {
-                        user.country && 
+                        user.country &&
                         <Text style={styles.label}>
                             <Ionicons name="home-outline" style={styles.home} /> {user.country?.name}
                         </Text>
