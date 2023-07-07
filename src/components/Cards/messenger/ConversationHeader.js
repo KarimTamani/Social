@@ -50,7 +50,7 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
             <View style={styles.container}>
                 <View style={[styles.section, { flex: 1 }]}>
                     {
-                        !allowPhone && conversation && conversation?.id && conversation?.isReadable && 
+                        !allowPhone && conversation && conversation?.id &&   
                         <TouchableOpacity onPress={toggleOptions}>
                             <Entypo name="dots-three-vertical" style={[styles.headerIcon, lightContent && { color: "white" }]} />
                         </TouchableOpacity>

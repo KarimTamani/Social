@@ -315,15 +315,20 @@ function Reel(props) {
         navigation && navigation.navigate('EditPost', {
             post: reel
         })
-    }, [navigation, reel])
+    }, [navigation, reel]) ; 
+    
+    const openReport = useCallback(() => { 
+
+        navigation.navigate("Report" , { 
+            postId : reel.id 
+        })
+
+    } , [navigation ,  reel])
 
 
     return (
         <View style={styles.container}>
-
-
             {
-
                 showDeleteConfirmation &&
                 <Modal
                     transparent
@@ -412,7 +417,7 @@ function Reel(props) {
                         {
 
                             !myPost &&
-                            <TouchableOpacity style={styles.shareOption}>
+                            <TouchableOpacity style={styles.shareOption} onPress={ openReport}>
                                 <Octicons name="stop" style={styles.shareIcon} />
                                 <Text style={styles.shareText}>أبلغ</Text>
                             </TouchableOpacity>

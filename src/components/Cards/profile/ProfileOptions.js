@@ -14,7 +14,7 @@ const BLOCK_TITLE = "حظر المستخدم";
 const BLOCK_MESSAGE = "هل انت متأكد من حضر";
 
 
-export default function ProfileOptions({ onClose, toggleProfileSender, user, onUnFollow }) {
+export default function ProfileOptions({ onClose, toggleProfileSender, user, onUnFollow, navigation }) {
 
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
@@ -24,9 +24,6 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user, onU
     const [operation, setOperation] = useState(null);
     const event = useEvent();
     const client = useContext(ApolloContext);
-
-
-
 
     const toggleConfirmation = useCallback(() => {
         setShowConfirmation(!showConfirmation);
@@ -106,7 +103,20 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user, onU
     const handleConfirmation = useCallback(() => {
         if (operation == "BLOCK")
             block();
-    }, [user, operation])
+    }, [user, operation]) ; 
+
+
+    const openReport = useCallback(() => { 
+
+        navigation.navigate("Report" , { 
+            userId : user.id 
+        }) ; 
+
+
+        onClose && onClose()
+
+    } , [navigation ,  user])
+
 
     const options = [
         {
@@ -115,9 +125,7 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user, onU
         },
         {
             text: "ابلاغ",
-            onPress: useCallback(() => {
-
-            }, [])
+            onPress : openReport
 
         },
         {

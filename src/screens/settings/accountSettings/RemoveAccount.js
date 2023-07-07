@@ -12,7 +12,7 @@ import darkTheme from "../../../design-system/darkTheme";
 import { gql } from "@apollo/client";
 import PrimaryInput from "../../../components/Inputs/PrimaryInput"
 
-import LoadingActivity from "../../../components/Cards/post/loadingActivity" ; 
+import LoadingActivity from "../../../components/Cards/post/loadingActivity";
 export default function RemoveAccount({ navigation }) {
 
 
@@ -54,12 +54,12 @@ export default function RemoveAccount({ navigation }) {
         navigation.navigate("ConfirmDisable", {
             remove: true,
             removeRequest: {
-                reasonId : reason?.id , 
-                reason : showText ? text : null 
+                reasonId: reason?.id,
+                reason: showText ? text : null
             }
         });
 
-    }, [navigation , showText ,reason , text]);
+    }, [navigation, showText, reason, text]);
 
 
     useEffect(() => {
@@ -105,12 +105,12 @@ export default function RemoveAccount({ navigation }) {
                 </Text>
 
 
-{ 
+                {
 
-    loading && 
-    <LoadingActivity/>
+                    loading &&
+                    <LoadingActivity />
 
-}
+                }
 
                 {
 

@@ -67,6 +67,7 @@ export default function ProfileHeader({ myProfile, onBack, navigation, user , on
                         user={user}
                         toggleProfileSender={toggleProfileSender}
                         onUnFollow={onUnFollow}
+                        navigation={navigation}
                     />
 
                 </Modal>

@@ -36,6 +36,7 @@ import HashTag from "../screens/HashTag";
 import EditPost from "../screens/EditPost";
 import ArchivedConversations from "../components/Cards/messenger/ArchivedConversations";
 import ActivateAccount from "../screens/ActivateAccount";
+import Report from "../screens/Report";
 
 const Stack = createStackNavigator();
 
@@ -73,9 +74,9 @@ export default function RootNavigation({ initialRouteName = "AuthRoute" }) {
                 screenOptions={{
                     headerShown: false
                 }}
-
                 initialRouteName={initialRouteName}
             >
+                <Stack.Screen name="Report" component={Report}/>
                 <Stack.Screen name="ActivateAccount" component={ActivateAccount}/>
                 <Stack.Screen name="HashTag" component={HashTag} />
                 <Stack.Screen name="EditPost" component={EditPost} />

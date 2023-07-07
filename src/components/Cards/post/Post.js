@@ -261,7 +261,16 @@ function Post(props) {
         navigation && navigation.navigate('EditPost', {
             post: post
         })
-    }, [navigation, post])
+    }, [navigation, post]) ; 
+
+
+    const openReport = useCallback(() => { 
+
+        navigation.navigate("Report" , { 
+            postId : post.id 
+        })
+
+    } , [navigation ,  post])
 
     return (
         <View style={styles.container}>
@@ -318,7 +327,7 @@ function Post(props) {
                         <View style={styles.shareContainer}>
                             {
                                 !myPost &&
-                                <TouchableOpacity style={styles.shareOption}>
+                                <TouchableOpacity style={styles.shareOption} onPress={openReport}> 
                                     <Octicons name="stop" style={styles.shareIcon} />
                                     <Text style={styles.shareText}>أبلغ</Text>
                                 </TouchableOpacity>

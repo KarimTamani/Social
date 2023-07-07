@@ -40,6 +40,15 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
 
     const event = useEvent();
 
+    const openReport = useCallback(() => { 
+
+        navigation.navigate("Report" , { 
+            conversationId : conversation.id 
+        }) ; 
+
+        onClose && onClose()
+
+    } , [navigation ,  conversation])
 
 
 
@@ -244,7 +253,8 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
 
 
         {
-            text: "ابلاغ"
+            text: "ابلاغ" , 
+            onPress : openReport
         },
 
 
