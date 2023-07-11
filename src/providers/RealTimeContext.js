@@ -96,11 +96,17 @@ const RealTimeProvider = ({ children, userAuth }) => {
                     }
                     `
                 }).subscribe(response => {
+
+         
+
                     const { newMessage } = response.data ;
                     const { conversationId } = newMessage;
+
+                    console.log ("new message from real time") ;  
+
                     event.emit("NEW_MESSAGE_CONVERSATION_" + conversationId, newMessage);
                     event.emit("NEW_MESSAGE", newMessage);
-                })
+                }) 
             )
 
             subscriptions.push(

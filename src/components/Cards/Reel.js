@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Dimensions, ActivityIndicator } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Dimensions, ActivityIndicator, Share } from "react-native";
 import { Video } from 'expo-av';
 import { Octicons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
@@ -22,8 +22,9 @@ import { AuthContext } from "../../providers/AuthContext";
 import Confirmation from "./Confirmation";
 import { useTiming } from "../../providers/TimeProvider";
 
-
-
+import * as MediaLibrary from 'expo-media-library';
+import * as FileSystem from "expo-file-system";
+import { getFileExtension } from "../../providers/MediaProvider";
 const DELETE_MESSAGE = {
     title: "حذف الريل",
     message: "هل انت متأكد من حذف الريل الخاصة بك تهائيا ؟"
@@ -71,7 +72,7 @@ function Reel(props) {
 
     const client = useContext(ApolloContext);
 
-    const timting = useTiming() ; 
+    const timting = useTiming();
 
     useEffect(() => {
 
@@ -87,9 +88,9 @@ function Reel(props) {
                     reelId: props?.reel?.reel?.id
                 }
             }).then(response => {
- 
+
             }).catch(error => {
-       
+
             });
         }
 
@@ -315,15 +316,52 @@ function Reel(props) {
         navigation && navigation.navigate('EditPost', {
             post: reel
         })
-    }, [navigation, reel]) ; 
-    
-    const openReport = useCallback(() => { 
+    }, [navigation, reel]);
 
-        navigation.navigate("Report" , { 
-            postId : reel.id 
+    const openReport = useCallback(() => {
+
+        navigation.navigate("Report", {
+            postId: reel.id
         })
 
-    } , [navigation ,  reel])
+    }, [navigation, reel])
+
+    const share = useCallback(() => {
+        Share.share({
+            "title": reel.title,
+            "message": getMediaUri(reel.media[0].path),
+        });
+        setShowOptions(false);
+    }, [reel]);
+
+    const requestMediaPermission = async () => { 
+        var permission = await MediaLibrary.requestPermissionsAsync()
+        return (permission.status == "granted") 
+    }
+
+    const download = useCallback(() => {
+
+        var media = reel.media[0];
+        (async () => {
+
+            var perimssion = await requestMediaPermission() ; 
+            if ( !perimssion ) 
+                return ; 
+
+            var filename = new Date().getTime() + "." + getFileExtension(getMediaUri(media.path));
+            var targetPath = FileSystem.documentDirectory + filename;
+
+            var result = await FileSystem.downloadAsync(
+                getMediaUri(media.path),
+                targetPath
+            )
+            if (result && result.uri) {
+
+                await MediaLibrary.saveToLibraryAsync(result.uri) ; 
+                setShowOptions(false); 
+            }
+        })()
+    }, [reel]) ; 
 
 
     return (
@@ -356,8 +394,8 @@ function Reel(props) {
                     onRequestClose={toggleSender}
                 >
                     <Slider onClose={toggleSender} percentage={0.3}>
-                        <Sender  
-                            postId = { reel.id }
+                        <Sender
+                            postId={reel.id}
                         />
                     </Slider>
                 </Modal>
@@ -417,7 +455,7 @@ function Reel(props) {
                         {
 
                             !myPost &&
-                            <TouchableOpacity style={styles.shareOption} onPress={ openReport}>
+                            <TouchableOpacity style={styles.shareOption} onPress={openReport}>
                                 <Octicons name="stop" style={styles.shareIcon} />
                                 <Text style={styles.shareText}>أبلغ</Text>
                             </TouchableOpacity>
@@ -444,7 +482,7 @@ function Reel(props) {
                             </TouchableOpacity>
                         }
 
-                        <TouchableOpacity style={styles.shareOption}>
+                        <TouchableOpacity style={styles.shareOption} onPress={share}>
                             <Entypo name="share" style={styles.shareIcon} />
                             <Text style={styles.shareText}>شارك</Text>
                         </TouchableOpacity>
@@ -463,6 +501,14 @@ function Reel(props) {
                             <TouchableOpacity style={styles.shareOption} onPress={editPost}>
                                 <Feather name="edit" style={styles.shareIcon} />
                                 <Text style={styles.shareText}>تعديل</Text>
+                            </TouchableOpacity>
+                        }
+                        {
+                        
+                            <TouchableOpacity style={styles.shareOption} onPress={download}>
+
+                                <AntDesign name="download" style={styles.shareIcon} />
+                                <Text style={styles.shareText}>تحميل</Text>
                             </TouchableOpacity>
                         }
 
@@ -487,8 +533,8 @@ function Reel(props) {
 
 
                             <Text style={styles.time}>
-                                
-                                { timting.getPeriod (reel.createdAt)}
+
+                                {timting.getPeriod(reel.createdAt)}
                             </Text>
                         </View>
                         {

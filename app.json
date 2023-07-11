@@ -19,7 +19,9 @@
       "**/*"
     ],
     "plugins": [
-      "react-native-compressor"
+      "react-native-compressor" , 
+      "expo-media-library" 
+        
     ],
     "ios": {
       "supportsTablet": true,

@@ -244,7 +244,6 @@ export default function Profile({ route, navigation }) {
 
     return (
         <View style={styles.container}>
-
             <ScrollView style={{ zIndex: 1 }}>
                 <ProfileHeader onUnFollow={onUnFollow}  myProfile={!userId} user={user} onBack={back} navigation={navigation} />
                 {

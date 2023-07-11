@@ -1,11 +1,19 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Modal } from "react-native";
 import PrimaryButton from "../../Buttons/PrimaryButton";
 import { textFonts } from "../../../design-system/font";
 import { ApolloContext } from "../../../providers/ApolloContext";
 import { gql } from "@apollo/client";
 import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
+import Confirmation from "../Confirmation";
+import { useEvent } from "../../../providers/EventProvider";
+
+const DELETE_CONVERSATION_TITLE = "حذف المحادثة";
+const DELETE_CONVERSATION_MESSAGE = "هل انت متأكد من حذف هذه المحادثة ؟";
+
+const BLOCK_TITLE = "حظر المستخدم";
+const BLOCK_MESSAGE = "هل انت متأكد من حضر";
 
 export default function AcceptingConversation({ conversation, members, onAccept, onRefuse, onBlock }) {
 
@@ -17,18 +25,26 @@ export default function AcceptingConversation({ conversation, members, onAccept,
     const [isAccepting, setIsAccepting] = useState(false);
     const [isBlocking, setIsBlocking] = useState(false);
     const [isRefusing, setIsRefusing] = useState(false);
+
+
+    const [showDelteingConfirmation, setShowDeletingConfirmation] = useState(false);
+    const [showBlockingConfirmation, setShowBlockingConfirmation] = useState(false);
     
-    const client = useContext(ApolloContext) ; 
+    const [message, setMessage] = useState(BLOCK_MESSAGE);
+
+    const client = useContext(ApolloContext);
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
-
+    const event = useEvent();
 
     useEffect(() => {
         setIsAccepting(false);
         setIsBlocking(false);
         setIsRefusing(false);
     }, [])
+
+
 
     useEffect(() => {
         if (conversation && members) {
@@ -40,34 +56,40 @@ export default function AcceptingConversation({ conversation, members, onAccept,
     }, [conversation, members])
 
 
+    const closeConfirmation = useCallback(() => {
+        setShowDeletingConfirmation(false);
+        setShowBlockingConfirmation(false);
+    }, [])
+
     const accept = useCallback(() => {
- 
+
         setIsAccepting(true);
-        
+
         client.mutate({
-            mutation : gql`
+            mutation: gql`
             
             mutation Mutation($conversationId: ID!) {
                 acceptConversationInvite(conversationId: $conversationId) {
                     id 
                 }
-            }`, 
-            variables : { 
-                conversationId : conversation.id
+            }`,
+            variables: {
+                conversationId: conversation.id
             }
         }).then(response => {
-            setIsAccepting(false) ; 
-            if (response)   { 
-                onAccept && onAccept() ; 
-            }   
+            setIsAccepting(false);
+            if (response) {
+                onAccept && onAccept();
+            }
         }).catch(error => {
-            setIsAccepting(false) ;  
+            setIsAccepting(false);
         })
     }, [conversation, members, isGroup]);
 
     const refuse = useCallback(() => {
-        if (conversation ) {
-            setIsRefusing(true) ; 
+        setShowDeletingConfirmation(false);
+        if (conversation) {
+            setIsRefusing(true);
             client.mutate({
                 mutation: gql`
                 mutation DeleteConversation($conversationId: ID!) {
@@ -82,19 +104,60 @@ export default function AcceptingConversation({ conversation, members, onAccept,
                     conversationId: conversation.id
                 }
             }).then(response => {
-                setIsRefusing(false) ; 
+                setIsRefusing(false);
                 if (response) {
-                    onRefuse && onRefuse() ;  
+                    onRefuse && onRefuse();
                 }
-            }).catch(error => {  
-                setIsRefusing(false) ; 
+            }).catch(error => {
+                setIsRefusing(false);
             })
         }
     }, [conversation]);
 
     const block = useCallback(() => {
-        onBlock && onBlock();
-    }, [conversation, members, isGroup])
+
+        setShowBlockingConfirmation( false ) ; 
+        
+        if (conversation && conversation.members.length >= 1) {
+            var user = conversation.members[0].user;
+
+
+            setIsBlocking(true);
+
+
+            client.mutate({
+                mutation: gql`
+                       mutation Mutation($userId: ID!) {
+                           toggleBlock(userId: $userId)
+                       }`,
+                variables: {
+                    userId: user.id
+                }
+            }).then(response => {
+                if (response) {
+                    event.emit("blocked-user", user);
+                    onBlock && onBlock();
+                }
+                setIsBlocking(false);
+            }).catch(error => {
+
+                setIsBlocking(false);
+            });
+
+        }
+
+    }, [conversation, members, isGroup]);
+
+
+    const openBlockConfirmation = useCallback(() => {
+        if (conversation && conversation.members.length >= 1) {
+            var user = conversation.members[0].user;
+
+            setMessage(BLOCK_MESSAGE + " " + user.name + " " + user.lastname + " ؟ ");
+
+            setShowBlockingConfirmation(true);
+        }
+    }, [])
 
     return (
         <View style={styles.container}>
@@ -127,7 +190,7 @@ export default function AcceptingConversation({ conversation, members, onAccept,
                         style={styles.button}
                         textStyle={styles.buttonText}
                         loading={isRefusing}
-                        onPress={refuse}
+                        onPress={() => setShowDeletingConfirmation(true)}
                     />
                     <PrimaryButton
 
@@ -135,7 +198,7 @@ export default function AcceptingConversation({ conversation, members, onAccept,
                         style={styles.button}
                         textStyle={styles.buttonText}
                         loading={isBlocking}
-                        onPress={block}
+                        onPress={openBlockConfirmation}
                     />
                 </View>
             }
@@ -158,11 +221,47 @@ export default function AcceptingConversation({ conversation, members, onAccept,
                         style={styles.button}
                         textStyle={styles.buttonText}
                         loading={isRefusing}
-                        onPress={refuse}
+                        onPress={() => setShowDeletingConfirmation(true)}
                     />
                 </View>
 
             }
+
+            {
+                showDelteingConfirmation &&
+
+                <Modal
+                    transparent
+                    onRequestClose={closeConfirmation}
+                >
+                    <Confirmation
+                        title={DELETE_CONVERSATION_TITLE}
+                        message={DELETE_CONVERSATION_MESSAGE}
+
+                        onConfirm={refuse}
+                        onClose={closeConfirmation}
+
+                    />
+                </Modal>
+            }
+            {
+                showBlockingConfirmation &&
+
+                <Modal
+                    transparent
+                    onRequestClose={closeConfirmation}
+                >
+                    <Confirmation
+                        title={BLOCK_TITLE}
+                        message={message}
+
+                        onConfirm={block}
+                        onClose={closeConfirmation}
+
+                    />
+                </Modal>
+            }
+
         </View>
     )
 
@@ -193,16 +292,16 @@ const lightStyles = StyleSheet.create({
         fontSize: 16,
         marginBottom: 16
     }
-}) ; 
+});
 
 
-const darkStyles = { 
-    ...lightStyles , 
+const darkStyles = {
+    ...lightStyles,
     headerText: {
         fontFamily: textFonts.regular,
         fontSize: 16,
-        marginBottom: 16 , 
-        color : darkTheme.textColor 
+        marginBottom: 16,
+        color: darkTheme.textColor
     }
-    
+
 }

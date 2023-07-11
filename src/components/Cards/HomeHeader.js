@@ -35,7 +35,9 @@ export default function HomeHeader({ navigation }) {
 
     useEffect(() => {
 
+ 
         (async () => {
+  
             var userAuth = await auth.getUserAuth();
             if (userAuth) {
                 client.query({
@@ -47,12 +49,15 @@ export default function HomeHeader({ navigation }) {
                         }
                     }`
                 }).then(response => {
+                 
                     if (response && response.data)
                         setUnReadConversations(response.data.getUnReadConversations);
 
+                }).catch(error => {
+                  
                 })
             }
-        })
+        })()
 
 
     }, []);
@@ -60,16 +65,20 @@ export default function HomeHeader({ navigation }) {
 
     useEffect(() => {
         const conversationSeen = (conversationId) => {
-
+       
             const index = unReadConversations.findIndex(conversation => conversation.id == conversationId);
             if (index >= 0) {
+ 
+
                 var cloneConversations = [...unReadConversations];
                 cloneConversations.splice(index, 1);
-                setUnReadConversations(cloneConversations);
+             
+                setUnReadConversations( cloneConversations );
             }
         };
 
         const onNewMessage = (newMessage) => {
+            console.log (newMessage)
             const conversationId = newMessage.conversationId;
             const index = unReadConversations.findIndex(conversation => conversation.id == conversationId);
             if (index < 0)
@@ -85,7 +94,7 @@ export default function HomeHeader({ navigation }) {
 
         }
 
-    }, [unReadConversations])
+    }, [unReadConversations , event , realTime])
 
     return (
         <View style={styles.container}>

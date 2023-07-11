@@ -20,13 +20,6 @@ export default function Search({ navigation }) {
         setQuery(query);
     }, [])
 
-
-
-    useEffect(() => {
-        console.log(filter);
-    }, [filter])
-
-
     return (
         <View style={styles.container}>
             <ExploreHeader navigation={navigation} activePage={"Search"} onQueryChange={onQueryChange} />

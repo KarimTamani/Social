@@ -7,6 +7,7 @@ import Confirmation from "../Confirmation";
 import { useEvent } from "../../../providers/EventProvider";
 import { ApolloContext } from "../../../providers/ApolloContext";
 import { gql } from "@apollo/client";
+import QrCode from "./QrCode";
 
 
 
@@ -24,6 +25,9 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user, onU
     const [operation, setOperation] = useState(null);
     const event = useEvent();
     const client = useContext(ApolloContext);
+
+    const [showQrCode, setShowQrCode] = useState(false);
+
 
     const toggleConfirmation = useCallback(() => {
         setShowConfirmation(!showConfirmation);
@@ -91,7 +95,7 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user, onU
                 if (!response.data.toggleFollow)
                     onUnFollow && onUnFollow();
 
-               
+
             }
         }).catch(error => {
 
@@ -103,19 +107,19 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user, onU
     const handleConfirmation = useCallback(() => {
         if (operation == "BLOCK")
             block();
-    }, [user, operation]) ; 
+    }, [user, operation]);
 
 
-    const openReport = useCallback(() => { 
+    const openReport = useCallback(() => {
 
-        navigation.navigate("Report" , { 
-            userId : user.id 
-        }) ; 
+        navigation.navigate("Report", {
+            userId: user.id
+        });
 
 
         onClose && onClose()
 
-    } , [navigation ,  user])
+    }, [navigation, user])
 
 
     const options = [
@@ -125,16 +129,16 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user, onU
         },
         {
             text: "ابلاغ",
-            onPress : openReport
-
+            onPress: openReport
         },
+        /*
         {
             text: "للملف الشخصي UR نسخ عنوان",
             onPress: useCallback(() => {
-
             }, [])
 
         },
+        */
         {
             text: "مشاركة هذا الملف الشخصي",
             onPress: useCallback(() => {
@@ -146,19 +150,22 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user, onU
         {
             text: "رمز QR",
             onPress: useCallback(() => {
-
+         
+                setShowQrCode(true);
             }, [])
 
         },
     ];
-    
+
     if (user.isFollowed) {
         options.push({
             text: "الغاء المتابعة",
             onPress: toggleFollow
         })
     }
-    
+
+
+
 
 
 
@@ -195,8 +202,25 @@ export default function ProfileOptions({ onClose, toggleProfileSender, user, onU
                         />
                     </Modal>
                 }
+                {
+
+                    showQrCode &&
+                    < Modal
+                        transparent
+                        onRequestClose={() => setShowQrCode(false)}
+                    >
+                        <QrCode
+                            
+                            user = {user}
+                            onClose={() => setShowQrCode(false)}
+                        />
+
+                    </Modal>
+
+
+                }
             </View>
-        </TouchableOpacity>
+        </TouchableOpacity >
 
     )
 

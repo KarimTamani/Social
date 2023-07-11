@@ -184,10 +184,11 @@ export default function Conversation({ navigation, route }) {
 
     useEffect(() => {
 
-
+ 
         (async () => {
             var authUser = await auth.getUserAuth();
             setSender(authUser.user);
+            
             if (!conversation) {
 
 
@@ -222,7 +223,7 @@ export default function Conversation({ navigation, route }) {
 
                     var loadedConversation = response.data.getConversation;
                     setConversation({ ...loadedConversation, members });
-
+ 
                     if (loadedConversation) {
 
 
@@ -583,7 +584,8 @@ export default function Conversation({ navigation, route }) {
     }, [conversation])
 
     const onBlock = useCallback(() => {
-
+   
+        navigation.navigate('Messenger')
     }, [])
 
 

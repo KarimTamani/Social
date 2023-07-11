@@ -111,7 +111,7 @@ const darkStyles = {
         borderRadius: 38,
         flexDirection: "row",
         paddingVertical: 0,
-        alignItems: "center"
+    
 
     },
      

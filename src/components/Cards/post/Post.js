@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, Touchable, Dimensions, Modal } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Touchable, Dimensions, Modal, Share } from "react-native";
 import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
@@ -24,27 +24,30 @@ import AuthButton from "../../Buttons/AuthButton";
 import { AuthContext } from "../../../providers/AuthContext";
 import { useEvent } from "../../../providers/EventProvider";
 import LikeHeart from "./LikeHeart";
-import Reel from "../Reel";
 import PostVideo from "./PostVideo";
 import Confirmation from "../Confirmation";
 import { NOW, useTiming } from "../../../providers/TimeProvider";
-
-
+import * as Clipboard from 'expo-clipboard';
+import * as FileSystem from "expo-file-system";
+import { getFileExtension } from "../../../providers/MediaProvider";
+import * as MediaLibrary from 'expo-media-library';
 const WIDTH = Dimensions.get("screen").width;
-const HASHTAG_REGEX = /#+([ا-يa-zA-Z0-9_]+)/ig;
+
 
 const DELETE_MESSAGE = {
     title: "حذف المنشور",
     message: "هل انت متأكد من حذف المنشور نهائيا ؟"
 }
 
+
+const UNIMPORTANT_MESSAGE = {
+    title: "منشور غير مهم",
+    message: "هل انت متأكد من اخفاء هاذ المنشور ؟"
+}
 function Post(props) {
 
     const { navigation } = props
     const [post, setPost] = useState(props.post);
-
-
-
 
     const [like, setLike] = useState(props.post.liked);
     const [numLikes, setNumLikes] = useState(props.post.likes);
@@ -52,6 +55,7 @@ function Post(props) {
     const [numComments, setNumComments] = useState(props.post.numComments);
     const [myPost, setMyPost] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [showImportantConfirmation, setShowImportantConfirmation] = useState(false);
 
     const [isDeleting, setIsDeleting] = useState(false);
     const [showOptions, setShowOptions] = useState(false);
@@ -64,6 +68,8 @@ function Post(props) {
     const event = useEvent();
     const timing = useTiming();
     const [publishTime, setPublishTime] = useState("");
+
+
 
     useEffect(() => {
 
@@ -143,7 +149,7 @@ function Post(props) {
                 postId: post.id
             }
         }).then(response => {
-    
+
 
         }).catch(error => {
 
@@ -255,22 +261,109 @@ function Post(props) {
 
     const closeConfirmation = useCallback(() => {
         setShowDeleteConfirmation(false);
+        setShowImportantConfirmation(false);
+
     }, [])
     const editPost = useCallback(() => {
         setShowOptions(false);
         navigation && navigation.navigate('EditPost', {
             post: post
         })
-    }, [navigation, post]) ; 
+    }, [navigation, post]);
 
 
-    const openReport = useCallback(() => { 
+    const openReport = useCallback(() => {
 
-        navigation.navigate("Report" , { 
-            postId : post.id 
+        navigation.navigate("Report", {
+            postId: post.id
         })
 
-    } , [navigation ,  post])
+    }, [navigation, post]);
+
+
+    const copyClickBoard = useCallback(() => {
+        (async () => {
+            await Clipboard.setStringAsync(post.title);
+        })();
+        setShowOptions(false);
+    }, [post]);
+
+
+    const share = useCallback(() => {
+        Share.share({
+            "title": post.title,
+            "message": (post.type == "image" || post.type == "reel") ? getMediaUri(post.media[0].path) : null,
+        });
+        setShowOptions(false);
+    }, [post]);
+
+
+    const requestMediaPermission = async () => {
+        var permission = await MediaLibrary.requestPermissionsAsync()
+        return (permission.status == "granted")
+    }
+
+    const download = useCallback(() => {
+
+        var media = post.media[0];
+        (async () => {
+
+            var perimssion = await requestMediaPermission();
+            if (!perimssion)
+                return;
+
+
+            var filename = new Date().getTime() + "." + getFileExtension(getMediaUri(media.path));
+            var targetPath = FileSystem.documentDirectory + filename;
+
+            var result = await FileSystem.downloadAsync(
+                getMediaUri(media.path),
+                targetPath
+            )
+            if (result && result.uri) {
+
+                await MediaLibrary.saveToLibraryAsync(result.uri);
+                setShowOptions(false);
+            }
+        })()
+
+    }, [post]);
+
+
+    const unImportantPost = useCallback(() => {
+
+
+        setIsDeleting(true);
+
+        client.mutate({
+            mutation: gql`
+            mutation UnImportant($postId: ID!) {
+                unImportant(postId: $postId)
+            }` , 
+            variables : { 
+                postId : post.id 
+            }
+        }).then(response => {
+            console.log ( response ) ; 
+            showUnImportantConfirmation(false);
+            setIsDeleting(false);
+            if (response && response.data.unImportant) {
+
+                event.emit("delete-post" , post) ; 
+            }
+
+        }).catch(error => {
+            showUnImportantConfirmation(false);
+            setIsDeleting(false);
+        })
+    }, [post]);
+
+
+    const showUnImportantConfirmation = useCallback(() => {
+        setShowImportantConfirmation(true);
+        setShowOptions(false);
+    })
+
 
     return (
         <View style={styles.container}>
@@ -281,6 +374,15 @@ function Post(props) {
                     onRequestClose={closeConfirmation}
                 >
                     <Confirmation loading={isDeleting} title={DELETE_MESSAGE.title} message={DELETE_MESSAGE.message} onClose={closeConfirmation} onConfirm={deletePost} />
+                </Modal>
+            }
+            {
+                showImportantConfirmation &&
+                <Modal
+                    transparent
+                    onRequestClose={closeConfirmation}
+                >
+                    <Confirmation loading={isDeleting} title={UNIMPORTANT_MESSAGE.title} message={UNIMPORTANT_MESSAGE.message} onClose={closeConfirmation} onConfirm={unImportantPost} />
                 </Modal>
             }
             {
@@ -327,33 +429,36 @@ function Post(props) {
                         <View style={styles.shareContainer}>
                             {
                                 !myPost &&
-                                <TouchableOpacity style={styles.shareOption} onPress={openReport}> 
+                                <TouchableOpacity style={styles.shareOption} onPress={openReport}>
                                     <Octicons name="stop" style={styles.shareIcon} />
                                     <Text style={styles.shareText}>أبلغ</Text>
                                 </TouchableOpacity>
                             }
                             {
                                 post.type == "note" &&
-                                <TouchableOpacity style={styles.shareOption}>
+                                <TouchableOpacity style={styles.shareOption} onPress={copyClickBoard}>
                                     <Feather name="copy" style={styles.shareIcon} />
                                     <Text style={styles.shareText}>نسخ</Text>
                                 </TouchableOpacity>
                             }
                             {
                                 post.type != "note" &&
-                                <TouchableOpacity style={styles.shareOption}>
+                                <TouchableOpacity style={styles.shareOption} onPress={download}>
+
                                     <AntDesign name="download" style={styles.shareIcon} />
                                     <Text style={styles.shareText}>تحميل</Text>
                                 </TouchableOpacity>
                             }
                             {
+
                                 !myPost &&
-                                <TouchableOpacity style={styles.shareOption}>
+                                <TouchableOpacity style={styles.shareOption} onPress={showUnImportantConfirmation}>
                                     <Feather name="eye-off" style={styles.shareIcon} />
                                     <Text style={styles.shareText}>غير مهم</Text>
                                 </TouchableOpacity>
+
                             }
-                            <TouchableOpacity style={styles.shareOption}>
+                            <TouchableOpacity style={styles.shareOption} onPress={share}>
                                 <Entypo name="share" style={styles.shareIcon} />
                                 <Text style={styles.shareText}>شارك</Text>
                             </TouchableOpacity>
@@ -570,8 +675,8 @@ const lightStyles = StyleSheet.create({
 
         textAlignVertical: "center",
         fontSize: 12,
-        fontFamily: textFonts.bold , 
-        fontWeight : "bold" , 
+        fontFamily: textFonts.bold,
+        fontWeight: "bold",
 
     },
 
@@ -690,7 +795,7 @@ const darkStyles = {
         textAlignVertical: "center",
         fontSize: 12,
         fontFamily: textFonts.bold,
-        fontWeight : "bold" , 
+        fontWeight: "bold",
         color: darkTheme.textColor,
 
     },

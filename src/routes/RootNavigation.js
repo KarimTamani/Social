@@ -37,6 +37,7 @@ import EditPost from "../screens/EditPost";
 import ArchivedConversations from "../components/Cards/messenger/ArchivedConversations";
 import ActivateAccount from "../screens/ActivateAccount";
 import Report from "../screens/Report";
+import QrScanner from "../screens/QrScanner";
 
 const Stack = createStackNavigator();
 
@@ -76,6 +77,7 @@ export default function RootNavigation({ initialRouteName = "AuthRoute" }) {
                 }}
                 initialRouteName={initialRouteName}
             >
+                <Stack.Screen name="QrScanner" component={ QrScanner} />  
                 <Stack.Screen name="Report" component={Report}/>
                 <Stack.Screen name="ActivateAccount" component={ActivateAccount}/>
                 <Stack.Screen name="HashTag" component={HashTag} />

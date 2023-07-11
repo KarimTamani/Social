@@ -1,7 +1,9 @@
 import { View , Text , StyleSheet , Modal, TouchableOpacity} from "react-native" ; 
 import PrimaryButton from "../Buttons/PrimaryButton" ; 
 import { textFonts } from "../../design-system/font";
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
+import ThemeContext from "../../providers/ThemeContext";
+import darkTheme from "../../design-system/darkTheme";
 
 export default function Confirmation({title = "تأكيد" , message = "رسالة للتأكيد" , buttonText = "موافق" , loading = false , onClose , onConfirm}) {
 
@@ -12,7 +14,12 @@ export default function Confirmation({title = "تأكيد" , message = "رسال
 
     const confirm = useCallback(() => { 
         onConfirm && onConfirm() ; 
-    } , [onConfirm])
+    } , [onConfirm]) ; 
+
+
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+
 
     return (
         <TouchableOpacity style={styles.container} activeOpacity={ 1 } onPress={blur }>
@@ -36,7 +43,7 @@ export default function Confirmation({title = "تأكيد" , message = "رسال
 }
 
 
-const styles = StyleSheet.create({
+const lightStyles = StyleSheet.create({
     container : { 
         flex : 1 , 
         backgroundColor : "rgba(0,0,0,.5)" , 
@@ -68,4 +75,25 @@ const styles = StyleSheet.create({
     buttonText : { 
         fontSize: 12 
     }
-})
+}) ; 
+
+
+const darkStyles = { 
+    ...lightStyles , 
+    content : { 
+        backgroundColor : darkTheme.backgroudColor , 
+        borderRadius : 8 , 
+        padding : 16  , 
+        width : "80%" 
+    } ,
+    message : { 
+        ...lightStyles.message , 
+        color : darkTheme.secondaryTextColor 
+    }  , 
+
+    header : { 
+        ...lightStyles.header , 
+        borderBottomColor : darkTheme.borderColor, 
+        color : darkTheme.textColor
+    }
+}

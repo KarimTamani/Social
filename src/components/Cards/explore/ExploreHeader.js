@@ -11,8 +11,6 @@ export default function ExploreHeader({ navigation, activePage , onQueryChange})
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
     const [searchHandler , setSearchHandler] = useState( null ) ; 
-
-    
     const inputRef = useRef();
 
     const onBack = useCallback(() => {
@@ -47,7 +45,12 @@ export default function ExploreHeader({ navigation, activePage , onQueryChange})
    
             onQueryChange && onQueryChange(query) ; 
         } , 500)) 
-    } , [searchHandler])
+    } , [searchHandler]) ; 
+
+
+    const openQrScanner = useCallback(() => { 
+        navigation.navigate("QrScanner") ; 
+    } , [ ])
 
     return (
         <View style={styles.container}>
@@ -63,7 +66,7 @@ export default function ExploreHeader({ navigation, activePage , onQueryChange})
                     onChange={onSearchQueryChange}
                
                     leftContent={
-                        <TouchableOpacity style={styles.qrButton}>
+                        <TouchableOpacity style={styles.qrButton} onPress={openQrScanner}>
                             <MaterialIcons name="qr-code-scanner" style={styles.scanner} />
                         </TouchableOpacity>
                     }

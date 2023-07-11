@@ -10,11 +10,13 @@ import { textFonts } from "../design-system/font";
 import PrimaryInput from "../components/Inputs/PrimaryInput";
 import PrimaryButton from "../components/Buttons/PrimaryButton";
 import { Octicons } from '@expo/vector-icons';
-export default function Report({ navigation , route }) {
+import ThemeContext from "../providers/ThemeContext";
+import darkTheme from "../design-system/darkTheme";
+export default function Report({ navigation, route }) {
 
 
-    const {userId, postId, conversationId} = route?.params ; 
-     
+    const { userId, postId, conversationId } = route?.params;
+
 
     const [reasons, setReasons] = useState([]);
     const [reason, setReason] = useState();
@@ -28,7 +30,8 @@ export default function Report({ navigation , route }) {
 
     const [showSuccess, setShowSuccess] = useState(false);
 
-    
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
     useEffect(() => {
         setLoading(true);
@@ -77,7 +80,7 @@ export default function Report({ navigation , route }) {
         }).then(response => {
             setSending(false);
             if (response) {
-                setShowSuccess(true) ; 
+                setShowSuccess(true);
             }
         }).catch(error => {
             setSending(false);
@@ -99,6 +102,11 @@ export default function Report({ navigation , route }) {
             {
                 !showSuccess &&
                 <ScrollView style={styles.content}>
+                    <Text style={styles.message}>
+                        يتم إرسال بلاغك دون الإفصاح عن هويتك،
+                        إلا إذا كنت تبلغ عن انتهاك ملكية فكرية. او محتوى مسروق
+                        إذا كان شخص ما يواجه خطرًا مباشرًا، فاتصل بخدمات الطوارئ المحلية دون أي انتظار.
+                    </Text>
                     {
                         loading &&
                         <LoadingActivity />
@@ -155,7 +163,7 @@ export default function Report({ navigation , route }) {
 
 
 
-const styles = StyleSheet.create({
+const lightStyles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "white"
@@ -167,6 +175,10 @@ const styles = StyleSheet.create({
         flex: 1,
 
     },
+    message : { 
+        lineHeight : 22 , 
+        color : "#666"
+    } , 
     reason: {
         marginTop: 16,
         flexDirection: "row",
@@ -198,17 +210,41 @@ const styles = StyleSheet.create({
         borderRadius: 4
     },
 
-    successContent : { 
-        alignItems : "center" , 
-        justifyContent : "center" , 
-        paddingTop : 48 
-    }, 
-    successMessage : { 
-        color : "#666" , 
-        marginTop : 16 , 
-        width : "80%" , 
-        textAlign  : "center" , 
-        fontSize : 14 , 
-        lineHeight : 22  
+    successContent: {
+        alignItems: "center",
+        justifyContent: "center",
+        paddingTop: 48
+    },
+    successMessage: {
+        color: "#666",
+        marginTop: 16,
+        width: "80%",
+        textAlign: "center",
+        fontSize: 14,
+        lineHeight: 22
     }
-})
+});
+
+const darkStyles = {
+    ...lightStyles,
+    container: {
+        flex: 1,
+        backgroundColor: darkTheme.backgroudColor
+    },
+    successMessage: {
+        color: darkTheme.secondaryTextColor,
+        marginTop: 16,
+        width: "80%",
+        textAlign: "center",
+        fontSize: 14,
+        lineHeight: 22
+    },
+    reasonText: {
+        ...lightStyles.reasonText,
+        color: darkTheme.textColor
+    } , 
+    message : { 
+        lineHeight : 22 , 
+        color : darkTheme.secondaryTextColor 
+    } ,  
+}
