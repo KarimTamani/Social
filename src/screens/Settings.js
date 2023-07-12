@@ -12,7 +12,15 @@ import { ApolloContext } from "../providers/ApolloContext";
 import { gql } from "@apollo/client";
 import { useEvent } from "../providers/EventProvider";
 
+import { Feather } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import Confirmation from "../components/Cards/Confirmation";
 
+
+const EXIT_TITLE = "خروج";
+const EXIT_MESSAGE = "هل انت متأكد من مغادرة التطبيق ؟";
 
 export default function Settings({ navigation, route }) {
 
@@ -21,7 +29,13 @@ export default function Settings({ navigation, route }) {
     const [showPrivateAccount, setShowPrivateAccount] = useState(false);
 
     const client = useContext(ApolloContext);
-    const event = useEvent() ; 
+    const event = useEvent();
+    const [isExiting, setIsExiting] = useState(false);
+
+
+
+    const [showExitConfirmation, setShowExitConfirmation] = useState(false);
+
 
     const togglePrivateAccount = useCallback(() => {
         setShowPrivateAccount(!showPrivateAccount);
@@ -29,16 +43,34 @@ export default function Settings({ navigation, route }) {
 
     const auth = useContext(AuthContext);
 
+    const renderIcon = useCallback((type, name) => {
+        if (type == "Feather")
+            return <Feather name={name} style={styles.icon} />
+
+        if (type == "AntDesign")
+            return <AntDesign name={name} style={styles.icon} />;
+
+
+        if (type == "MaterialIcons")
+            return <MaterialIcons name={name} style={styles.icon} />
+
+
+        if (type == "Ionicons")
+            return <Ionicons name={name} style={styles.icon} />
+    }, [])
     const routes = [
         {
             name: "اضافة رقم الهاتف",
-            icon: require("../assets/icons/email.png"),
+            icon: { type: "Feather", name: "phone" },
+
+
             onPress: useCallback(() => {
-                navigation.navigate("AddCredentials" , { 
-                     user 
+                navigation.navigate("AddCredentials", {
+                    user
                 })
             }, [navigation])
         },
+        /*
         {
             name: "الرصيد",
             icon: require("../assets/icons/coin.png"),
@@ -55,7 +87,7 @@ export default function Settings({ navigation, route }) {
                 navigation.navigate("")
             } , [navigation])
         },
-        */
+      
         {
             name: "طلب توثيق الحساب",
             icon: require("../assets/icons/checkmark-fille.png"),
@@ -65,10 +97,11 @@ export default function Settings({ navigation, route }) {
 
 
         },
+          */
 
         {
             name: "كلمة المرور",
-            icon: require("../assets/icons/padlock.png"),
+            icon: { type: "AntDesign", name: "lock" },
             onPress: useCallback(() => {
                 navigation.navigate("Password")
             }, [navigation])
@@ -78,9 +111,9 @@ export default function Settings({ navigation, route }) {
 
         {
             name: "حساب خاص",
-            icon: require("../assets/icons/CompositeLayer.png"),
+
             onPress: togglePrivateAccount,
-            isToggling: true , 
+            isToggling: true,
 
 
         },
@@ -88,7 +121,7 @@ export default function Settings({ navigation, route }) {
 
         {
             name: "شروط الاستخدام",
-            icon: require("../assets/icons/privacy.png"),
+            icon: { type: "MaterialIcons", name: "privacy-tip" },
             onPress: useCallback(() => {
                 navigation.navigate("")
             }, [navigation])
@@ -97,51 +130,39 @@ export default function Settings({ navigation, route }) {
         },
         {
             name: "حسابي",
-            icon: require("../assets/icons/user.png"),
+            icon: { type: "AntDesign", name: "user" },
             onPress: useCallback(() => {
                 navigation.navigate("AccountSettings")
             }, [navigation])
         },
+        /*
+            
         {
             name: "الاتصال بالدعم",
             icon: require("../assets/icons/customer-servic.png"),
             onPress: useCallback(() => {
                 navigation.navigate("ContactUs")
             }, [navigation])
+
         },
+        */
         {
             name: "خروج",
-            icon: require("../assets/icons/exit.png"),
-            onPress: useCallback(() => {
-                (async () => {
-                    client.mutate({
-                        mutation: gql`
-                        mutation Mutation {
-                            logOut {
-                              id 
-                            }
-                        }`
-                    }).then(async response => {
-
-                        if (response.data) {
-                            await auth.logOut();
-                            navigation.navigate("HomeNavigation", { screen: "Home" })
-                        }
-                    })
-
-                })()
-            }, [navigation])
+            icon: { type: "Ionicons", name: "exit-outline" },
+            onPress: useCallback(() => { 
+                setShowExitConfirmation(true)
+            } , [ ])
         }
     ]
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles
 
-    const togglePrivacy = useCallback(() => { 
-        
-        setShowPrivateAccount( false ) ; 
+    const togglePrivacy = useCallback(() => {
+
+        setShowPrivateAccount(false);
 
         client.query({
-            query : gql`
+            query: gql`
             mutation Mutation {
                 togglePrivate {
                   id  
@@ -149,17 +170,42 @@ export default function Settings({ navigation, route }) {
                 }
               }`
         }).then(response => {
-
-    
-            if ( response && response.data.togglePrivate) {
-                console.log( response.data.togglePrivate.private) ; 
-                setIsPrivate(response.data.togglePrivate.private  ) ;
-                event.emit("edit-profile") ; 
+            if (response && response.data.togglePrivate) {
+                console.log(response.data.togglePrivate.private);
+                setIsPrivate(response.data.togglePrivate.private);
+                event.emit("edit-profile");
             }
-        }) 
-              
+        })
+    }, [isPrivate, user]);
 
-    } , [isPrivate , user ])
+    const exit = useCallback(() => {
+        setIsExiting(true);
+
+        (async () => {
+            client.mutate({
+                mutation: gql`
+                mutation Mutation {
+                    logOut {
+                      id 
+                    }
+                }`
+            }).then(async response => {
+                setIsExiting(false);
+
+                if (response.data) {
+                    await auth.logOut();
+                    navigation.navigate("HomeNavigation", { screen: "Home" })
+                }
+            }).catch(error => {
+                setIsExiting(false);
+            })
+
+        })()
+    }, [navigation])
+
+    const toggleConfirmation = useCallback(() => {
+        setShowExitConfirmation(false);
+    }, [])
 
     return (
         <View style={styles.container}>
@@ -184,8 +230,9 @@ export default function Settings({ navigation, route }) {
                                 />
                             }
                             {
-                                !route.isToggling &&
-                                <Image source={route.icon} style={styles.icon} />
+                                !route.isToggling && route.icon?.type && route.icon?.name &&
+                                renderIcon(route.icon.type, route.icon.name)
+                                //<Image source={route.icon} style={styles.icon} />
 
                             }
                             <Text style={styles.routeText}>
@@ -197,7 +244,7 @@ export default function Settings({ navigation, route }) {
                 }
             </ScrollView>
             {
-                showPrivateAccount && !isPrivate && 
+                showPrivateAccount && !isPrivate &&
                 <Modal
                     transparent
                     onRequestClose={togglePrivateAccount}
@@ -206,10 +253,25 @@ export default function Settings({ navigation, route }) {
                         onClose={togglePrivateAccount}
                         percentage={0.4}
                     >
-                        <PrivateAccount 
+                        <PrivateAccount
                             togglePrivate={togglePrivacy}
                         />
                     </Slider>
+                </Modal>
+            }
+            {
+                showExitConfirmation &&
+                <Modal
+                    transparent
+                    onRequestClose={toggleConfirmation}
+                >
+                    <Confirmation
+                        title={EXIT_TITLE}
+                        message={EXIT_MESSAGE}
+                        loading={isExiting}
+                        onConfirm={exit}
+                        onClose={toggleConfirmation}
+                    />
                 </Modal>
             }
         </View>
@@ -242,7 +304,7 @@ const lightStyles = StyleSheet.create({
         flex: 1,
         fontFamily: textFonts.regular,
         textAlignVertical: "center",
-        color: "#666"
+        color: "#666",
 
     },
     icon: {
@@ -250,9 +312,11 @@ const lightStyles = StyleSheet.create({
         height: 24,
         resizeMode: "contain",
         marginLeft: 16,
-        marginRight: 8
-    } , 
-    switcher : { 
+        marginRight: 8,
+        fontSize: 24,
+        color: "#666"
+    },
+    switcher: {
 
         height: 24,
     }
@@ -281,7 +345,18 @@ const darkStyles = {
         marginBottom: 8,
         paddingBottom: 8,
         alignItems: "center",
-        paddingHorizontal: 8
+        paddingHorizontal: 8,
 
+
+
+    },
+    icon: {
+        width: 24,
+        height: 24,
+        resizeMode: "contain",
+        marginLeft: 16,
+        marginRight: 8,
+        fontSize: 24,
+        color: "white"
     },
 }

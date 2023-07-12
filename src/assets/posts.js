@@ -18,7 +18,7 @@ export default posts;
         id: 5,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "service",
 
@@ -34,7 +34,7 @@ export default posts;
         id: 3,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "image",
         content: {
@@ -45,7 +45,7 @@ export default posts;
         id: 1,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "note",
         content: {
@@ -65,7 +65,7 @@ export default posts;
         id: 2,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "image",
         content: {
@@ -81,7 +81,7 @@ export default posts;
         id: 12,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "image",
         content: {
@@ -92,7 +92,7 @@ export default posts;
         id: 6,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "payed-content",
 
@@ -115,7 +115,7 @@ export default posts;
         id: 13,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "image",
         content: {

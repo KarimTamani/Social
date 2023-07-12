@@ -305,25 +305,29 @@ function Post(props) {
 
     const download = useCallback(() => {
 
-        var media = post.media[0];
+        setShowOptions(false);
         (async () => {
 
-            var perimssion = await requestMediaPermission();
-            if (!perimssion)
-                return;
+            for (let index = 0; index < post.media.length; index++) {
+                var media = post.media[index];
+
+                var perimssion = await requestMediaPermission();
+                if (!perimssion)
+                    return;
 
 
-            var filename = new Date().getTime() + "." + getFileExtension(getMediaUri(media.path));
-            var targetPath = FileSystem.documentDirectory + filename;
+                var filename = new Date().getTime() + "." + getFileExtension(getMediaUri(media.path));
+                var targetPath = FileSystem.documentDirectory + filename;
 
-            var result = await FileSystem.downloadAsync(
-                getMediaUri(media.path),
-                targetPath
-            )
-            if (result && result.uri) {
+                var result = await FileSystem.downloadAsync(
+                    getMediaUri(media.path),
+                    targetPath
+                )
+                if (result && result.uri) {
 
-                await MediaLibrary.saveToLibraryAsync(result.uri);
-                setShowOptions(false);
+                    await MediaLibrary.saveToLibraryAsync(result.uri);
+            
+                }
             }
         })()
 
@@ -339,17 +343,17 @@ function Post(props) {
             mutation: gql`
             mutation UnImportant($postId: ID!) {
                 unImportant(postId: $postId)
-            }` , 
-            variables : { 
-                postId : post.id 
+            }` ,
+            variables: {
+                postId: post.id
             }
         }).then(response => {
-            console.log ( response ) ; 
+            console.log(response);
             showUnImportantConfirmation(false);
             setIsDeleting(false);
             if (response && response.data.unImportant) {
 
-                event.emit("delete-post" , post) ; 
+                event.emit("delete-post", post);
             }
 
         }).catch(error => {

@@ -340,7 +340,8 @@ function Reel(props) {
     }
 
     const download = useCallback(() => {
-
+        setShowOptions(false); 
+        
         var media = reel.media[0];
         (async () => {
 
@@ -358,7 +359,7 @@ function Reel(props) {
             if (result && result.uri) {
 
                 await MediaLibrary.saveToLibraryAsync(result.uri) ; 
-                setShowOptions(false); 
+         
             }
         })()
     }, [reel]) ; 

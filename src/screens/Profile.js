@@ -210,29 +210,29 @@ export default function Profile({ route, navigation }) {
 
 
                 setUser({
-                    ...user , 
-                    isFollowed : response.data.toggleFollow 
+                    ...user,
+                    isFollowed: response.data.toggleFollow
                 })
             }
 
         }).catch(error => {
             setFollow(!previousValue)
         })
-    }, [follow, numFollowers , user]);
+    }, [follow, numFollowers, user]);
 
 
-    
+
     const onUnFollow = useCallback(() => {
 
         setNumFollowers(numFollowers - 1)
         setFollow(false);
         setUser({
-            ...user , 
-            isFollowed : false 
+            ...user,
+            isFollowed: false
         })
 
-    }, [numFollowers , user]);
-    
+    }, [numFollowers, user]);
+
 
     if (!user && !notFound) {
         return (<LoadingProfile />)
@@ -245,7 +245,7 @@ export default function Profile({ route, navigation }) {
     return (
         <View style={styles.container}>
             <ScrollView style={{ zIndex: 1 }}>
-                <ProfileHeader onUnFollow={onUnFollow}  myProfile={!userId} user={user} onBack={back} navigation={navigation} />
+                <ProfileHeader onUnFollow={onUnFollow} myProfile={!userId} user={user} onBack={back} navigation={navigation} />
                 {
                     openSocialMedia &&
                     <TouchableOpacity style={styles.background} activeOpacity={1} onPressIn={toggleSocialMedia}>
@@ -357,13 +357,14 @@ export default function Profile({ route, navigation }) {
                             </Text>
                         </View>
                     </View>
+                    {
+                        user && (!userId || follow || !user.private) &&
+                        <View style={[styles.posts, !userId && { marginBottom: 56 }]}>
+                            <ProfilePostsRoute userId={user.id} navigation={navigation} />
+                        </View>
+                    }
                 </View>
-                {
-                    user && (!userId || follow || !user.private) &&
-                    <View style={[styles.posts, !userId && { marginBottom: 56 }]}>
-                        <ProfilePostsRoute userId={user.id} navigation={navigation} />
-                    </View>
-                }
+
                 {
                     user && userId && !follow && user.private &&
                     <PrivateContentMessage />
@@ -379,14 +380,19 @@ export default function Profile({ route, navigation }) {
 const lightStyles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "white",
+        backgroundColor: "#eee",
 
 
     },
     content: {
         alignItems: "center",
+        backgroundColor: "white"
 
     },
+    posts : { 
+        width : "100%"
+    } , 
+
     profileImage: {
         width: 112,
         height: 112,
@@ -498,7 +504,8 @@ const lightStyles = StyleSheet.create({
         textAlign: "center",
         lineHeight: 22,
         fontSize: 12
-    }
+    },
+
 });
 
 
@@ -506,8 +513,14 @@ const darkStyles = {
     ...lightStyles,
     container: {
         flex: 1,
+        backgroundColor: darkTheme.secondaryBackgroundColor,
+
+    },
+    content: {
+        alignItems: "center",
         backgroundColor: darkTheme.backgroudColor,
 
+        
     },
     fullname: {
         ...lightStyles.fullname,

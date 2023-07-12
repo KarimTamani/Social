@@ -4,6 +4,9 @@ import PrimaryButton from "../../components/Buttons/PrimaryButton";
 import darkTheme from "../../design-system/darkTheme";
 import { textFonts } from "../../design-system/font";
 import ThemeContext from "../../providers/ThemeContext";
+
+import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 export default function PrivateAccount({ navigation , togglePrivate }) {
 
     const themeContext = useContext(ThemeContext) ; 
@@ -18,12 +21,13 @@ export default function PrivateAccount({ navigation , togglePrivate }) {
 
                 <View style={styles.row}>
                     <Text style={styles.text}>لا يمكن لاي شخص مشاهدة الصور ومقاطع الفيديو الخاصة بك الا متابعوك فقط</Text>
-                    <Image source={require("../../assets/icons/images.png")} style={styles.icon} />
+                    <FontAwesome5 name="images"  style={styles.icon}/>
+
                 </View>
 
                 <View style={styles.row}>
                     <Text style={styles.text}>لن يؤدي هذا الاجراء الى تغيير من يمكنه ارسال رسالة اليك</Text>
-                    <Image source={require("../../assets/icons/messaging.png")} style={styles.icon} />
+                    <Ionicons name="chatbubbles-outline"  style={styles.icon} />
                 </View>
 
                 <PrimaryButton
@@ -60,6 +64,7 @@ const lightStyles = StyleSheet.create({
     icon: {
 
         resizeMode: "contain", 
+        fontSize : 28 
     },
     row: {
         flexDirection: "row",
@@ -93,5 +98,11 @@ const darkStyles = {
         paddingRight : 12 , 
         lineHeight : 24  , 
         color :darkTheme.secondaryTextColor 
+    },
+    icon: {
+
+        resizeMode: "contain", 
+        fontSize : 28  , 
+        color : darkTheme.secondaryTextColor 
     },
 }

@@ -337,7 +337,7 @@ const lightStyles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#eee",
-
+        
 
     },
     imageView: {

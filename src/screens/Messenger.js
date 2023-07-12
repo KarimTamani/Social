@@ -13,35 +13,35 @@ import darkTheme from "../design-system/darkTheme";
 export default function Messenger({ navigation }) {
 
     const [filter, setFilter] = useState("chat");
-    const [searchHandler , setSearchHandler] = useState( null ) ; 
-    const [ query , setQuery] = useState(null) ; 
+    const [searchHandler, setSearchHandler] = useState(null);
+    const [query, setQuery] = useState(null);
 
-    const openConversation = useCallback((conversation) => { 
-        navigation.navigate("Conversation" , {
-            conversation 
+    const openConversation = useCallback((conversation) => {
+        navigation.navigate("Conversation", {
+            conversation
         })
-    } , [navigation]) ; 
+    }, [navigation]);
 
-    const themeContext = useContext(ThemeContext) ; 
-    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles ;  
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
     const onSearchQueryChange = useCallback((text) => {
         if (searchHandler) {
-            clearTimeout(searchHandler) 
-        } ; 
+            clearTimeout(searchHandler)
+        };
 
-        setSearchHandler ( setTimeout(() => {
-            
-            setQuery(text) ; 
+        setSearchHandler(setTimeout(() => {
 
-            console.log("searching for : " , text) ;  
-        } , 500)) 
-    } , [searchHandler])
+            setQuery(text);
+
+            console.log("searching for : ", text);
+        }, 500))
+    }, [searchHandler])
 
     return (
         <View style={styles.container}>
-            <MessengerHeader 
-                navigation = { navigation }
+            <MessengerHeader
+                navigation={navigation}
             />
             <View style={styles.content}>
                 <View style={styles.searchInput}>
@@ -54,13 +54,16 @@ export default function Messenger({ navigation }) {
                 </View>
                 <View style={styles.filters}>
 
-
+                    {
+                        /*
                     <TouchableOpacity onPress={() => setFilter("services")}>
                         <Text style={[styles.filter, filter == "services" && styles.activeFilter]}>
                             خدمات
                         </Text>
 
                     </TouchableOpacity>
+                     */
+                    }
                     <TouchableOpacity onPress={() => setFilter("chat")}>
                         <Text style={[styles.filter, filter == "chat" && styles.activeFilter]}>
                             الدردشة
@@ -68,7 +71,7 @@ export default function Messenger({ navigation }) {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.conversations}>
-                    <ConversationsList openConversation={openConversation} query = { query } />
+                    <ConversationsList openConversation={openConversation} query={query} />
                 </View>
 
             </View>
@@ -93,13 +96,13 @@ const lightStyles = StyleSheet.create({
     },
     content: {
         padding: 16,
-        paddingTop: 16 , 
-        flex: 1 
+        paddingTop: 16,
+        flex: 1
     },
     filters: {
         flexDirection: "row",
         justifyContent: "flex-end",
-        paddingBottom: 16 , 
+        paddingBottom: 16,
     },
     filter: {
         marginLeft: 16,
@@ -113,24 +116,24 @@ const lightStyles = StyleSheet.create({
     activeFilter: {
         backgroundColor: "#1A6ED8",
         color: "white",
-    } , 
-    conversations : { 
-        flex : 1   , 
-         
-    } , 
-    input : { 
-        height : 48 , 
-         
+    },
+    conversations: {
+        flex: 1,
+
+    },
+    input: {
+        height: 48,
+
     }
 })
 
-const darkStyles = { 
-    ...lightStyles , 
+const darkStyles = {
+    ...lightStyles,
     container: {
         flex: 1,
-        backgroundColor  : darkTheme.backgroudColor
+        backgroundColor: darkTheme.backgroudColor
     },
-   
+
     filter: {
         marginLeft: 16,
         color: darkTheme.secondaryTextColor,

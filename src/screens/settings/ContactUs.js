@@ -18,7 +18,7 @@ const receiver = {
 const sender = {
     id: 3,
     name: "خير الله غازي",
-    image: require("../../assets/illustrations/mainUser.jpeg"),
+    image: require("../../assets/illustrations/uknown.png"),
     active: true
 
 }

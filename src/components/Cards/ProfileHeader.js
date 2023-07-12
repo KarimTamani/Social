@@ -101,7 +101,8 @@ const lightStyles = StyleSheet.create({
         padding: 16,
         paddingTop: 48,
         flexDirection: "row",
-        justifyContent: "space-between"
+        justifyContent: "space-between" , 
+        backgroundColor : "white"
     },
     icon: {
         fontSize: 24
@@ -110,6 +111,10 @@ const lightStyles = StyleSheet.create({
 
 const darkStyles = {
     ...lightStyles,
+    container : { 
+        ...lightStyles.container , 
+        backgroundColor :  darkTheme.backgroudColor 
+    } , 
     icon: {
         fontSize: 24,
         color: darkTheme.textColor

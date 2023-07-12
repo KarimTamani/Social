@@ -13,7 +13,7 @@ const orders = [
 
         user: {
             name: "تماني كريم",
-            image: require("../../../assets/illustrations/user.png")
+            image: require("../../../assets/illustrations/uknown.png")
         },
 
         statusText: "في انتظار التعليمات",
@@ -33,7 +33,7 @@ const orders = [
         status: "pending",
         user: {
             name: "خير الله غازي",
-            image: require("../../../assets/illustrations/mainUser.jpeg")
+            image: require("../../../assets/illustrations/uknown.png")
         },
         type: "service",
 

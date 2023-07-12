@@ -3,7 +3,7 @@ const works = [
         id: 5,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png") , 
+            image: require("./illustrations/uknown.png") , 
             category: "مبرمج",
 
         },
@@ -20,7 +20,7 @@ const works = [
         id: 6,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png") , 
+            image: require("./illustrations/uknown.png") , 
             category: "مبرمج",
 
         },

@@ -6,7 +6,7 @@ var explore = [
         id: 3,
         user: {
             name: "تماني كريم",
-            image: require("../assets/illustrations/user.png")
+            image: require("../assets/illustrations/uknown.png")
         },
         type: "video",
         views: 2548,
@@ -24,7 +24,7 @@ var explore = [
         views: 365,
         user: {
             name: "تماني كريم",
-            image: require("../assets/illustrations/user.png")
+            image: require("../assets/illustrations/uknown.png")
         },
         type: "video",
         content: {
@@ -42,7 +42,7 @@ var explore = [
         id: 4,
         user: {
             name: "تماني كريم",
-            image: require("../assets/illustrations/user.png")
+            image: require("../assets/illustrations/uknown.png")
         },
         type: "video",
         views: 3108,
@@ -59,7 +59,7 @@ var explore = [
         id: 7,
         user: {
             name: "تماني كريم",
-            image: require("../assets/illustrations/user.png")
+            image: require("../assets/illustrations/uknown.png")
         },
         type: "video",
         views: 578,
@@ -79,7 +79,7 @@ var explore = [
         user: {
             name: "خير الله غ",
 
-            image: require("./illustrations/mainUser.jpeg")
+            image: require("./illustrations/uknown.png")
         },
         type: "note",
         content: {
@@ -90,7 +90,7 @@ var explore = [
         id: 8,
         user: {
             name: "تماني كريم",
-            image: require("../assets/illustrations/user.png")
+            image: require("../assets/illustrations/uknown.png")
         },
         type: "video",
         views: 1024,
@@ -107,7 +107,7 @@ var explore = [
         id: 3,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "image",
         content: {
@@ -118,7 +118,7 @@ var explore = [
         id: 1,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "note",
         content: {
@@ -130,7 +130,7 @@ var explore = [
         id: 3,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "image",
         content: {
@@ -143,7 +143,7 @@ var explore = [
         id: 3,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "image",
         content: {
@@ -155,7 +155,7 @@ var explore = [
         id: 3,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "image",
         content: {
@@ -168,7 +168,7 @@ var explore = [
         id: 2,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "image",
         content: {
@@ -184,7 +184,7 @@ var explore = [
         id: 12,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "image",
         content: {
@@ -199,7 +199,7 @@ var explore = [
         id: 13,
         user: {
             name: "تماني كريم",
-            image: require("./illustrations/user.png")
+            image: require("./illustrations/uknown.png")
         },
         type: "image",
         content: {

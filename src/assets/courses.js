@@ -2,7 +2,7 @@ const courses = [{
     id: 6,
     user: {
         name: "تماني كريم",
-        image: require("./illustrations/user.png")
+        image: require("./illustrations/uknown.png")
     },
     type: "payed-content",
 
@@ -21,7 +21,7 @@ const courses = [{
     id: 7,
     user: {
         name: "تماني كريم",
-        image: require("./illustrations/user.png")
+        image: require("./illustrations/uknown.png")
     },
     type: "payed-content",
 

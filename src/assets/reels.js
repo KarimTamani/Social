@@ -2,7 +2,7 @@ const reels = [ {
     id: 3,
     user: {
         name: "تماني كريم",
-        image: require("../assets/illustrations/user.png")
+        image: require("../assets/illustrations/uknown.png")
     },
     type: "video",
 
@@ -21,7 +21,7 @@ const reels = [ {
     views: 365,
     user: {
         name: "تماني كريم",
-        image: require("../assets/illustrations/user.png")
+        image: require("../assets/illustrations/uknown.png")
     },
     type: "video",
     content: {
@@ -39,7 +39,7 @@ const reels = [ {
     id: 4,
     user: {
         name: "تماني كريم",
-        image: require("../assets/illustrations/user.png")
+        image: require("../assets/illustrations/uknown.png")
     },
     type: "video",
     views: 3108, 
@@ -56,7 +56,7 @@ const reels = [ {
     id: 7,
     user: {
         name: "تماني كريم",
-        image: require("../assets/illustrations/user.png")
+        image: require("../assets/illustrations/uknown.png")
     },
     type: "video",
     views: 578, 
@@ -73,7 +73,7 @@ const reels = [ {
     id: 8,
     user: {
         name: "تماني كريم",
-        image: require("../assets/illustrations/user.png")
+        image: require("../assets/illustrations/uknown.png")
     },
     type: "video",
     views: 1024, 

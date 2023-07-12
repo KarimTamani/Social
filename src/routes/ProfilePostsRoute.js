@@ -22,9 +22,9 @@ export default function ProfilePostsRoute({ navigation, userId }) {
     const event = useEvent();
 
     const updateHeight = (value) => {
-        console.log("update height : " , value) ; 
+        console.log("update height : ", value);
         if (value == 0)
-            setHeight(HEIGHT * 0.25 );
+            setHeight(HEIGHT * 0.25);
         else if (value < HEIGHT * 0.75) {
             setHeight(value)
         } else
@@ -42,16 +42,19 @@ export default function ProfilePostsRoute({ navigation, userId }) {
 
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1  }}>
             <ProfileTabNav activePage={selectedPage} navigation={navigation} />
             <View style={[styles.screensContainer, { height: height }]}>
                 <Tab.Navigator
                     screenOptions={{
                         headerShown: false,
                         tabBarStyle: {
-                            display: "none"
-                        }
+                            display: "none"        
+                        } , 
+
+                        
                     }}
+                    
                     initialRouteName={"ProfileImages"}
                 >
 
@@ -71,6 +74,8 @@ export default function ProfilePostsRoute({ navigation, userId }) {
                             setSelectedPage("ProfileVideos")
                         }
                     }} />
+                    {
+                        /*
                     <Tab.Screen component={WorkAndServices} initialParams={{ userId: userId }} name="WorkAndServices" listeners={{
                         focus: (e) => {
                             setSelectedPage("WorkAndServices")
@@ -81,6 +86,8 @@ export default function ProfilePostsRoute({ navigation, userId }) {
                             setSelectedPage("ProfileCourses")
                         }
                     }} />
+                    */
+                    }
 
                 </Tab.Navigator>
             </View>
@@ -92,5 +99,7 @@ export default function ProfilePostsRoute({ navigation, userId }) {
 
 const styles = StyleSheet.create({
 
-
+    screensContainer  : { 
+     
+    }
 })

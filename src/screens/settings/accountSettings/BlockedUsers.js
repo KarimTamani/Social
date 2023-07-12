@@ -13,7 +13,7 @@ const users = [
     {
         id: 1,
         fullname: "كريم تماني",
-        image: require("../../../assets/illustrations/user.png"),
+        image: require("../../../assets/illustrations/uknown.png"),
         username: "@tamanikarim",
         profession: "مبرمج",
         address: "الجزائر سطيف"
@@ -21,7 +21,7 @@ const users = [
     {
         id: 2,
         fullname: "خير الله غ",
-        image: require("../../../assets/illustrations/mainUser.jpeg"),
+        image: require("../../../assets/illustrations/uknown.png"),
         username: "@khirallah",
         profession: "صانع المحتوى",
         address: "العراق"

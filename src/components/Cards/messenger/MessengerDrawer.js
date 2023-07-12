@@ -7,6 +7,9 @@ import ThemeContext from "../../../providers/ThemeContext";
 import { AuthContext } from "../../../providers/AuthContext";
 import { ApolloContext } from "../../../providers/ApolloContext";
 import { gql } from "@apollo/client";
+import { AntDesign } from '@expo/vector-icons';
+
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const WIDTH = Dimensions.get("screen").width;
 const CLOSE = - WIDTH * 80 / 100;
@@ -37,16 +40,26 @@ export default function MessengerDrawer({ toggleDrawer, navigation }) {
             }
         })();
 
-    }, [])
+    }, []) ; 
+
+
+    const renderIcon = useCallback((type , name) => {
+        if (type == "MaterialCommunityIcons") 
+            return <MaterialCommunityIcons name={name} style={styles.icon} /> ; 
+
+
+        if (type == "AntDesign") 
+            return <AntDesign style={styles.icon}  name={name}/>
+    } , [])
 
    
-    const client = useContext(ApolloContext);
-
+    const client = useContext(ApolloContext);  
+    
     const options = [
         {
 
             text: "طلبات المراسلة",
-            icon: require("../../../assets/icons/icons8-communic.png"),
+            icon: { type : "MaterialCommunityIcons" , name : "message-badge-outline"} , 
             onPress: useCallback(() => {
                 navigation.navigate("MessageRequests");
                 toggleDrawer();
@@ -55,7 +68,7 @@ export default function MessengerDrawer({ toggleDrawer, navigation }) {
         {
 
             text: "الدردشات المؤرشفة",
-            icon: require("../../../assets/icons/closeRectangle.png"),
+            icon: {type : "MaterialCommunityIcons" , name : "message-bookmark-outline"},
             onPress: useCallback(() => {
                 navigation.navigate("ArchivedConversations");
                 toggleDrawer();
@@ -63,18 +76,18 @@ export default function MessengerDrawer({ toggleDrawer, navigation }) {
         },
         {
             text: "حالة النشاط",
-            icon: require("../../../assets/icons/icons8-toggle-i.png"),
+         
             isToggling: true
         },
 
         {
             text: "عدم الازعاج",
-            icon: require("../../../assets/icons/icons8-no-audio.png"),
+    
             isToggling: true
         },
         {
             text: "إنشاء مجموعة",
-            icon: require("../../../assets/icons/icons8-add-user.png"),
+            icon: {type : "AntDesign" , name : "addusergroup"} , 
             onPress: useCallback(() => {
                 navigation.navigate("CreateGroup");
                 toggleDrawer();
@@ -212,13 +225,13 @@ export default function MessengerDrawer({ toggleDrawer, navigation }) {
                                         ios_backgroundColor="#3e3e3e"
                                         value={getSwitchValue(index)}
                                         onValueChange={() => toggleSwitch(index)}
-                                        style={[styles.switcher, styles.icon]}
+                                        style={[styles.switcher]}
                                     />
                                 }
 
                                 {
-                                    !option.isToggling &&
-                                    <Image source={option.icon} style={styles.icon} />
+                                    !option.isToggling && option.icon?.type && option.icon?.name &&
+                                    renderIcon(option.icon.type, option.icon.name)
 
                                 }
                                 <Text style={styles.text}>
@@ -250,11 +263,12 @@ const lightStyles = StyleSheet.create({
         alignItems: "center",
     },
     options: {
-        padding: 16
+        padding: 16 , 
+        paddingHorizontal : 8 
     },
     text: {
         fontFamily: textFonts.regular,
-        paddingHorizontal: 16,
+        paddingHorizontal: 8,
         paddingVertical: 8
     },
     switcher: {
@@ -262,6 +276,16 @@ const lightStyles = StyleSheet.create({
         height: 24,
 
 
+    },
+    icon: {
+        width: 24,
+        height: 24,
+        resizeMode: "contain",
+        marginLeft: 16,
+        marginRight: 8,
+        fontSize: 24,
+        color: "#666" , 
+    
     },
 
 })
@@ -279,8 +303,17 @@ const darkStyles = {
 
     text: {
         fontFamily: textFonts.regular,
-        paddingHorizontal: 16,
+        paddingHorizontal: 8,
         paddingVertical: 8,
         color: darkTheme.textColor
-    }
+    } , 
+    icon: {
+        width: 24,
+        height: 24,
+        resizeMode: "contain",
+        marginLeft: 16,
+        marginRight: 8,
+        fontSize: 24,
+        color: darkTheme.textColor
+    },
 }

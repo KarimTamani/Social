@@ -35,6 +35,8 @@ export default function AccountList({ navigation }) {
                 قائمتك
 
             </Text>
+            {
+                /*
             <View style={styles.row}>
                 <View style={styles.section}>
                     <AccountListItem
@@ -59,7 +61,8 @@ export default function AccountList({ navigation }) {
                 </View>
 
             </View>
-
+            */
+        }
 
             <View style={styles.row}>
 

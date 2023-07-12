@@ -18,7 +18,7 @@ const rating = {
 
 const user = {
     fullname: "خير الله غ",
-    image: require("../../../assets/illustrations/mainUser.jpeg"),
+    image: require("../../../assets/illustrations/uknown.png"),
     username: "@khirallah",
     category: "صانع المحتوى",
     address: "العراق"

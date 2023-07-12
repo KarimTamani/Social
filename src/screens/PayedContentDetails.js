@@ -14,7 +14,7 @@ const course = {
     id: 6,
     user: {
         name: "تماني كريم",
-        image: require("../assets/illustrations/user.png")
+        image: require("../assets/illustrations/uknown.png")
     },
     type: "payed-content",
 
