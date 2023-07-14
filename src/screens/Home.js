@@ -24,10 +24,16 @@ export default function Home({ navigation }) {
 
     const [posts, setPosts] = useState([]);
 
+
     const event = useEvent();
     const auth = useContext(AuthContext);
+    const [isAuth, setIsAuth] = useState(false);
     const [checkAuthentication, setCheckAuthentication] = useState(false);
+
     const [firstFetch, setFirstFetch] = useState(true);
+    const [refresh, setRefresh] = useState(false);
+    const [firstTime, setFirstTime] = useState(false);
+
 
 
 
@@ -97,9 +103,10 @@ export default function Home({ navigation }) {
         (async () => {
             var userAuth = await auth.getUserAuth();
             if (userAuth) {
-
-
                 setPosts([{ id: 0, type: "stories" }, ...LOADING_COMPONENTS]);
+                setIsAuth(true);
+            } else {
+                setIsAuth(false);
             }
             setCheckAuthentication(true);
 
@@ -212,7 +219,7 @@ export default function Home({ navigation }) {
 
 
         const userBlocked = (user) => {
-            setPosts( posts.filter(post => post.type == "loading" || post.type == "stories" || post.type == "reels" || post.user.id != user.id) );
+            setPosts(posts.filter(post => post.type == "loading" || post.type == "stories" || post.type == "reels" || post.user.id != user.id));
         }
 
 
@@ -246,7 +253,6 @@ export default function Home({ navigation }) {
             query: gql`
 
                 query GET_POSTS($postTime : String, $reelTime : String , $postLimit : Int! , $reelLimit : Int!) { 
-
                     getPosts(time : $postTime , limit : $postLimit) { 
                         id 
                         title 
@@ -270,7 +276,6 @@ export default function Home({ navigation }) {
                             validated 
                         }
                     }
-
                     getReels(time : $reelTime , limit : $reelLimit) { 
                         id 
                         title 
@@ -288,8 +293,7 @@ export default function Home({ navigation }) {
                                 id  path 
                             } 
                             views
-                        }
-                      
+                        } 
                         user { 
                             id
                             name 
@@ -300,10 +304,7 @@ export default function Home({ navigation }) {
                             validated 
                         }
                     }
-                    
-                }
-            
-            ` ,
+                }` ,
             variables: {
                 postTime: timeOffset.postTime,
                 reelTime: timeOffset.reelTime,
@@ -323,10 +324,14 @@ export default function Home({ navigation }) {
             const lastPost = response.data.getPosts.length > 0 && response.data.getPosts[response.data.getPosts.length - 1];
             const lastReel = response.data.getReels.length > 0 && response.data.getReels.length >= 3 && response.data.getReels[response.data.getReels.length - 1];
 
+            const firstPost = response.data.getPosts.length > 0 && response.data.getPosts[0];
             setLastTimeOffset({
                 lastPost: (lastPost) ? (lastPost.createdAt) : lastTimeOffset.lastPost,
                 lastReel: (lastReel) ? (lastReel.createdAt) : lastTimeOffset.lastReel
             });
+
+            if (firstPost)
+                setFirstTime(firstPost.createdAt);
 
             const postsLength = response.data.getPosts.length;
             const randomIndex = Math.trunc(Math.random() * postsLength);
@@ -346,7 +351,7 @@ export default function Home({ navigation }) {
 
                 setFirstFetch(false)
         }).catch(error => {
-            console.log(error);
+
             setLoading(false);
         });
 
@@ -375,6 +380,80 @@ export default function Home({ navigation }) {
     // else remove the loading components 
 
 
+
+    useEffect(() => {
+        if (refresh) {
+
+            client.query({
+                query: gql`
+                query Refresh($time: String!, $limit: Int!) {
+                    refresh(time: $time, limit: $limit) {
+                        id 
+                        title 
+                        type 
+                        media { 
+                            id path
+                        }
+                        createdAt 
+                        numComments 
+                        liked
+                        likes  
+                        isFavorite 
+                      
+                        user { 
+                            id
+                            name 
+                            lastname 
+                            profilePicture { 
+                                id path 
+                            } 
+                            validated 
+                        }
+                    }
+                }`, variables: {
+                    time: firstTime,
+                    limit: POST_LIMIT
+                }
+            }).then(response => {
+
+
+                console.log(response.data.refresh);
+
+                const firstPost = response.data.refresh.length > 0 && response.data.refresh[0];
+                if (firstPost) {
+                    setFirstTime(firstPost.createdAt);
+                }
+
+                var clonePosts = [...posts.filter(post => post.type != "loading")];
+                if (response.data.refresh && response.data.refresh.length > 0)
+                    clonePosts.splice(1, 0, ...response.data.refresh);
+
+                setPosts(clonePosts);
+                setRefresh(false);
+
+            }).catch(error => {
+                setRefresh(false);
+            })
+        }
+
+    }, [refresh])
+
+
+    const handleScroll = useCallback((event) => {
+
+        console.log (event.nativeEvent.velocity.y) ; 
+        if (event.nativeEvent.contentOffset.y == 0 && event.nativeEvent.velocity.y >= 0.2 && !refresh && isAuth) {
+            if (posts.length >= 1 && posts[0].type == "stories") {
+                var clonePosts = [...posts];
+                clonePosts.splice(1, 0, { id: 0, type: "loading" });
+                setPosts(clonePosts);
+                setRefresh(true);
+            }
+
+        }
+
+    }, [posts, refresh, isAuth])
+
     return (
         <View style={styles.container}>
 
@@ -389,6 +468,7 @@ export default function Home({ navigation }) {
                     renderItem={renderItem}
                     maxToRenderPerBatch={2}
                     initialNumToRender={2}
+                    onScrollEndDrag={handleScroll}
 
                 />
             </View>

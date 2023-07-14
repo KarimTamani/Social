@@ -315,7 +315,6 @@ function Post(props) {
                 if (!perimssion)
                     return;
 
-
                 var filename = new Date().getTime() + "." + getFileExtension(getMediaUri(media.path));
                 var targetPath = FileSystem.documentDirectory + filename;
 
@@ -324,9 +323,7 @@ function Post(props) {
                     targetPath
                 )
                 if (result && result.uri) {
-
                     await MediaLibrary.saveToLibraryAsync(result.uri);
-            
                 }
             }
         })()

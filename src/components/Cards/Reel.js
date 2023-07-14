@@ -344,7 +344,6 @@ function Reel(props) {
         
         var media = reel.media[0];
         (async () => {
-
             var perimssion = await requestMediaPermission() ; 
             if ( !perimssion ) 
                 return ; 
@@ -357,9 +356,7 @@ function Reel(props) {
                 targetPath
             )
             if (result && result.uri) {
-
                 await MediaLibrary.saveToLibraryAsync(result.uri) ; 
-         
             }
         })()
     }, [reel]) ; 
