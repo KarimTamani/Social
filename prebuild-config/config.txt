@@ -66,9 +66,19 @@ add :
 to : 
     manifestXml inside application tag 
 
-
 add : 
-        <color name="white">#FFF</color>
+    <color name="white">#FFF</color>
 
 to : 
     values/colors
+
+
+
+facebook login : 
+
+
+add : 
+    implementation 'com.facebook.android:facebook-android-sdk:latest.release'
+to : 
+    android/app/build.gradle dependencies{} 
+    

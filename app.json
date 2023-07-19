@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+       
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -20,8 +21,9 @@
     ],
     "plugins": [
       "react-native-compressor" , 
-      "expo-media-library" 
-        
+      "expo-media-library" , 
+      "@react-native-google-signin/google-signin"  
+      
     ],
     "ios": {
       "supportsTablet": true,
@@ -48,6 +50,7 @@
       "eas": {
         "projectId": "f631f27f-c32e-4b5b-a97e-c2102dfc35fa"
       }
-    }
+    } , 
+    "scheme" : "social"
   }
 }

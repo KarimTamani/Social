@@ -359,16 +359,17 @@ export default function Profile({ route, navigation }) {
                     </View>
                     {
                         user && (!userId || follow || !user.private) &&
-                        <View style={[styles.posts, !userId && { marginBottom: 56 }]}>
+                        <View style={[styles.posts]}>
                             <ProfilePostsRoute userId={user.id} navigation={navigation} />
                         </View>
                     }
+                    {
+                        user && userId && !follow && user.private &&
+                        <PrivateContentMessage />
+                    }
                 </View>
 
-                {
-                    user && userId && !follow && user.private &&
-                    <PrivateContentMessage />
-                }
+
             </ScrollView>
 
 
@@ -389,9 +390,10 @@ const lightStyles = StyleSheet.create({
         backgroundColor: "white"
 
     },
-    posts : { 
-        width : "100%"
-    } , 
+    posts: {
+        width: "100%",
+        flex: 1
+    },
 
     profileImage: {
         width: 112,
@@ -520,7 +522,7 @@ const darkStyles = {
         alignItems: "center",
         backgroundColor: darkTheme.backgroudColor,
 
-        
+
     },
     fullname: {
         ...lightStyles.fullname,

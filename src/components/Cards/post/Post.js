@@ -543,9 +543,27 @@ function Post(props) {
                 post.type != "payed-content" &&
                 <View style={styles.row}>
                     <View style={styles.giftSection}>
+                    <TouchableOpacity style={styles.interaction} onPress={toggleFavorite}>
+                            {
+                                !favorite && <FontAwesome name="bookmark-o" style={styles.interactionIcon} />
+
+                            }
+                            {
+                                favorite && <FontAwesome name="bookmark" style={[styles.interactionIcon, { color: "#FFD700" }]} />
+
+                            }
+                        </TouchableOpacity>
+
+                        {
+                            /*
+                            
                         <TouchableOpacity>
                             <Feather name="gift" style={styles.interactionIcon} />
                         </TouchableOpacity>
+                            
+                            
+                            */ 
+                        }
                         {
                             post.type == "service"
                             &&
@@ -557,17 +575,7 @@ function Post(props) {
                     </View>
                     <View style={styles.interactions}>
 
-                        <TouchableOpacity style={styles.interaction} onPress={toggleFavorite}>
-                            {
-                                !favorite && <FontAwesome name="bookmark-o" style={styles.interactionIcon} />
-
-                            }
-                            {
-                                favorite && <FontAwesome name="bookmark" style={[styles.interactionIcon, { color: "#FFD700" }]} />
-
-                            }
-                        </TouchableOpacity>
-
+                        
                         <AuthButton style={styles.interaction} onPress={toggleSender} navigation={navigation} >
                             <Feather name="send" style={styles.interactionIcon} />
 

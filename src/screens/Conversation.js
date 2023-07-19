@@ -553,7 +553,7 @@ export default function Conversation({ navigation, route }) {
             setSima(null);
         })
         setSima(image);
-    }, [])
+    }, [conversation ])
 
     const reachEnd = useCallback(() => {
 

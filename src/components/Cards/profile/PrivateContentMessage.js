@@ -1,12 +1,19 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import { textFonts } from "../../../design-system/font";
+import ThemeContext from "../../../providers/ThemeContext";
+import { useContext } from "react";
+import darkTheme from "../../../design-system/darkTheme";
 
 export default function PrivateContentMessage({ }) {
 
+
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+
     return (
         <View style={styles.container}>
-            <Feather name="eye-off" size={48} color="#555" />
+            <Feather name="eye-off" size={48} color={themeContext.getTheme() == "light" ? "#555" : darkTheme.textColor} />
             <Text style={styles.title}>
             هاذ الحساب خاص
             </Text>
@@ -21,12 +28,15 @@ export default function PrivateContentMessage({ }) {
 
 
 
-const styles = StyleSheet.create({
+const lightStyles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center" , 
         justifyContent : "center" , 
-        paddingVertical : 24 
+        paddingVertical : 24 , 
+        
+     
+        marginTop : 16 
     } , 
     title : { 
         fontFamily : textFonts.bold , 
@@ -40,4 +50,18 @@ const styles = StyleSheet.create({
         color : "#555" , 
         textAlign : "center"
     }
-})
+}) ; 
+
+
+const darkStyles = { 
+    ...lightStyles , 
+    title : { 
+        ...lightStyles.text ,
+        color : darkTheme.textColor
+    } , 
+    message: { 
+        fontFamily  : textFonts.regular , 
+        color : darkTheme.secondaryTextColor , 
+        textAlign : "center"
+    }
+}

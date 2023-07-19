@@ -123,7 +123,7 @@ export default function Settings({ navigation, route }) {
             name: "شروط الاستخدام",
             icon: { type: "MaterialIcons", name: "privacy-tip" },
             onPress: useCallback(() => {
-                navigation.navigate("")
+                navigation.navigate("TermsAndServices")
             }, [navigation])
 
 

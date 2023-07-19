@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIn
 import PrimaryInput from "../components/Inputs/PrimaryInput";
 import { textFonts } from "../design-system/font";
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import PrimaryButton from "../components/Buttons/PrimaryButton";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -12,6 +12,13 @@ import { errorStyle } from "../design-system/errorStyle";
 import { AuthContext } from "../providers/AuthContext";
 import ThemeContext from "../providers/ThemeContext";
 import darkTheme from "../design-system/darkTheme";
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import firebaseAuth from '@react-native-firebase/auth';
+
+GoogleSignin.configure({
+
+    webClientId: '482147710452-ffssl6b6s7o4kr8lrrkeq2cn1ki7vail.apps.googleusercontent.com',
+});
 
 const loginSchema = yup.object({
     identifier: yup.string()
@@ -34,6 +41,8 @@ export default function Login({ navigation }) {
         password: "",
     }
 
+
+
     const client = useContext(ApolloContext);
     const auth = useContext(AuthContext);
 
@@ -41,9 +50,9 @@ export default function Login({ navigation }) {
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles
     const [error, setError] = useState(null);
 
-
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+
     const togglePasswordVisibility = useCallback(() => {
         setShowPassword(!showPassword);
     }, [showPassword]);
@@ -52,12 +61,11 @@ export default function Login({ navigation }) {
         console.log("forget password")
     }, []);
 
-
-
-
     const goSignup = useCallback(() => {
         navigation.navigate("Signup");
     }, []);
+
+
 
 
     const login = useCallback((values) => {
@@ -69,20 +77,34 @@ export default function Login({ navigation }) {
             query Login($identifier: String!, $password: String!) {
                 Login(identifier: $identifier, password: $password) {
                   user {
-                    id
-                    name 
-                    lastname 
-                    username
-                    validated
-                    disabled
-                    mute 
-                    allowMessaging 
-                    showState
-
-                    profilePicture { 
-                        id path 
-                    }
-                    updatedAt 
+                    profilePicture {
+                        id
+                        path
+                      }
+                      id
+                      name
+                      lastname
+                      email
+                      pictureId
+                      username
+                      birthday
+                      gender
+                      countryId
+                      phone
+                     
+                      bio
+                      private
+                      disabled
+                      numFollowers
+                      numPosts
+                      numFollowing
+                      numVisits
+                      validated
+                      lastActiveAt
+                      isActive
+                      mute
+                      allowMessaging
+                      showState
                   }
                   token 
                 }
@@ -91,7 +113,7 @@ export default function Login({ navigation }) {
             variables: values
         }).then(async response => {
 
-         
+
             if (response && response.data) {
                 if (!response.data.Login.user.disabled) {
                     await auth.logIn(response.data.Login);
@@ -99,26 +121,109 @@ export default function Login({ navigation }) {
                     navigation.navigate("HomeNavigation");
                 }
                 else {
-                    setLoading( false ) ;
-                    navigation.navigate("ActivateAccount" , {
-                        login : response.data.Login 
+                    setLoading(false);
+                    navigation.navigate("ActivateAccount", {
+                        login: response.data.Login
                     });
                 }
-            }else{
+            } else {
                 setLoading(false);
 
                 setError("لا يمكن تسجيل الدخول ، يرجى التحقق من البريد الإلكتروني / رقم الهاتف وكلمة المرور")
-                    
+
             }
         }).catch(error => {
-            console.log ( error ) ; 
-            setLoading(false);
 
+            setLoading(false);
             setError("لا يمكن تسجيل الدخول ، يرجى التحقق من البريد الإلكتروني / رقم الهاتف وكلمة المرور")
         })
 
     }, []);
 
+    async function onGoogleButtonPress() {
+
+        try {
+            setLoading(true) ; 
+            // Check if your device supports Google Play
+            await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+            // Get the users ID token
+            const { idToken } = await GoogleSignin.signIn();
+
+            const googleCredential = firebaseAuth.GoogleAuthProvider.credential(idToken);
+
+            // Sign-in the user with the credential
+            var credentials = await firebaseAuth().signInWithCredential(googleCredential);
+            console.log();
+
+            client.query({
+                query : gql`
+                query User($email: String!) {
+                    oAuth(email: $email) {
+                        token
+                        user {
+                            profilePicture {
+                                id
+                                path
+                            }
+                            id
+                            name
+                            lastname
+                            email
+                            pictureId
+                            username
+                            birthday
+                            gender
+                            countryId
+                            phone
+                            
+                            bio
+                            private
+                            disabled
+                            numFollowers
+                            numPosts
+                            numFollowing
+                            numVisits
+                            validated
+                            lastActiveAt
+                            isActive
+                            mute
+                            allowMessaging
+                            showState
+                        }
+                    }
+                }` , variables : { 
+                    email : credentials?.additionalUserInfo?.profile?.email
+                }
+            }).then(async response => { 
+                if (response && response.data) {
+                    if (!response.data.oAuth.user.disabled) {
+                        await auth.logIn(response.data.oAuth);
+                        setLoading(false);
+                        navigation.navigate("HomeNavigation");
+                    }
+                    else {
+                        setLoading(false);
+                        navigation.navigate("ActivateAccount", {
+                            login: response.data.oAuth
+                        });
+                    }
+                } else {
+                    setLoading(false);
+    
+                    setError("لا يمكن تسجيل الدخول ، يرجى التحقق من البريد الإلكتروني / رقم الهاتف وكلمة المرور")
+    
+                }
+            }).catch(error => {
+
+                setLoading(false);
+                setError("لا يمكن تسجيل الدخول ، يرجى التحقق من البريد الإلكتروني / رقم الهاتف وكلمة المرور")
+            })  
+
+        } catch (error) {
+            setLoading( false ) ; 
+
+        }
+    }
 
     return (
         <View style={styles.container}>
@@ -207,15 +312,18 @@ export default function Login({ navigation }) {
 
                     <View style={styles.socialMedia}>
 
-                        <TouchableOpacity style={styles.socialButton}>
+                        <TouchableOpacity style={styles.socialButton} onPress={onGoogleButtonPress} disabled = { loading }>
                             <Image source={require("../assets/icons/google.png")} style={styles.socialIcon} />
 
                         </TouchableOpacity>
-
+                        {
+                            /*
                         <TouchableOpacity style={styles.socialButton}>
                             <Image source={require("../assets/icons/facebook.png")} style={styles.socialIcon} />
 
                         </TouchableOpacity>
+                        */
+                        }
                     </View>
                     <Text style={styles.text}>
                         ليس لديك حساب ؟ <Text style={styles.redClickable} onPress={goSignup}>

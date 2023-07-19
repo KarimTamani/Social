@@ -441,7 +441,7 @@ export default function Home({ navigation }) {
 
     const handleScroll = useCallback((event) => {
 
-        console.log (event.nativeEvent.velocity.y) ; 
+ 
         if (event.nativeEvent.contentOffset.y == 0 && event.nativeEvent.velocity.y >= 0.2 && !refresh && isAuth) {
             if (posts.length >= 1 && posts[0].type == "stories") {
                 var clonePosts = [...posts];

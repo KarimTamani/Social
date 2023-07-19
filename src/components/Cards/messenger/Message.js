@@ -396,9 +396,10 @@ const lightStyles = StyleSheet.create({
         fontSize: 10,
         paddingRight: 10
     },
-    postImage: {
-        width: "100%",
-        height: 160,
+    postImage: { 
+
+        width : WIDTH / 2 ,  
+        height:  WIDTH / 3,
         borderRadius: 12,
         marginTop: 8
     },
@@ -434,7 +435,9 @@ const lightStyles = StyleSheet.create({
         fontSize: 12,
         color: "#888",
         textAlign: "right"
-    }
+    } , 
+    
+    
 
 });
 const darkStyles = {

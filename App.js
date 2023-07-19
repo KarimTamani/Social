@@ -74,18 +74,18 @@ export default function App() {
 
   const renderApp = () => (
     <ThemeContext.Provider value={themeHandler} >
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <RootNavigation
           initialRouteName={"HomeNavigation"}
         >
         </RootNavigation>
         {
-          theme == "light" && <StatusBar backgroundColor='white' style="dark" />
+          theme == "light" && <StatusBar backgroundColor='transparent' style="dark" />
         }
         {
-          theme == "dark" && <StatusBar backgroundColor={darkTheme.backgroudColor} style="light" />
+          theme == "dark" && <StatusBar  backgroundColor='transparent' style="light" />
         }
-      </SafeAreaView>
+      </View>
     </ThemeContext.Provider>
   );
 

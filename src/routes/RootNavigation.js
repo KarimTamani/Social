@@ -38,6 +38,7 @@ import ArchivedConversations from "../components/Cards/messenger/ArchivedConvers
 import ActivateAccount from "../screens/ActivateAccount";
 import Report from "../screens/Report";
 import QrScanner from "../screens/QrScanner";
+import TermsAndServices from "../screens/TermsAndServices";
 
 const Stack = createStackNavigator();
 
@@ -77,6 +78,7 @@ export default function RootNavigation({ initialRouteName = "AuthRoute" }) {
                 }}
                 initialRouteName={initialRouteName}
             >
+                <Stack.Screen name="TermsAndServices" component={ TermsAndServices } />
                 <Stack.Screen name="QrScanner" component={ QrScanner} />  
                 <Stack.Screen name="Report" component={Report}/>
                 <Stack.Screen name="ActivateAccount" component={ActivateAccount}/>

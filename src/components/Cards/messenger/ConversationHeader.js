@@ -15,6 +15,7 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
 
     const [showOptions, setShowOptions] = useState(false);
     const [showSimas, setShowSimas] = useState(false);
+  
 
     const timing = useTiming() ; 
 
@@ -27,9 +28,9 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
 
 
     const toggleSimas = useCallback(() => {
-
+       
         setShowSimas(!showSimas);
-    }, [showSimas]);
+    }, [showSimas , conversation]);
 
 
     const pickSima = useCallback((sima) => {
@@ -43,6 +44,8 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
     
+
+ 
   
 
     if (user)
@@ -51,6 +54,7 @@ export default function ConversationHeader({ navigation , user, allowPhone = fal
                 <View style={[styles.section, { flex: 1 }]}>
                     {
                         !allowPhone && conversation && conversation?.id && conversation.isReadable && 
+
                         <TouchableOpacity onPress={toggleOptions}>
                             <Entypo name="dots-three-vertical" style={[styles.headerIcon, lightContent && { color: "white" }]} />
                         </TouchableOpacity>
