@@ -143,7 +143,7 @@ export default function Login({ navigation }) {
     async function onGoogleButtonPress() {
 
         try {
-            setLoading(true) ; 
+            setLoading(true);
             // Check if your device supports Google Play
             await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
             // Get the users ID token
@@ -153,10 +153,10 @@ export default function Login({ navigation }) {
 
             // Sign-in the user with the credential
             var credentials = await firebaseAuth().signInWithCredential(googleCredential);
-            console.log();
+
 
             client.query({
-                query : gql`
+                query: gql`
                 query User($email: String!) {
                     oAuth(email: $email) {
                         token
@@ -191,10 +191,10 @@ export default function Login({ navigation }) {
                             showState
                         }
                     }
-                }` , variables : { 
-                    email : credentials?.additionalUserInfo?.profile?.email
+                }` , variables: {
+                    email: credentials?.additionalUserInfo?.profile?.email
                 }
-            }).then(async response => { 
+            }).then(async response => {
                 if (response && response.data) {
                     if (!response.data.oAuth.user.disabled) {
                         await auth.logIn(response.data.oAuth);
@@ -209,21 +209,31 @@ export default function Login({ navigation }) {
                     }
                 } else {
                     setLoading(false);
-    
+
                     setError("لا يمكن تسجيل الدخول ، يرجى التحقق من البريد الإلكتروني / رقم الهاتف وكلمة المرور")
-    
+
                 }
             }).catch(error => {
 
                 setLoading(false);
                 setError("لا يمكن تسجيل الدخول ، يرجى التحقق من البريد الإلكتروني / رقم الهاتف وكلمة المرور")
-            })  
+            })
 
         } catch (error) {
-            setLoading( false ) ; 
+            setLoading(false);
 
         }
     }
+
+
+    const openTermsAndServices = useCallback( ( ) => { 
+        navigation.navigate("TermsAndServices")  ;
+    } , [navigation]) ; 
+
+
+    const openPrivacyPolicy = useCallback(() => {
+        navigation.navigate("PrivacyPolicy") ; 
+    } , [navigation])
 
     return (
         <View style={styles.container}>
@@ -312,7 +322,7 @@ export default function Login({ navigation }) {
 
                     <View style={styles.socialMedia}>
 
-                        <TouchableOpacity style={styles.socialButton} onPress={onGoogleButtonPress} disabled = { loading }>
+                        <TouchableOpacity style={styles.socialButton} onPress={onGoogleButtonPress} disabled={loading}>
                             <Image source={require("../assets/icons/google.png")} style={styles.socialIcon} />
 
                         </TouchableOpacity>
@@ -333,7 +343,9 @@ export default function Login({ navigation }) {
 
 
                     <Text style={[styles.text, styles.footerText]}>
-                        للمتابعة فانك توافق على شروط الخدمة الخاصة بنا وتقر بانك قرات <Text style={styles.blueClickable}>
+                        للمتابعة فانك توافق على <Text style={styles.blueClickable} onPress= {openTermsAndServices}>
+                            شروط الخدمة الخاصة
+                        </Text > بنا وتقر بانك قرات <Text style={styles.blueClickable} onPress= { openPrivacyPolicy}>
                             سياسة الخصوصية
                         </Text> الخاصة بنا لتتعلم كيف تجمع بياناتك وتستخدمها وتشاركها
                     </Text>

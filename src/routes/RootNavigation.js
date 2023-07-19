@@ -39,6 +39,7 @@ import ActivateAccount from "../screens/ActivateAccount";
 import Report from "../screens/Report";
 import QrScanner from "../screens/QrScanner";
 import TermsAndServices from "../screens/TermsAndServices";
+import PrivacyPolicy from "../screens/PrivacyPolicy";
 
 const Stack = createStackNavigator();
 
@@ -78,6 +79,7 @@ export default function RootNavigation({ initialRouteName = "AuthRoute" }) {
                 }}
                 initialRouteName={initialRouteName}
             >
+                <Stack.Screen name="PrivacyPolicy" component={ PrivacyPolicy} />
                 <Stack.Screen name="TermsAndServices" component={ TermsAndServices } />
                 <Stack.Screen name="QrScanner" component={ QrScanner} />  
                 <Stack.Screen name="Report" component={Report}/>

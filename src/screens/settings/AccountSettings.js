@@ -14,12 +14,14 @@ const routes = [
             navigation.navigate("BlockedUsers") ; 
         }
     },
+    /*
     {
         name: "تفعيل الوضع الاحترافي",
         onPress : (navigation) => { 
             navigation.navigate("ProfessionalMode") ; 
         }
     },
+    */
     {
         name: "تعطيل الحساب أو إزالته",
         onPress : (navigation) => { 
