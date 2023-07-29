@@ -290,9 +290,19 @@ function Post(props) {
 
 
     const share = useCallback(() => {
+        var title = "منشور Vinkst" ;
+        var message = post.title ; 
+
+        if (post.type == "image" || post.type == "reel") { 
+            title = post.title ; 
+            message =  getMediaUri(post.media[0].path) ; 
+        }
+        
+      
         Share.share({
-            "title": post.title,
-            "message": (post.type == "image" || post.type == "reel") ? getMediaUri(post.media[0].path) : null,
+            "title": title,
+            "message": message,
+      
         });
         setShowOptions(false);
     }, [post]);

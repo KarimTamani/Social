@@ -38,7 +38,7 @@ export default function App() {
   useEffect(() => {
 
     (async () => {
-
+       
       if (I18nManager.isRTL) {
         I18nManager.forceRTL(false);
         I18nManager.allowRTL(false);

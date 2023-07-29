@@ -40,15 +40,18 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
 
     const event = useEvent();
 
-    const openReport = useCallback(() => { 
+    const isGroup = conversation?.type == "group";
 
-        navigation.navigate("Report" , { 
-            conversationId : conversation.id 
-        }) ; 
+
+    const openReport = useCallback(() => {
+
+        navigation.navigate("Report", {
+            conversationId: conversation.id
+        });
 
         onClose && onClose()
 
-    } , [navigation ,  conversation])
+    }, [navigation, conversation])
 
 
 
@@ -67,9 +70,10 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
                     conversationId: conversation.id
                 }
             }).then(response => {
-
+                console.log ( response) ; 
                 setLoading(false);
             }).catch(error => {
+                console.log(error)  ;
                 setLoading(false);
             })
         }
@@ -224,16 +228,16 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
     const toggleNotifications = useCallback(() => {
 
         client.mutate({
-            mutation : gql`
+            mutation: gql`
             mutation MuteConversation($conversationId: ID!) {
                 muteConversation(conversationId: $conversationId)
-            }` , 
-            variables : { 
-                conversationId : conversation.id
+            }` ,
+            variables: {
+                conversationId: conversation.id
             }
-        }).then(response => {  
-            
-            if ( response) { 
+        }).then(response => {
+
+            if (response) {
                 event.emit("toggle-conversation-notifications", conversation.id, response.data.muteConversation);
 
             }
@@ -246,31 +250,31 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
     const options = [
         {
             text: "حظر",
+            showInGroup: false,
             onPress: openBlockConfirmation
         },
-
-
-
-
         {
-            text: "ابلاغ" , 
-            onPress : openReport
+            text: "ابلاغ",
+            showInGroup: true,
+            onPress: openReport
         },
-
-
         (!isArchived) ? {
-            text: "حفظ المحادثة",
+            text: "ارشفة المحادثة",
+            showInGroup: true,
             onPress: archiveConversation
         } : {
             text: "ازالة المحادثة من المحفوظات",
+            showInGroup: true,
             onPress: unArchiveConversation
         },
         {
             text: "حذف المحادتة",
+            showInGroup: true,
             onPress: openDeletionConfirmation
         },
         {
             text: "تغيير السمة",
+            showInGroup: true,
             onPress: useCallback(() => {
                 toggleSimas();
                 onClose();
@@ -278,11 +282,14 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
         },
         {
             text: "زيارة الملف الشخصي",
+            showInGroup: false,
             onPress: openProfile
         }
         , {
             text: (conversation?.allowNotifications) ? "كتم الاشعارات" : "تفعيل الإشعارات",
-            onPress: toggleNotifications
+            onPress: toggleNotifications,
+            showInGroup: true,
+
 
         }
     ];
@@ -293,8 +300,23 @@ export default function ConversationOptions({ navigation, onClose, toggleSimas, 
         <TouchableOpacity style={styles.container} activeOpacity={1} onPress={onClose}>
 
             <View style={styles.options}>
+                {
+                    isGroup
+                    &&
+                    options.filter(option => option.showInGroup).map(option => (
+                        <TouchableOpacity style={styles.option} onPress={option.onPress}>
+                            <Text style={styles.text}>
+                                {option.text}
+                            </Text>
+                        </TouchableOpacity>
+                    ))
+                }
+
+
 
                 {
+                    !isGroup
+                    &&
                     options.map(option => (
                         <TouchableOpacity style={styles.option} onPress={option.onPress}>
                             <Text style={styles.text}>

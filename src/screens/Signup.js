@@ -29,7 +29,7 @@ export default function Signup({ navigation }) {
         email: yup.string().email("البريد الإلكتروني غير صحيح").required("البريد الالكتروني مطلوب"),
         password: yup.string().required("كلمة المرور مطلوبة").min(6, "6 أحرف على الأقل").max(56, "56 حرفًا كحد أقصى"),
         confirmPassword: yup.string().required("تأكيد كلمة المرور هو حقل مطلوب").min(6, "6 أحرف على الأقل").max(56, "56 حرفًا كحد أقصى").oneOf([yup.ref('password'), null], 'كلمة السر غير متطابقة'),
-        username: yup.string().required("اسم المستخدم مطلوب").min(6, "6 أحرف على الأقل").max(56, "56 حرفًا كحد أقصى").matches(/^[a-z0-9_\.]+$/, "يجب أن يحتوي اسم المستخدم على أحرف وأرقام")
+        username: yup.string().required("اسم المستخدم مطلوب").min(1, "1 أحرف على الأقل").max(56, "56 حرفًا كحد أقصى").matches(/^[a-z0-9_\.]+$/, "يجب أن يحتوي اسم المستخدم على أحرف وأرقام")
             .test("username-taken", "اسم المستخدم هذا مأخوذ", (value) => {
                 if (value) {
                     return new Promise((resolve, reject) => {

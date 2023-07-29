@@ -292,6 +292,7 @@ const lightStyles = StyleSheet.create({
 
         color: "#212121",
         fontSize: 12,
+        textAlign : "right"
 
     },
     status: {

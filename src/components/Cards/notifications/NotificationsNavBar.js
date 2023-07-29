@@ -12,21 +12,21 @@ export default function NotificationsNavBar({ navigation, activePage, notificati
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
     const event = useEvent();
     const client = useContext(ApolloContext);
- 
-    const [unseenNotifications , setUnseenNotifications] = useState(notificationsState) ; 
+
+    const [unseenNotifications, setUnseenNotifications] = useState(notificationsState);
 
 
     useEffect(() => {
 
-        const updateNotificationState = ( newNotificationsState ) => {
+        const updateNotificationState = (newNotificationsState) => {
             setUnseenNotifications(newNotificationsState)
         }
-        event.addListener("update-notifications-state" , updateNotificationState)
-        return () => { 
-            event.removeListener( "update-notifications-state" , updateNotificationState) ; 
+        event.addListener("update-notifications-state", updateNotificationState)
+        return () => {
+            event.removeListener("update-notifications-state", updateNotificationState);
         }
 
-    } , [notificationsState])
+    }, [notificationsState])
 
     const seeLikeNotifications = useCallback(() => {
         return client.query({
@@ -76,10 +76,10 @@ export default function NotificationsNavBar({ navigation, activePage, notificati
                 case "FollowsList":
 
                     if (unseenNotifications.unseenFollowNotification != 0) {
-        
+
                         event.emit("update-notifications-state", {
-                            ...unseenNotifications , 
-                            unseenFollowNotification : 0 
+                            ...unseenNotifications,
+                            unseenFollowNotification: 0
                         });
                         seeFollowNotifications().then();
                     }
@@ -90,8 +90,8 @@ export default function NotificationsNavBar({ navigation, activePage, notificati
 
                     if (unseenNotifications.unseenLikeNotification != 0) {
                         event.emit("update-notifications-state", {
-                            ...unseenNotifications , 
-                            unseenLikeNotification : 0 
+                            ...unseenNotifications,
+                            unseenLikeNotification: 0
                         });
                         seeLikeNotifications().then()
                     }
@@ -99,10 +99,10 @@ export default function NotificationsNavBar({ navigation, activePage, notificati
                 case "CommentsList":
 
 
-                    if (unseenNotifications.unseenCommentNotification != 0) {            
+                    if (unseenNotifications.unseenCommentNotification != 0) {
                         event.emit("update-notifications-state", {
-                            ...unseenNotifications , 
-                            unseenCommentNotification : 0 
+                            ...unseenNotifications,
+                            unseenCommentNotification: 0
                         });
                         seeCommentNotifications().then();
                     }
@@ -162,13 +162,15 @@ export default function NotificationsNavBar({ navigation, activePage, notificati
                 }
             </TouchableOpacity>
 
-
-            <TouchableOpacity style={styles.tab} onPress={() => navigate("ServicesList")}>
-                <Text style={[styles.tabText, activePage == "ServicesList" && styles.activeText]}>
-                    خدمات
-                </Text>
-            </TouchableOpacity>
-
+            {
+                /*
+                <TouchableOpacity style={styles.tab} onPress={() => navigate("ServicesList")}>
+                    <Text style={[styles.tabText, activePage == "ServicesList" && styles.activeText]}>
+                        خدمات
+                    </Text>
+                </TouchableOpacity>
+                */
+            }
 
         </View>
     )

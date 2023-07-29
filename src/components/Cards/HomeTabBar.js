@@ -222,7 +222,7 @@ const lightStyles = StyleSheet.create({
         paddingVertical: 8,
     },
     tabIcon: {
-        fontSize: 22,
+        fontSize: 20,
         color: "#555"
     },
     activeTab: {
@@ -285,7 +285,7 @@ const darkStyles = {
         color: darkTheme.textColor
     },
     tabIcon: {
-        fontSize: 22,
+        fontSize: 20,
         color: darkTheme.textColor
 
     },

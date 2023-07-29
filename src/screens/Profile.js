@@ -66,6 +66,7 @@ export default function Profile({ route, navigation }) {
                   allowMessaging 
                   showState
                   pictureId 
+                  state
                   lastActiveAt
                   isActive 
                   profilePicture { 
@@ -246,11 +247,7 @@ export default function Profile({ route, navigation }) {
         <View style={styles.container}>
             <ScrollView style={{ zIndex: 1 }}>
                 <ProfileHeader onUnFollow={onUnFollow} myProfile={!userId} user={user} onBack={back} navigation={navigation} />
-                {
-                    openSocialMedia &&
-                    <TouchableOpacity style={styles.background} activeOpacity={1} onPressIn={toggleSocialMedia}>
-                    </TouchableOpacity>
-                }
+
                 <View style={styles.content}>
                     {
                         user.profilePicture &&
@@ -273,10 +270,29 @@ export default function Profile({ route, navigation }) {
                         @{user.username}
                     </Text>
                     {
-                        user.country &&
-                        <Text style={styles.label}>
-                            <Ionicons name="home-outline" style={styles.home} /> {user.country?.name}
-                        </Text>
+                        (user.country || user.state) &&
+                        <View style={styles.address}>
+                            <Ionicons name="home-outline" style={styles.label} size={18} />
+                            {
+                                user.state &&
+                                <Text style={styles.label}>
+                                    {" " +user?.state + " "}
+                                </Text>
+                            }
+
+                            {
+                                user.country &&
+                                <Text style={styles.label}>
+                                    {user.country?.name + " "}
+                                </Text>
+                            }
+
+
+                        </View>
+
+                    }
+                    {
+
                     }
                     {
                         user.bio &&
@@ -291,12 +307,16 @@ export default function Profile({ route, navigation }) {
                     {
                         userId &&
                         <View style={styles.contant}>
+
+
+
                             {
                                 openSocialMedia &&
                                 <View style={styles.socialMediaContainer}>
                                     <SocialMedia socialMedia={user.socialMedia} />
                                 </View>
                             }
+
                             {
                                 user.socialMedia &&
                                 <TouchableOpacity style={styles.messageButton} onPress={toggleSocialMedia}>
@@ -312,6 +332,12 @@ export default function Profile({ route, navigation }) {
                                 </TouchableOpacity>
                             }
                         </View>
+
+                    }
+                    {
+                        openSocialMedia &&
+                        <TouchableOpacity style={styles.background} activeOpacity={1} onPressIn={toggleSocialMedia}>
+                        </TouchableOpacity>
                     }
                     {
                         !userId &&
@@ -423,9 +449,8 @@ const lightStyles = StyleSheet.create({
         textAlign: "center",
         fontFamily: textFonts.regular
     },
-    home: {
-        fontSize: 16
-    },
+
+
     blueIcon: {
         color: "blue",
         fontSize: 18
@@ -485,20 +510,24 @@ const lightStyles = StyleSheet.create({
     socialMediaContainer: {
 
         position: "absolute",
-        zIndex: 99,
+        zIndex: 999,
         left: 8,
         bottom: 56,
 
     },
+    address: {
+
+        flexDirection: "row"
+    },
     background: {
         position: "absolute",
         top: 0,
-        marginTop: -128,
         left: 0,
-        backgroundColor: "rgba(0,0,0,0.1)",
+        backgroundColor: "transparent",
         width: "100%",
         height: "100%",
-        zIndex: 1
+        flex: 1,
+        zIndex: 99
     },
     bio: {
         color: "#212121",

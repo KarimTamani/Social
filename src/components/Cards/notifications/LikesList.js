@@ -113,7 +113,7 @@ export default function LikesList({ navigation, route }) {
             }
         }).then(response => {
 
-
+            console.log (response)  ;
 
             if (response && response.data) {
 
@@ -130,6 +130,7 @@ export default function LikesList({ navigation, route }) {
             setLoading(false);
 
         }).catch(error => {
+            console.log (error ) ; 
             setFirstFetch(false);
             setLoading(false);
 

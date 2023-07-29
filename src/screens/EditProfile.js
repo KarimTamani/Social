@@ -83,7 +83,7 @@ export default function EditProfile({ navigation, route }) {
                 countryId: values.countryId,
                 bio: values.bio,
                 username: values.username,
-    
+                state : values.state , 
                 pictureId: user.pictureId,
                 profilePicture: file,
                 socialMedia: socialMedia
@@ -96,13 +96,15 @@ export default function EditProfile({ navigation, route }) {
                 mutation EditProfile($userInput: EditUserInput) {
                     EditProfile(userInput: $userInput) {
                         id 
+                        state
                     }
                 }` ,
                 variables: {
                     userInput
                 }
             }).then(response => { 
-    
+                
+                console.log (response) ; 
                 setLoading(false) ; 
                 event.emit("edit-profile") ; 
                 navigation.goBack() ; 

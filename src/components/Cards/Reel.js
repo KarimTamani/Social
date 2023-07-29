@@ -334,19 +334,19 @@ function Reel(props) {
         setShowOptions(false);
     }, [reel]);
 
-    const requestMediaPermission = async () => { 
+    const requestMediaPermission = async () => {
         var permission = await MediaLibrary.requestPermissionsAsync()
-        return (permission.status == "granted") 
+        return (permission.status == "granted")
     }
 
     const download = useCallback(() => {
-        setShowOptions(false); 
-        
+        setShowOptions(false);
+
         var media = reel.media[0];
         (async () => {
-            var perimssion = await requestMediaPermission() ; 
-            if ( !perimssion ) 
-                return ; 
+            var perimssion = await requestMediaPermission();
+            if (!perimssion)
+                return;
 
             var filename = new Date().getTime() + "." + getFileExtension(getMediaUri(media.path));
             var targetPath = FileSystem.documentDirectory + filename;
@@ -356,10 +356,10 @@ function Reel(props) {
                 targetPath
             )
             if (result && result.uri) {
-                await MediaLibrary.saveToLibraryAsync(result.uri) ; 
+                await MediaLibrary.saveToLibraryAsync(result.uri);
             }
         })()
-    }, [reel]) ; 
+    }, [reel]);
 
 
     return (
@@ -438,11 +438,15 @@ function Reel(props) {
                 <TouchableOpacity style={styles.interaction} onPress={toggleSender}>
                     <Feather name="send" style={styles.interactionIcon} />
                 </TouchableOpacity>
+                {
 
-                <TouchableOpacity style={styles.interaction}>
+                    /*
+    <TouchableOpacity style={styles.interaction}>
                     <Feather name="gift" style={styles.interactionIcon} />
                 </TouchableOpacity>
+                */
 
+                }
                 <TouchableOpacity style={styles.interaction} onPress={toggleOptions}>
                     <MaterialCommunityIcons name="dots-vertical" style={styles.interactionIcon} />
                 </TouchableOpacity>
@@ -502,7 +506,7 @@ function Reel(props) {
                             </TouchableOpacity>
                         }
                         {
-                        
+
                             <TouchableOpacity style={styles.shareOption} onPress={download}>
 
                                 <AntDesign name="download" style={styles.shareIcon} />

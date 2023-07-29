@@ -125,7 +125,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
             }
         }).then(async response => {
 
-
+            console.log(response);
             var userAuth = await auth.getUserAuth();
 
             var newConversations = response.data.getConversations || response.data.getArchivedConversations;
@@ -150,9 +150,24 @@ export default function ConversationsList({ openConversation, query, asParticipa
 
                     // in case the authenticated user is the sender if the last message 
                     // then we check last message visibility 
-                    const lastSeenAt = newConversations[index].members[0].lastSeenAt;
-                    var message = newConversations[index].messages[0];
-                    message.seen = lastSeenAt >= message.createdAt;
+
+                    if (newConversations[index].type != "group") {
+                        const lastSeenAt = newConversations[index].members[0].lastSeenAt;
+                        var message = newConversations[index].messages[0];
+                        message.seen = lastSeenAt >= message.createdAt;
+                    }
+                    else { 
+                        var conversationMembers = newConversations[index].members ; 
+                        var lastSeenAt = conversationMembers[0].lastSeenAt;
+                     
+                        conversationMembers.forEach(member => {
+                            if ( member.lastSeenAt > lastSeenAt) 
+                                lastSeenAt = member.lastSeenAt ; 
+                        }) ;
+                        var message = newConversations[index].messages[0];
+                        message.seen = lastSeenAt >= message.createdAt;
+                        
+                    }
                 }
             }
 
@@ -163,8 +178,8 @@ export default function ConversationsList({ openConversation, query, asParticipa
             setLoading(false);
 
         }).catch(error => {
-   
 
+            console.log(error);
             setLoading(false);
             setFirstFetch(false);
         })
@@ -303,9 +318,9 @@ export default function ConversationsList({ openConversation, query, asParticipa
             }
         }
 
- 
-        const toggleConversationNotification = ( conversationId , value) => { 
-            console.log (conversationId , value) ; 
+
+        const toggleConversationNotification = (conversationId, value) => {
+            console.log(conversationId, value);
             const index = conversations.findIndex(conversation => conversation.id == conversationId)
             if (index >= 0) {
                 var cloneConversations = [...conversations];
@@ -314,11 +329,11 @@ export default function ConversationsList({ openConversation, query, asParticipa
                     allowNotifications: value
                 }
 
-                console.log (value) ;  
+                console.log(value);
 
                 setConversations(cloneConversations);
             }
-        }      
+        }
 
 
 
@@ -367,7 +382,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
         realTime.addListener("CONVERSATION_SAW", conversationSaw);
         event.addListener("conversation-accepted", conversationAccepted);
         event.addListener("simat-changed", simatChanged);
-        event.addListener("toggle-conversation-notifications" , toggleConversationNotification) ; 
+        event.addListener("toggle-conversation-notifications", toggleConversationNotification);
         return () => {
             event.removeListener("conversation-seen", conversationSeen);
             event.removeListener("message-sent", messageSent);
@@ -378,7 +393,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
             event.removeListener("simat-changed", simatChanged);
             event.removeListener("group-created", groupCreated);
             event.removeListener("blocked-user", blcokedUser);
-            event.removeListener("toggle-conversation-notifications" , toggleConversationNotification) ; 
+            event.removeListener("toggle-conversation-notifications", toggleConversationNotification);
         }
 
 
@@ -406,7 +421,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
         }
         var isActive = false;
         if (item.members && item.members.length > 0) {
-     
+
             const index = item.members.findIndex((member) => member.user.isActive && member.user.showState);
             isActive = index >= 0;
         }

@@ -16,6 +16,7 @@ to android/build.gradle
 add : 
     apply plugin: 'com.google.gms.google-services'
     implementation platform('com.google.firebase:firebase-bom:31.5.0')
+    implementation 'com.google.firebase:firebase-analytics'
     
 to android/app/build.gradle
 
@@ -74,11 +75,3 @@ to :
 
 
 
-facebook login : 
-
-
-add : 
-    implementation 'com.facebook.android:facebook-android-sdk:latest.release'
-to : 
-    android/app/build.gradle dependencies{} 
-    

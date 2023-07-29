@@ -12,6 +12,7 @@ import { gql } from "@apollo/client";
 import { useEvent } from "../../../providers/EventProvider";
 import LikeHeart from "../post/LikeHeart";
 import { useTiming } from "../../../providers/TimeProvider";
+import { AuthContext } from "../../../providers/AuthContext";
 
 const LIMIT = 5;
 
@@ -29,7 +30,9 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
     const client = useContext(ApolloContext);
     const events = useEvent();
 
-    const timing = useTiming()
+    const timing = useTiming(); 
+
+    
 
     const likeComment = useCallback(() => {
         // like a comment or a replay 

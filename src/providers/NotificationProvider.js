@@ -51,7 +51,7 @@ const NotificationProvider = ({ children, userAuth }) => {
     useEffect(() => {
         if (permission) {
             messaging().getToken().then((fcmToken) => {
-
+     
                 client.query({
                     query: gql`
                     mutation Mutation($token: String!) {
@@ -149,7 +149,10 @@ const PushNotificationConfig = (NotificationNavigator) => {
 
             const channelId = Math.random().toString(36).substring(7);
             createChannel(channelId);
-            console.log(notification) ; 
+
+
+           
+         
             if (notification.userInteraction) {
 
                 if (NotificationNavigator)
@@ -287,6 +290,13 @@ const PushNotificationConfig = (NotificationNavigator) => {
                     }
                     if (message.type == "record") {
                         messageType = "تسجيل صوتي";
+                    }
+                    if ( message.type == "post") { 
+                        messageType = "منشور"
+                    } 
+
+                    if (message.type == "account") { 
+                        messageType = "حساب"
                     }
 
                     var message = `لقد ارسل لك ${fullname} : ${messageType}`

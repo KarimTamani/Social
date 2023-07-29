@@ -303,6 +303,7 @@ export default function Stories({ navigation }) {
     }
 
     const openStory = useCallback((followerId) => {
+        console.log (followers)
         navigation.navigate("StoriesList", {
             followers : followers.filter ( f => f.type != "loading" && f.type != "myStories"),
             followerId: followerId
@@ -374,7 +375,7 @@ export default function Stories({ navigation }) {
         return (
             <Story user={item} stories={item.stories} onPress={() => openStory(item.id)} />
         )
-    }, [user, myStories]);
+    }, [user, myStories , followers]);
 
 
     const endReached = useCallback(() => {

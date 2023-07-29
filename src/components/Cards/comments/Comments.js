@@ -220,9 +220,7 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
             setRecord(null);
             setIsSubmitting(false);
 
-
-        }).catch(error => {
-            console.log(error);
+        }).catch(error => { 
 
             setIsSubmitting(false);
 
@@ -304,7 +302,7 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
 
 
         }).catch(error => {
-            console.log(error);
+        
             setIsSubmitting(false);
 
         })
@@ -378,11 +376,18 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
                     (!fetchingQuery || commentForReplay) &&
                     <View style={styles.commentInput}>
 
+                        {
 
+                            /*
+                            
+                         
                         <TouchableOpacity style={styles.commentButton}>
                             <Feather name="gift" style={styles.buttonIcon} />
                         </TouchableOpacity>
+   
+                            */ 
 
+                        }
                         {
                             !record &&
                             <TouchableOpacity style={styles.commentButton} onPress={!recording ? startRecording : stopRecording}>

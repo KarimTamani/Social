@@ -36,7 +36,19 @@ export default function Conversation({ navigation, route }) {
     const [end, setEnd] = useState(false);
     const list = useRef();
     const event = useEvent();
-    const [memberLastSeen, setMemberLastSeen] = useState(route.params?.conversation?.members[0]?.lastSeenAt);
+    
+    var lastSeenAt = route.params?.conversation?.members[0]?.lastSeenAt ; 
+    if (route.params?.conversation) { 
+        var conversationMembers = route.params?.conversation?.members ; 
+        conversationMembers.forEach(member => {
+            if ( member.lastSeenAt > lastSeenAt) 
+                lastSeenAt = member.lastSeenAt ; 
+        }) ; 
+    
+    }
+
+   
+    const [memberLastSeen, setMemberLastSeen] = useState(lastSeenAt);
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
     const [disableInput, setDisableInput] = useState(false);

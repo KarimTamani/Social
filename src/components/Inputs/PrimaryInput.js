@@ -5,39 +5,41 @@ import { textFonts } from "../../design-system/font";
 import ThemeContext from "../../providers/ThemeContext";
 
 
-export default function PrimaryInput({ placeholder  ,  secure = false,showKeyBoard = true, inputStyle, onChange, inputRef, onFocus, rightContent, style, leftContent, value, multiline = false , onBlur , error = false , phone}) {
+export default function PrimaryInput({ placeholder, secure = false, showKeyBoard = true, inputStyle, onChange, inputRef, onFocus, rightContent, style, leftContent, value, multiline = false, onBlur, error = false, phone, maxLength = null , numeric = false  }) {
 
     var ref = inputRef;
     if (!ref) {
         ref = useRef();
     }
-    const [text , setText] = useState() ; 
+    const [text, setText] = useState();
 
 
-    const themeContext = useContext(ThemeContext) ; 
-    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles ;  
+    const themeContext = useContext(ThemeContext);
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
 
     useEffect(() => {
-    
+
         const subscription = Keyboard.addListener("keyboardDidHide", () => {
             ref.current?.blur();
         });
         return subscription.remove;
-        
-    }, [ref]) ; 
+
+    }, [ref]);
 
 
-    
+
     return (
-        <View style={[styles.container, style , error&&  styles.errorContainer]}>
+        <View style={[styles.container, style, error && styles.errorContainer]}>
             <View style={styles.leftContent}>
                 {leftContent}
             </View>
             <TextInput
-              keyboardType={phone ? 'phone-pad' : null}
+
+                keyboardType={phone ? 'phone-pad' : (numeric ? "numeric" : null)}
+
                 placeholder={placeholder}
-                style={[styles.textInput, inputStyle  ]}
+                style={[styles.textInput, inputStyle]}
                 onChangeText={onChange}
                 multiline={multiline}
                 numberOfLines={4}
@@ -46,12 +48,13 @@ export default function PrimaryInput({ placeholder  ,  secure = false,showKeyBoa
                 ref={ref}
                 autoCapitalize={"none"}
                 secureTextEntry={secure}
-                placeholderTextColor = { styles.placeholderTextColor }
-                showSoftInputOnFocus={showKeyBoard} 
-   
+                placeholderTextColor={styles.placeholderTextColor}
+                showSoftInputOnFocus={showKeyBoard}
+                maxLength={maxLength}
 
- 
-             
+
+
+
             >
                 <Text style={styles.text}>
                     {value}
@@ -70,20 +73,20 @@ const lightStyles = StyleSheet.create({
         borderRadius: 38,
         flexDirection: "row",
         paddingVertical: 0,
-        
+
     },
-    errorContainer : { 
-        borderWidth : 1 , 
-        borderColor : "#FF3159" , 
-        backgroundColor :"#FF315911"
-    } , 
+    errorContainer: {
+        borderWidth: 1,
+        borderColor: "#FF3159",
+        backgroundColor: "#FF315911"
+    },
     textInput: {
         fontFamily: textFonts.regular,
         flex: 1,
-        paddingHorizontal : 12 , 
-        textAlignVertical : "center" , 
+        paddingHorizontal: 12,
+        textAlignVertical: "center",
 
-        lineHeight : -8  ,
+        lineHeight: -8,
 
     },
     rightContent: {
@@ -99,31 +102,31 @@ const lightStyles = StyleSheet.create({
 
     },
     text: {
-        lineHeight: 24 , 
-        textAlignVertical : "top"
+        lineHeight: 24,
+        textAlignVertical: "top"
     }
 })
-const darkStyles = { 
-    ...lightStyles , 
-    placeholderTextColor : darkTheme.secondaryTextColor , 
+const darkStyles = {
+    ...lightStyles,
+    placeholderTextColor: darkTheme.secondaryTextColor,
     container: {
         backgroundColor: darkTheme.secondaryBackgroundColor,
         borderRadius: 38,
         flexDirection: "row",
         paddingVertical: 0,
-    
+
 
     },
-     
+
     textInput: {
-      
-        color : darkTheme.textColor  , 
+
+        color: darkTheme.textColor,
         fontFamily: textFonts.regular,
         flex: 1,
-        paddingHorizontal : 12 , 
-        textAlignVertical : "center" , 
+        paddingHorizontal: 12,
+        textAlignVertical: "center",
 
-        lineHeight : -8 
+        lineHeight: -8
     },
-    
+
 }

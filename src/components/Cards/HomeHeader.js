@@ -50,7 +50,7 @@ export default function HomeHeader({ navigation }) {
                     }`
                 }).then(response => {
                  
-                    if (response && response.data)
+                    if (response && response.data &&  response.data.getUnReadConversations)
                         setUnReadConversations(response.data.getUnReadConversations);
 
                 }).catch(error => {

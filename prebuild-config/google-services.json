@@ -1,41 +1,57 @@
 {
   "project_info": {
-    "project_number": "482147710452",
-    "project_id": "social-media-e9906",
-    "storage_bucket": "social-media-e9906.appspot.com"
+    "project_number": "788968954733",
+    "project_id": "vinkst-1c1de",
+    "storage_bucket": "vinkst-1c1de.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:482147710452:android:f24e516edbee9cda1535a1",
+        "mobilesdk_app_id": "1:788968954733:android:8cf4580556161e3fbc9864",
         "android_client_info": {
-          "package_name": "com.tamani_karim.Social"
+          "package_name": "com.vinkst.social"
         }
       },
       "oauth_client": [
         {
-          "client_id": "482147710452-d0mqr0h7gflb9pp7c2e4blg9amgk0ihs.apps.googleusercontent.com",
+          "client_id": "788968954733-4vlsvui7i2t7tp022vlefnjsda5u38tp.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.tamani_karim.Social",
+            "package_name": "com.vinkst.social",
+            "certificate_hash": "c2fed98295650f74cf257154b09c97da922e186f"
+          }
+        },
+        {
+          "client_id": "788968954733-obd915a3fnmm0cic8u43qi2o1mg9hm3a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vinkst.social",
             "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
         },
         {
-          "client_id": "482147710452-ffssl6b6s7o4kr8lrrkeq2cn1ki7vail.apps.googleusercontent.com",
+          "client_id": "788968954733-tbj8499i458gqi5ontf8cng4dejo9jqp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vinkst.social",
+            "certificate_hash": "414ad58468d716aab41254a52fc063c2025a8e7a"
+          }
+        },
+        {
+          "client_id": "788968954733-l2uc4p36c3pghc0oevbaicm2qo84drgv.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBj1LXC58Ha-_Qh9q4iiYFwbk_gigsrrAQ"
+          "current_key": "AIzaSyDbR2jSO5DEwZQF6xQDc__xOLneHyqLjak"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "482147710452-bu1tri793ia9qcqh9h014p8a3dsmov63.apps.googleusercontent.com",
+              "client_id": "788968954733-bu3g9mok7pam1k5i2g2c7g12i1de0q27.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

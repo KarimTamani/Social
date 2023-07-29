@@ -39,9 +39,9 @@ export default function FollowsList({ navigation, route }) {
             return;
 
         const notificationData = route.params.notificationData;
-
-        if (notificationData && notificationData.user) {
-            openProfile(notificationData.user.id);
+        var follower =  notificationData.user ? JSON.parse(notificationData.user) : null ; 
+        if (follower) {
+            openProfile(follower.id);
         }
 
     }, [route])

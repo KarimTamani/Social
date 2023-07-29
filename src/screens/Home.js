@@ -136,11 +136,16 @@ export default function Home({ navigation }) {
 
     useEffect(() => {
 
+        
+
         const addNewPost = (post) => {
             if (post.type == "note" || post.type == "image") {
                 setPosts(previousPosts => {
                     setPosts([...previousPosts.filter(post => post.type == "stories"), post, ...previousPosts.filter(post => post.type != "stories")]);
-                })
+                }) ; 
+
+
+                setFirstTime(post.createdAt) ; 
             }
         }
 
@@ -330,7 +335,10 @@ export default function Home({ navigation }) {
                 lastReel: (lastReel) ? (lastReel.createdAt) : lastTimeOffset.lastReel
             });
 
-            if (firstPost)
+
+     
+
+            if (firstPost && !firstTime)
                 setFirstTime(firstPost.createdAt);
 
             const postsLength = response.data.getPosts.length;
@@ -340,18 +348,16 @@ export default function Home({ navigation }) {
             if (reels)
                 newContent.splice(randomIndex, 0, reels)
 
-
-            setPosts([...posts.filter(post => post.type != "loading"), ...newContent]);
+     
+            setPosts([...posts.filter(post => post.type != "loading") , ...newContent]);
 
             if (response.data.getPosts.length < POST_LIMIT)
                 setEnd(true);
 
             setLoading(false);
             if (firstFetch)
-
                 setFirstFetch(false)
         }).catch(error => {
-
             setLoading(false);
         });
 
@@ -442,7 +448,7 @@ export default function Home({ navigation }) {
     const handleScroll = useCallback((event) => {
 
  
-        if (event.nativeEvent.contentOffset.y == 0 && event.nativeEvent.velocity.y >= 0.2 && !refresh && isAuth) {
+        if (event.nativeEvent.contentOffset.y == 0 && event.nativeEvent.velocity.y >= 0.15 && !refresh && isAuth) {
             if (posts.length >= 1 && posts[0].type == "stories") {
                 var clonePosts = [...posts];
                 clonePosts.splice(1, 0, { id: 0, type: "loading" });
@@ -462,7 +468,7 @@ export default function Home({ navigation }) {
             <View style={styles.content}>
                 <FlatList
                     onEndReached={reachEnd}
-                    onEndReachedThreshold={0.5}
+                    onEndReachedThreshold={0.2}
                     data={posts}
                     keyExtractor={keyExtractor}
                     renderItem={renderItem}
@@ -485,7 +491,7 @@ const lightStyles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#eee",
-        paddingBottom: 142
+        paddingBottom: 138
     },
 
     stories: {
@@ -502,7 +508,7 @@ const darkStyles = {
     container: {
         flex: 1,
         backgroundColor: darkTheme.secondaryBackgroundColor,
-        paddingBottom: 142
+        paddingBottom: 138
     },
     stories: {
         backgroundColor: darkTheme.backgroudColor,

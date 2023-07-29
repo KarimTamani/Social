@@ -1,12 +1,11 @@
 {
   "expo": {
-    "name": "Social",
-    "slug": "Social",
+    "name": "Vinkst",
+    "slug": "Vinkst",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-       
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -20,37 +19,45 @@
       "**/*"
     ],
     "plugins": [
-      "react-native-compressor" , 
-      "expo-media-library" , 
-      "@react-native-google-signin/google-signin"  
-      
+      "react-native-compressor",
+      "expo-media-library",
+      "@react-native-google-signin/google-signin"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "social",
-     
+      "bundleIdentifier": "vinkst",
       "runtimeVersion": {
         "policy": "sdkVersion"
+      },
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
+        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos"
       }
     },
     "android": {
+      "icon": "./assets/icon.png",
+      "versionCode": 2,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "foregroundImage": "./assets/v_icon.png",
+        "backgroundImage": "./assets/background.png"
       },
-      "package": "com.tamani_karim.Social",
+      "package": "com.vinkst.social",
       "runtimeVersion": {
         "policy": "sdkVersion"
-      }
+      },
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "f631f27f-c32e-4b5b-a97e-c2102dfc35fa"
+        "projectId": "85d96136-29e7-4c90-8299-a0089010f222"
       }
-    } , 
-    "scheme" : "social"
+    },
+    "scheme": "social"
   }
 }

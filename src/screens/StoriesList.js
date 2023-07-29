@@ -283,11 +283,13 @@ export default function StoriesList({ route }) {
                         }
 
                         {
+                            /*
                             (!comment || comment.trim().length == 0) &&
                             <TouchableOpacity >
                                 <Feather name="gift" style={styles.interactionIcon} />
 
                             </TouchableOpacity>
+                            */
                         }
                     </View>
 

@@ -49,6 +49,7 @@ export default function ProfileInfoForm({ onSubmit, user ,loading }) {
                     return true;
             }),
         countryId: yup.number().required(),
+        state : yup.string().notRequired().nullable().min(2, "2 أحرف على الأقل").max(255, "255 حرفًا كحد أقصى"),  
         bio: yup.string().notRequired().nullable().min(10, "10 أحرف على الأقل").max(255, "255 حرفًا كحد أقصى"),
         facebook: yup.string().notRequired().nullable().matches(URL, "هناك مشكلة في عنوان url"),
         twitter: yup.string().notRequired().nullable().matches(URL, "هناك مشكلة في عنوان url"),
@@ -63,7 +64,7 @@ export default function ProfileInfoForm({ onSubmit, user ,loading }) {
         countryId: user.country?.id,
         username: user.username,
         bio: user.bio,
-
+        state : user.state , 
         facebook: user.socialMedia?.facebook || null,
         twitter: user.socialMedia?.twitter || null,
         snapshot: user.socialMedia?.snapshot || null,
@@ -242,7 +243,24 @@ export default function ProfileInfoForm({ onSubmit, user ,loading }) {
                                 }
 
                             </TouchableOpacity>
+                            <InfoInput
+                                value={values.state}
+                                label={"المقاطعة"}
 
+                                onChangeText={handleChange("state")}
+                                onBlur={() => {
+                                    setFieldTouched("state", true);
+                                    validateField("state").then();
+
+                                }}
+
+                                errorText={
+                                    touched.state && errors.state &&
+                                    <Text style={[errorStyle.error, { marginTop: 4 }]}> {touched.state && errors.state}</Text>
+
+                                }
+
+                            />
 
 
                             <InfoInput

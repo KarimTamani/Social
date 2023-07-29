@@ -219,7 +219,9 @@ export default function CreateGroup({ navigation }) {
 
     const createGroup = useCallback(() => {
         setIsCreating(true) ; 
-
+         
+        
+     
         client.query({
             query: gql`
             mutation Mutation($members: [ID!]!) {
@@ -269,7 +271,7 @@ export default function CreateGroup({ navigation }) {
                 </View>
                 {
                     !isCreating &&
-                    <TouchableOpacity style={[styles.createButton, members.length == 0 && { opacity: 0.5 }]} disabled={members.length == 0} onPress={createGroup}>
+                    <TouchableOpacity style={[styles.createButton, members.length <= 1 && { opacity: 0.5 }]} disabled={members.length <= 1} onPress={createGroup}>
                         <Ionicons name="add-outline" size={32} color="#1A6ED8" />
                         <Text style={styles.createText}>
                             إنشاء

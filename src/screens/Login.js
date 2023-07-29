@@ -12,19 +12,18 @@ import { errorStyle } from "../design-system/errorStyle";
 import { AuthContext } from "../providers/AuthContext";
 import ThemeContext from "../providers/ThemeContext";
 import darkTheme from "../design-system/darkTheme";
+/*
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import firebaseAuth from '@react-native-firebase/auth';
-
+ 
 GoogleSignin.configure({
-
-    webClientId: '482147710452-ffssl6b6s7o4kr8lrrkeq2cn1ki7vail.apps.googleusercontent.com',
+    webClientId: '788968954733-l2uc4p36c3pghc0oevbaicm2qo84drgv.apps.googleusercontent.com',
 });
-
+ */
 const loginSchema = yup.object({
     identifier: yup.string()
         .required("البريد الإلكتروني / رقم الهاتف مطلوب")
         .test("identifier-not-valid", "البريد الإلكتروني / رقم الهاتف غير صالح", (identifier) => {
-
 
             if (identifier)
                 return ((identifier.match(/^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g) && identifier.length >= 8) || identifier.match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/));
@@ -33,15 +32,12 @@ const loginSchema = yup.object({
     password: yup.string().required("كلمة المرور مطلوبة").min(6, "الحد الأدنى 6 أحرف").max(255, "255 حرفًا كحد أقصى")
 });
 
-
 export default function Login({ navigation }) {
 
     var values = {
         identifier: "",
         password: "",
     }
-
-
 
     const client = useContext(ApolloContext);
     const auth = useContext(AuthContext);
@@ -56,11 +52,11 @@ export default function Login({ navigation }) {
     const togglePasswordVisibility = useCallback(() => {
         setShowPassword(!showPassword);
     }, [showPassword]);
-
+    
     const forgetPassword = useCallback(() => {
-        console.log("forget password")
+        navigation.navigate("SubmitEmail") ; 
     }, []);
-
+    
     const goSignup = useCallback(() => {
         navigation.navigate("Signup");
     }, []);
@@ -91,7 +87,8 @@ export default function Login({ navigation }) {
                       gender
                       countryId
                       phone
-                     
+                      isValid
+                      state 
                       bio
                       private
                       disabled
@@ -113,24 +110,28 @@ export default function Login({ navigation }) {
             variables: values
         }).then(async response => {
 
-
+            
             if (response && response.data) {
-                if (!response.data.Login.user.disabled) {
+                if (!response.data.Login.user.isValid) { 
+                    navigation.navigate("SendEmailConfirmation" , { 
+                        email : response.data.Login.user.email 
+                    }) ; 
+
+                }
+                else if (!response.data.Login.user.disabled) {
                     await auth.logIn(response.data.Login);
-                    setLoading(false);
+                    
                     navigation.navigate("HomeNavigation");
                 }
                 else {
-                    setLoading(false);
                     navigation.navigate("ActivateAccount", {
                         login: response.data.Login
                     });
                 }
+                setLoading(false);
             } else {
                 setLoading(false);
-
                 setError("لا يمكن تسجيل الدخول ، يرجى التحقق من البريد الإلكتروني / رقم الهاتف وكلمة المرور")
-
             }
         }).catch(error => {
 
@@ -141,6 +142,7 @@ export default function Login({ navigation }) {
     }, []);
 
     async function onGoogleButtonPress() {
+
 
         try {
             setLoading(true);
@@ -153,7 +155,7 @@ export default function Login({ navigation }) {
 
             // Sign-in the user with the credential
             var credentials = await firebaseAuth().signInWithCredential(googleCredential);
-
+            console.log (credentials) ;
 
             client.query({
                 query: gql`
@@ -171,11 +173,12 @@ export default function Login({ navigation }) {
                             email
                             pictureId
                             username
+                            isValid
                             birthday
                             gender
                             countryId
                             phone
-                            
+                            state
                             bio
                             private
                             disabled
@@ -196,17 +199,25 @@ export default function Login({ navigation }) {
                 }
             }).then(async response => {
                 if (response && response.data) {
-                    if (!response.data.oAuth.user.disabled) {
+
+                    if (!response.data.oAuth.user.isValid) { 
+                        navigation.navigate("SendEmailConfirmation" , { 
+                            email : response.data.oAuth.user.email 
+                        }) ; 
+                        
+                    }
+                    else if (!response.data.oAuth.user.disabled) {
                         await auth.logIn(response.data.oAuth);
-                        setLoading(false);
+                     
                         navigation.navigate("HomeNavigation");
                     }
                     else {
-                        setLoading(false);
+                       
                         navigation.navigate("ActivateAccount", {
                             login: response.data.oAuth
                         });
                     }
+                    setLoading(false);
                 } else {
                     setLoading(false);
 
@@ -220,8 +231,8 @@ export default function Login({ navigation }) {
             })
 
         } catch (error) {
+            console.log (error) ; 
             setLoading(false);
-
         }
     }
 

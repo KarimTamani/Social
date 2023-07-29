@@ -334,8 +334,9 @@ const lightStyles = StyleSheet.create({
     },
     text: {
         fontFamily: textFonts.regular,
-        fontSize: 10,
-
+        fontSize: 12,
+        
+        paddingLeft : 8 , 
         display: "flex",
 
 
@@ -377,9 +378,10 @@ const lightStyles = StyleSheet.create({
     },
     postTitle: {
         fontFamily: textFonts.regular,
-        fontSize: 10,
+        fontSize: 12,
         lineHeight: 16,
-        marginTop: 8
+        marginTop: 8 , 
+        width : WIDTH / 2 ,  
     },
     posterUserImage: {
         width: 24,
@@ -393,13 +395,13 @@ const lightStyles = StyleSheet.create({
     },
     fullanme: {
         fontFamily: textFonts.bold,
-        fontSize: 10,
+        fontSize: 12,
         paddingRight: 10
     },
     postImage: { 
 
-        width : WIDTH / 2 ,  
-        height:  WIDTH / 3,
+        width : WIDTH * 0.75 - 32 ,  
+        height:  WIDTH / 2,
         borderRadius: 12,
         marginTop: 8
     },

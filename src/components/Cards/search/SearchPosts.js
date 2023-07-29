@@ -72,7 +72,7 @@ export default function SearchPosts({ type, query, navigation }) {
                 type
             }
         }).then(response => {
-
+            console.log ( response ) ; 
             var newSearch = response.data.searchPost;
             setPosts([...previousSearch, ...newSearch])
 
@@ -83,6 +83,7 @@ export default function SearchPosts({ type, query, navigation }) {
             setFirstFetch(false);
 
         }).catch(error => {
+            console.log ( error ) ; 
             setLoading(false);
             setFirstFetch(false);
         })
