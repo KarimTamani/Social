@@ -1,15 +1,21 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import PrimaryButton from "../../../components/Buttons/PrimaryButton";
 import darkTheme from "../../../design-system/darkTheme";
 import { textFonts } from "../../../design-system/font";
 import ThemeContext from "../../../providers/ThemeContext";
+import {ApolloContext} from "../../../providers/ApolloContext" ; 
 
-export default function WelcomProfessional({ }) {
+export default function WelcomProfessional({ onShowProfile , onPickCategory }) {
 
 
     const themeContext = useContext(ThemeContext);
-    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles
+    const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles ; 
+
+
+ 
+
+
 
     return (
         <View style={styles.container}>
@@ -24,12 +30,13 @@ export default function WelcomProfessional({ }) {
             <PrimaryButton
                 title={"اختيار فئة الملف الشخصي"}
                 style={styles.button}
-
+                onPress={ onPickCategory }  
             />
             <PrimaryButton
                 title={"عرض ملفك الشخصي"}
                 outline={true}
                 style={styles.button}
+                onPress={ onShowProfile }
             />
         </View>
     )
