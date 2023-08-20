@@ -10,6 +10,7 @@ import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
 import { getMediaUri } from "../../../api";
 import { useEvent } from "../../../providers/EventProvider";
+import { AntDesign } from '@expo/vector-icons';
 const LIMIT = 10;
 
 export default function SearchUsers({ query, navigation }) {
@@ -52,6 +53,7 @@ export default function SearchUsers({ query, navigation }) {
             query SearchUser($query: String!, $limit: Int!, $offset: Int!) {
                 searchUser(query: $query, limit: $limit, offset: $offset) {
                     id name lastname username 
+                    validated
                     profilePicture {
                         id path 
                     }
@@ -126,7 +128,7 @@ export default function SearchUsers({ query, navigation }) {
             <TouchableOpacity style={styles.user} onPress={() => openProfile(item.id)}>
                 <View style={styles.infoSection}>
                     <Text style={styles.fullname}>
-                        {item.name} {item.lastname}
+                        {item.name} {item.lastname} {item.validated && <AntDesign name="checkcircle" style={styles.blueIcon} />}
                     </Text>
                     <Text style={styles.username}>
                         @{item.username}
@@ -218,7 +220,11 @@ const lightStyles = StyleSheet.create({
         fontFamily: textFonts.regular,
         color: "#888",
         fontSize: 12
-    }
+    } , 
+    blueIcon: {
+        color: "blue",
+        fontSize: 12
+    },
 
 });
 

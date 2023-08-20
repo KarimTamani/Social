@@ -203,10 +203,12 @@ const lightStyles = StyleSheet.create({
         width: "100%",
         bottom: 0,
         backgroundColor: "white",
+        height : 56 , 
     },
     transparent: {
-        backgroundColor: "transparent",
-        borderTopWidth: 0
+        backgroundColor: "#111111",
+        borderTopWidth: 0 , 
+        height : 56 , 
     }
     ,
     whiteIcon: {
@@ -231,10 +233,6 @@ const lightStyles = StyleSheet.create({
     },
 
     newContentButton: {
-
-
-
-
         borderRadius: 48,
         width: "100%",
         height: "100%",

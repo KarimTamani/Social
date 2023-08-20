@@ -12,7 +12,7 @@ import { errorStyle } from "../design-system/errorStyle";
 import * as yup from "yup";
 import { ApolloContext } from "../providers/ApolloContext";
 import { gql } from "@apollo/client";
- 
+
 import { AuthContext } from "../providers/AuthContext";
 import ThemeContext from "../providers/ThemeContext";
 import darkTheme from "../design-system/darkTheme";
@@ -21,8 +21,8 @@ const genders = [{ label: "ذكر", value: true }, { label: "أنثى", value: f
 
 export default function Signup({ navigation }) {
     const client = useContext(ApolloContext);
-    const auth = useContext(AuthContext) ; 
-    const [loading , setLoading] = useState(false   ) ; 
+    const auth = useContext(AuthContext);
+    const [loading, setLoading] = useState(false);
     const signUpSchema = yup.object({
         name: yup.string().required("الإسم الأول مطلوب").min(3, "3 أحرف على الأقل").max(56, "56 حرفًا كحد أقصى"),
         lastname: yup.string().required("الاسم الثاني مطلوب").min(3, "3 أحرف على الأقل").max(56, "56 حرفًا كحد أقصى"),
@@ -51,7 +51,8 @@ export default function Signup({ navigation }) {
             }),
         countryId: yup.number().required(),
         gender: yup.boolean().required(),
-        birthday: yup.date().required()
+        birthday: yup.date().required(), 
+      
     });
 
     var values = {
@@ -81,8 +82,8 @@ export default function Signup({ navigation }) {
 
     const createAccount = useCallback((values) => {
         setError(null);
-        setLoading(true) ; 
-        
+        setLoading(true);
+
         client.mutate({
             mutation: gql`
             mutation SIGNUP($user: UserInput) {
@@ -94,7 +95,8 @@ export default function Signup({ navigation }) {
                     username
                     birthday
                     gender
-                    
+                    isValid
+                    email
                   }
                   token
                 }
@@ -103,13 +105,18 @@ export default function Signup({ navigation }) {
             variables: {
                 user: values
             }
-        }).then(async response => { 
-            await auth.logIn(response.data.SignUp) ;
-            navigation.navigate("HomeNavigation");
-            setLoading(false) ; 
-        }).catch(error => {             
+        }).then(async response => {
+
+            if (response && response.data) {
+                navigation.navigate("SendEmailConfirmation", {
+                    email: response.data.SignUp.user.email
+                });
+            }
+
+            setLoading(false);
+        }).catch(error => {
             setError("حدث خطأ ، ربما تم استخدام هذا البريد الإلكتروني في حساب آخر ، جرب حسابًا آخر")
-            setLoading(false) ; 
+            setLoading(false);
         })
 
     }, []);
@@ -128,7 +135,7 @@ export default function Signup({ navigation }) {
 
             setCountries(response.data.getCountries);
             setSearchCountries(response.data.getCountries);
-        }) ; 
+        });
     }, [])
 
     return (
@@ -265,12 +272,12 @@ export default function Signup({ navigation }) {
                                             }}
 
                                             buttonTextAfterSelection={(selectedItem, index) => {
-                                      
-                                                return  <Text style={styles.dropdownText}>{selectedItem.label}</Text>
+
+                                                return <Text style={styles.dropdownText}>{selectedItem.label}</Text>
                                             }}
                                             rowTextForSelection={(item, index) => {
-                                      
-                                                return  <Text style={styles.dropdownText}>{item.label}</Text>
+
+                                                return <Text style={styles.dropdownText}>{item.label}</Text>
                                             }}
                                             buttonTextStyle={styles.dropDownButtonText}
                                         />
@@ -323,7 +330,7 @@ export default function Signup({ navigation }) {
                                             return <Text style={styles.dropdownText}>{selectedItem.name}</Text>
                                         }}
                                         rowTextForSelection={(item, index) => {
-                                            return  <Text style={styles.dropdownText}>{item.name}</Text>
+                                            return <Text style={styles.dropdownText}>{item.name}</Text>
                                         }}
                                         buttonTextStyle={styles.dropDownButtonText}
                                     />
@@ -336,7 +343,7 @@ export default function Signup({ navigation }) {
                                     style={styles.signUpButton}
                                     onPress={handleSubmit}
                                     disabled={!isValid}
-                                    loading= {loading}
+                                    loading={loading}
                                 />
                                 {
                                     error &&
@@ -379,7 +386,7 @@ const lightStyles = StyleSheet.create({
     },
     title: {
         fontFamily: textFonts.bold,
-        fontWeight : "bold" , 
+        fontWeight: "bold",
         fontSize: 18
     },
     row: {
@@ -442,18 +449,18 @@ const lightStyles = StyleSheet.create({
         lineHeight: 24,
         fontSize: 12,
         marginTop: 16
-    } , 
-    dropdownText :  { 
-        fontFamily : textFonts.regular 
-    } , 
-    dropDownButtonText : { 
-        color : "#212121"    , 
-        fontFamily : textFonts.regular , 
-        lineHeight : 28
+    },
+    dropdownText: {
+        fontFamily: textFonts.regular
+    },
+    dropDownButtonText: {
+        color: "#212121",
+        fontFamily: textFonts.regular,
+        lineHeight: 28
     }
-}) ; 
-const darkStyles = { 
-    ...lightStyles , 
+});
+const darkStyles = {
+    ...lightStyles,
     container: {
         flex: 1,
         backgroundColor: darkTheme.backgroudColor,
@@ -462,10 +469,10 @@ const darkStyles = {
     },
     title: {
         fontFamily: textFonts.bold,
-        fontWeight : "bold" , 
-        fontSize: 18 , 
-        color : darkTheme.textColor
-    },showButton: {
+        fontWeight: "bold",
+        fontSize: 18,
+        color: darkTheme.textColor
+    }, showButton: {
 
         height: "100%",
         alignItems: "center",
@@ -478,7 +485,7 @@ const darkStyles = {
         fontFamily: textFonts.medium,
         marginBottom: 16,
         fontSize: 14,
-        color : darkTheme.textColor
+        color: darkTheme.textColor
 
     },
     dropdown: {
@@ -494,22 +501,22 @@ const darkStyles = {
         width: 360
 
     },
-    dropDownButtonText : { 
-        color : darkTheme.textColor ,  
-        fontFamily : textFonts.regular , 
-        lineHeight : 28
-    }  ,
+    dropDownButtonText: {
+        color: darkTheme.textColor,
+        fontFamily: textFonts.regular,
+        lineHeight: 28
+    },
     text: {
-        color : darkTheme.textColor  , 
+        color: darkTheme.textColor,
         textAlign: "center",
         fontFamily: textFonts.regular,
 
     },
     footerText: {
-        color: darkTheme.secondaryTextColor , 
+        color: darkTheme.secondaryTextColor,
         textAlign: "right",
         lineHeight: 24,
         fontSize: 12,
         marginTop: 16
-    } ,
+    },
 }

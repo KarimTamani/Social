@@ -10,6 +10,7 @@ import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
 import { getMediaUri } from "../../../api";
 import { useTiming } from "../../../providers/TimeProvider";
+ 
 
 export default function ConversationHeader({ navigation , user, allowPhone = false, onPickSima, lightContent = false, members , conversation , isArchived = false }) {
 
@@ -283,7 +284,7 @@ const lightStyles = StyleSheet.create({
         flex: 1
     },
     blueIcon: {
-        color: "#00D0CD",
+        color: "blue",
         fontSize: 14,
 
 

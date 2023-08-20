@@ -1,8 +1,8 @@
 
-const remote = false 
+const remote = false     
 
-const API = remote ? 'http://129.151.154.246:4000/graphql' : "http://192.168.1.40:4000/graphql"; 
-const URL =  remote ? "http://129.151.154.246:4000" : "http://192.168.1.40:4000";
+const API = remote ? 'http://129.151.154.246:4000/graphql' : "http://192.168.1.42:4000/graphql"; 
+const URL =  remote ? "http://129.151.154.246:4000" : "http://192.168.1.42:4000";
 
 const getMediaUri = (path)=> { 
     return URL + "/" + path; 

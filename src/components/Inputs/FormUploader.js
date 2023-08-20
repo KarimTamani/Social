@@ -6,7 +6,7 @@ import { useCallback, useContext, useState } from "react";
 import ThemeContext from "../../providers/ThemeContext";
 import darkTheme from "../../design-system/darkTheme";
 
-export default function FormUploader({ placeholder = "الصور أو الفيديو", style, noDisplay = false }) {
+export default function FormUploader({ placeholder = "الصور أو الفيديو", style, noDisplay = false, oneImage = false, onChanges }) {
 
     const [images, setImages] = useState([]);
     const [video, setVideo] = useState(null);
@@ -21,6 +21,7 @@ export default function FormUploader({ placeholder = "الصور أو الفيد
         var type = ["image/*"];
         if (!video)
             type.push("video/mp4");
+
         (async () => {
             let result = await DocumentPicker.getDocumentAsync({
                 type: type
@@ -28,12 +29,18 @@ export default function FormUploader({ placeholder = "الصور أو الفيد
             if (result.type != "cancel") {
 
                 if (result.mimeType.startsWith('image')) {
-
-                    setImages([...images, result])
-
+                    if (!oneImage) {
+                        setImages([...images, result])
+                        onChanges && onChanges([...images, result])
+                    }
+                    else {
+                        setImages([result]);
+                        onChanges && onChanges([result])
+                    }
                 } else if (result.mimeType.startsWith("video")) {
 
                     setVideo(result);
+                    onChanges && onChanges(result) ; 
                 }
 
             }
@@ -53,12 +60,12 @@ export default function FormUploader({ placeholder = "الصور أو الفيد
         setVideo(null);
     }, [])
     return (
-        <View style={[{ marginVertical: 16 }, style]}>
+        <View style={[{ marginVertical: 16, paddingVertical: 8 }, style]}>
             <TouchableOpacity style={styles.button} onPress={pickMedia}>
                 <Text style={styles.text}>
                     {placeholder}
                 </Text>
-                <Image source={require("../../assets/icons/wish-list.png")} />
+                <Image source={require("../../assets/icons/wish-list.png")} style={{ width: 32, height: 32 }} />
             </TouchableOpacity>
 
             {
@@ -85,7 +92,6 @@ export default function FormUploader({ placeholder = "الصور أو الفيد
                                 <Image source={image} style={styles.image} />
                             </View>
                         ))
-
                     }
                 </ScrollView>
             }
@@ -99,7 +105,7 @@ const lightStyles = StyleSheet.create({
     button: {
         backgroundColor: "#eee",
         padding: 16,
-        paddingVertical: 12,
+        paddingVertical: 8,
         borderRadius: 8,
         flexDirection: "row",
         justifyContent: "flex-end",
@@ -128,10 +134,10 @@ const lightStyles = StyleSheet.create({
         fontSize: 24,
         color: "red"
     }
-}) ; 
+});
 
-const darkStyles = { 
-    ...lightStyles , 
+const darkStyles = {
+    ...lightStyles,
     button: {
         backgroundColor: darkTheme.secondaryBackgroundColor,
         padding: 16,
@@ -142,7 +148,7 @@ const darkStyles = {
         alignItems: "center"
 
     },
-  
+
     mediaContainer: {
         flexDirection: "row",
         justifyContent: "space-between",

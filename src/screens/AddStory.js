@@ -93,7 +93,7 @@ export default function AddStory({ navigation, route }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "white",
+        backgroundColor: "black",
         alignItems: "center"
     },
     addButton: {
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     },
     storyImage: {
         flex: 1,
-        resizeMode: "cover",
+        resizeMode: "contain",
         width: "100%",
 
     },

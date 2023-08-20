@@ -49,7 +49,8 @@ export default function ConversartionInput({ onSend }) {
                 });
 
                 const { recording } = await Audio.Recording.createAsync(
-                    Audio.RecordingOptionsPresets.HIGH_QUALITY
+                    Audio.RecordingOptionsPresets.HIGH_QUALITY , 
+                 
                 );
 
 
@@ -66,6 +67,7 @@ export default function ConversartionInput({ onSend }) {
     const stopRecording = async () => {
         await recording.stopAndUnloadAsync();
         setRecord(recording.getURI());
+   
 
         setRecording(null);
 

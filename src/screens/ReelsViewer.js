@@ -7,17 +7,22 @@ import { gql } from "@apollo/client";
 import { AuthContext } from "../providers/AuthContext";
 import { useEvent } from "../providers/EventProvider";
 
+const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 24;
+
 const WIDTH = Dimensions.get("screen").width;
 const HEIGHT = Dimensions.get("screen").height;
-
+const  W_HEIGHT = Dimensions.get("window").height ; 
 const LIMIT = 5;
 export default function ReelsViewer({ navigation, route }) {
     const [reels, setReels] = useState([{ type: "loading" }]);
     const [viewableList, setViewableList] = useState([0]);
     const [blur, setBlur] = useState(false);
     const listRef = useRef();
-
+ 
     const fetchMore = route.params.fetchMore;
+
+
+ 
 
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
@@ -116,7 +121,7 @@ export default function ReelsViewer({ navigation, route }) {
             if (route.params && route.params.getReels) {
                 reelsData = await route.params.getReels();
 
-                reelsData = [...reelsData];
+                reelsData = [...reelsData ];
 
                 if (fetchMore) {
                     var lastPost = reelsData[reelsData.length - 1];
@@ -193,6 +198,7 @@ export default function ReelsViewer({ navigation, route }) {
                 setUser(userAuth.user);
             }
         })();
+ 
 
         return () => {
             blurUnsubscribe();
@@ -287,7 +293,7 @@ export default function ReelsViewer({ navigation, route }) {
                     data={reels}
                     keyExtractor={keyExtractor}
                     renderItem={renderItem}
-                    snapToInterval={HEIGHT}
+                    snapToInterval={HEIGHT }
                     decelerationRate={"fast"}
                     snapToAlignment="end"
                     initialNumToRender={1}
@@ -304,14 +310,19 @@ export default function ReelsViewer({ navigation, route }) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: "#333"
+   
+        backgroundColor: "#333" , 
+        height: HEIGHT , 
+
+        
     },
     content: {
-        flex: 1
+        //flex: 1 , 
+        height: HEIGHT,
+        
     },
     reel: {
-        height: HEIGHT,
+        height: HEIGHT  ,
         width: WIDTH,
 
 

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { useCallback, useContext, useEffect, useState } from "react";
@@ -98,9 +98,13 @@ export default function HomeHeader({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <View style={styles.section}>
+            <View style={[styles.section , { justifyContent : "flex-end" }]}>
+                <Image source={require("../../../assets/icon.png")} style={styles.logo}/>
 
-                <AuthButton onPress={onMessenger} navigation={navigation} style={styles.massengerButton}>
+            </View>
+        
+            <View style={styles.section}>
+            <AuthButton onPress={onMessenger} navigation={navigation} style={[ styles.headerButton , styles.massengerButton]}>
                     <Feather name="message-circle" style={styles.headerIcon} />
                     {
 
@@ -110,14 +114,10 @@ export default function HomeHeader({ navigation }) {
                         </Text>
                     }
                 </AuthButton>
-                <Text style={styles.appName}>
-
-                </Text>
-            </View>
-            <View style={styles.section}>
-                <AuthButton onPress={openExplore} navigation={navigation}>
+                <AuthButton onPress={openExplore} navigation={navigation} style={styles.headerButton}>
                     <AntDesign name="search1" style={styles.headerIcon} />
                 </AuthButton>
+               
             </View>
         </View>
     )
@@ -144,7 +144,9 @@ const lightStyles = StyleSheet.create({
 
     },
     section: {
-        flexDirection: "row",
+        flexDirection: "row-reverse", 
+        flex : 1 , 
+
     },
     headerIcon: {
         fontSize: 24,
@@ -167,7 +169,17 @@ const lightStyles = StyleSheet.create({
     },
     massengerButton: {
 
-        position: "absolute",
+//        position: "absolute",
+    } , 
+    headerButton : { 
+        paddingLeft : 16 
+    } , 
+    logo : { 
+        width : 32 , 
+        height : 32 , 
+        borderRadius : 8, 
+        alignSelf : "center" , 
+        
     }
 });
 const darkStyles = {

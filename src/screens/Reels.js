@@ -21,7 +21,6 @@ export default function Reels({ navigation, route }) {
 
     const pageName = route.name;
 
-
     const [reels, setReels] = useState([{ type: "loading" }]);
 
     const [viewableList, setViewableList] = useState([0]);
@@ -214,8 +213,6 @@ export default function Reels({ navigation, route }) {
                     setLastReelTime(lastPost.createdAt);
                 }
 
-
-
                 setReels(previousReels => {
                     const index = previousReels.findIndex(reel => reel.type == "loading");
                     previousReels.splice(index, 1);
@@ -228,6 +225,8 @@ export default function Reels({ navigation, route }) {
 
                 if (reelsResponse.length < LIMIT)
                     setEnd(true);
+
+                
                 setLoading(false);
             }
         }).catch(error => {
@@ -246,11 +245,9 @@ export default function Reels({ navigation, route }) {
                 </View>
             )
         const focus = viewableList.findIndex((itemIndex) => itemIndex == index) >= 0 && !blur;
-
-
         return (
             <View style={styles.reel}>
-                <Reel reel={item} focus={focus} openProfile={openProfile} navigation={navigation} />
+                <Reel reel={item} focus={focus} openProfile={openProfile} navigation={navigation} extraBottom = { true } />
             </View>
         )
 
@@ -287,7 +284,7 @@ export default function Reels({ navigation, route }) {
             }
         })();
 
-
+ 
         return () => {
             blurUnsubscribe();
             focusUnsubscribe();
@@ -297,7 +294,7 @@ export default function Reels({ navigation, route }) {
 
 
     useFocusEffect(useCallback(() => {
-
+      
         var focusPostId = null; var reelsData
         if (route.params)
             focusPostId = route.params.focusPostId;
@@ -316,7 +313,7 @@ export default function Reels({ navigation, route }) {
             reelsData.splice(0, 0, focusPost)
 
             setReels(reelsData);
-            listRef.current?.scrollToOffset({ animated: true, y: 0 });
+    
 
         }
 
@@ -393,14 +390,16 @@ export default function Reels({ navigation, route }) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: "#333"
+   
+        backgroundColor: "#333" , 
+        height: HEIGHT   ,
+    
     },
     content: {
-        flex: 1
+        height: HEIGHT  ,
     },
     reel: {
-        height: HEIGHT,
+        height: HEIGHT  ,
         width: WIDTH,
     }
 })

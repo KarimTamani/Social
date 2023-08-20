@@ -34,20 +34,20 @@ export default function Conversation({ navigation, route }) {
     const [firstFtech, setFirstFetch] = useState(true);
     const [loading, setLoading] = useState(false);
     const [end, setEnd] = useState(false);
-    const list = useRef();
+
     const event = useEvent();
-    
-    var lastSeenAt = route.params?.conversation?.members[0]?.lastSeenAt ; 
-    if (route.params?.conversation) { 
-        var conversationMembers = route.params?.conversation?.members ; 
+
+    var lastSeenAt = route.params?.conversation?.members[0]?.lastSeenAt;
+    if (route.params?.conversation) {
+        var conversationMembers = route.params?.conversation?.members;
         conversationMembers.forEach(member => {
-            if ( member.lastSeenAt > lastSeenAt) 
-                lastSeenAt = member.lastSeenAt ; 
-        }) ; 
-    
+            if (member.lastSeenAt > lastSeenAt)
+                lastSeenAt = member.lastSeenAt;
+        });
+
     }
 
-   
+
     const [memberLastSeen, setMemberLastSeen] = useState(lastSeenAt);
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
@@ -121,9 +121,11 @@ export default function Conversation({ navigation, route }) {
                 conversationId: conversationId
             }
         }).then(response => {
-          
+
+            console.log ( response ) ; 
             var newMessages = response.data.getMessages;
             newMessages = newMessages.map(message => {
+
                 if (message.media) {
                     message.media.uri = getMediaUri(message.media.path);
                 }
@@ -132,9 +134,7 @@ export default function Conversation({ navigation, route }) {
                     message.myMessage = true
                 } else {
                     const index = members.findIndex(member => member.user.id == message.sender.id);
-
                     if (index >= 0)
-
                         message.sender = members[index].user;
                 }
                 return message;
@@ -148,6 +148,7 @@ export default function Conversation({ navigation, route }) {
             setFirstFetch(false);
 
         }).catch(error => {
+            setLoading(false);
             console.log(error);
         });
     }
@@ -168,24 +169,24 @@ export default function Conversation({ navigation, route }) {
         const blockedUser = (user) => {
             setDisableInput(true);
         }
-        const toggleConversationNotification = ( conversationId , value) => { 
-             setConversation({
-                ...conversation , 
-                allowNotifications : value
-             })
-        }      
+        const toggleConversationNotification = (conversationId, value) => {
+            setConversation({
+                ...conversation,
+                allowNotifications: value
+            })
+        }
 
 
         if (conversation) {
             realTime.addListener("NEW_MESSAGE_CONVERSATION_" + conversation.id, onNewMessage);
             realTime.addListener("CONVERSATION_SAW_" + conversation.id, onConversationSaw);
             event.addListener("blocked-user", blockedUser);
-            event.addListener("toggle-conversation-notifications" ,  toggleConversationNotification)  ;
+            event.addListener("toggle-conversation-notifications", toggleConversationNotification);
             return () => {
                 realTime.removeListener("NEW_MESSAGE_CONVERSATION_" + conversation.id, onNewMessage);
                 realTime.removeListener("CONVERSATION_SAW_" + conversation.id, onConversationSaw);
                 event.removeListener("blocked-user", blockedUser);
-                event.removeListener("toggle-conversation-notifications" ,  toggleConversationNotification)  ;
+                event.removeListener("toggle-conversation-notifications", toggleConversationNotification);
             }
         }
     }, [conversation, messages])
@@ -196,11 +197,11 @@ export default function Conversation({ navigation, route }) {
 
     useEffect(() => {
 
- 
+
         (async () => {
             var authUser = await auth.getUserAuth();
             setSender(authUser.user);
-            
+
             if (!conversation) {
 
 
@@ -235,7 +236,7 @@ export default function Conversation({ navigation, route }) {
 
                     var loadedConversation = response.data.getConversation;
                     setConversation({ ...loadedConversation, members });
- 
+
                     if (loadedConversation) {
 
 
@@ -345,27 +346,39 @@ export default function Conversation({ navigation, route }) {
         }
 
         var showSender = true;
-        if (index != 0) {
+        if (index != 0 && messages.length > 1) {
             var nextMessage = messages[index - 1];
             showSender = (nextMessage.sender.id != item.sender.id);
         }
 
         return (
-            <Message
-                message={item}
-                sending={item.sending}
-                openImage={openImage}
-                openVideo={openVideo}
-                showSender={showSender}
-                lastSeenAt={memberLastSeen}
-                navigation={navigation}
-            />
+            <View style={styles.message}>
+
+                <Message
+                    message={item}
+                    sending={item.sending}
+                    openImage={openImage}
+                    openVideo={openVideo}
+                    showSender={showSender}
+                    lastSeenAt={memberLastSeen}
+                    navigation={navigation}
+                />
+
+            </View>
         )
     }, [messages, sender, memberLastSeen, navigation]);
 
 
     const keyExtractor = useCallback((item, index) => {
-        return index;
+        var key = item.id;
+        if (item.type == "loading")
+            key = "loading-" + index;
+        else if (item.sending)
+            key = "pending-" + index;
+
+
+        return key;
+
     }, []);
 
 
@@ -489,8 +502,7 @@ export default function Conversation({ navigation, route }) {
 
             for (let index = 0; index < newMessages.length; index++) {
 
-               
-                //list.current?.scrollToTop() ;  
+
                 client.mutate({
                     mutation: gql`
                     
@@ -565,7 +577,7 @@ export default function Conversation({ navigation, route }) {
             setSima(null);
         })
         setSima(image);
-    }, [conversation ])
+    }, [conversation])
 
     const reachEnd = useCallback(() => {
 
@@ -596,7 +608,7 @@ export default function Conversation({ navigation, route }) {
     }, [conversation])
 
     const onBlock = useCallback(() => {
-   
+
         navigation.navigate('Messenger')
     }, [])
 
@@ -607,6 +619,7 @@ export default function Conversation({ navigation, route }) {
     return (
         <ImageBackground style={styles.container} source={sima}>
             {
+
                 !isGroup && members &&
                 <ConversationHeader isArchived={isArchived} lightContent={sima != null} user={members[0].user} onPickSima={onPickSima} navigation={navigation} conversation={conversation} />
             }
@@ -617,19 +630,21 @@ export default function Conversation({ navigation, route }) {
             }
             <View style={styles.body}>
                 {
+
                     !firstFtech && messages.length == 0 &&
                     <ConversationMembers members={members} />
+
                 }
                 {
                     !firstFtech &&
                     <FlatList
-                        ref={list}
+
                         onEndReached={reachEnd}
                         data={messages}
                         keyExtractor={keyExtractor}
                         renderItem={renderItem}
                         initialNumToRender={LIMIT}
-                        inverted={true}
+                        //    inverted={true}
                         onEndReachedThreshold={0.5}
                         style={styles.list}
                     />
@@ -672,6 +687,12 @@ const lightStyles = StyleSheet.create({
     input: {},
     accepting: {
 
+    },
+    list: {
+        transform: [{ rotate: '180deg' }],
+      }, 
+    message : { 
+        transform: [{ rotate: '180deg' }],
     }
 })
 

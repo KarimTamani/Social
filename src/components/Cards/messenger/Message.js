@@ -12,7 +12,7 @@ import { useTiming } from "../../../providers/TimeProvider";
 import { AuthContext } from "../../../providers/AuthContext";
 
 const WIDTH = Dimensions.get("screen").width;
-export default function Message({ message, openImage, openVideo, showSender, lastSeenAt, navigation }) {
+export default function Message({ message, openImage, openVideo, showSender, lastSeenAt, navigation , style}) {
 
     const { myMessage, sending } = message;
     var textBackground = ["#E8E7E8", "#EFEFEF"];
@@ -61,13 +61,13 @@ export default function Message({ message, openImage, openVideo, showSender, las
 
 
     function renderContent() {
-
+   
         switch (message.type) {
             case "text":
                 return (
                     <LinearGradient
                         colors={textBackground}
-                        style={[styles.contentText, myMessage && styles.sendContentText]}>
+                        style={[styles.contentText, myMessage && styles.sendContentText ]}>
                         {myMessage && !sending &&
                             <FontAwesome5 name="check-double" style={[styles.check, lastSeenAt && lastSeenAt > message.createdAt && styles.seenMessage]} />}
                         <View style={styles.textContent}>
@@ -86,7 +86,7 @@ export default function Message({ message, openImage, openVideo, showSender, las
                 );
 
             case "record":
-
+        
                 return (
 
                     !message.content ?

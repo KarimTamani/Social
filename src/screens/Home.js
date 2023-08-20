@@ -270,7 +270,7 @@ export default function Home({ navigation }) {
                         liked
                         likes  
                         isFavorite 
-                      
+                        userId
                         user { 
                             id
                             name 
@@ -285,6 +285,7 @@ export default function Home({ navigation }) {
                         id 
                         title 
                         type 
+                        userId
                         media { 
                             id path
                         }

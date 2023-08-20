@@ -9,7 +9,6 @@ import { gql } from "@apollo/client";
 import ThemeContext from "../providers/ThemeContext";
 import darkTheme from "../design-system/darkTheme";
 
-
 export default function SubmitEmail({ navigation }) {
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles

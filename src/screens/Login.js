@@ -12,14 +12,16 @@ import { errorStyle } from "../design-system/errorStyle";
 import { AuthContext } from "../providers/AuthContext";
 import ThemeContext from "../providers/ThemeContext";
 import darkTheme from "../design-system/darkTheme";
-/*
+ /*
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import firebaseAuth from '@react-native-firebase/auth';
- 
+
 GoogleSignin.configure({
     webClientId: '788968954733-l2uc4p36c3pghc0oevbaicm2qo84drgv.apps.googleusercontent.com',
 });
- */
+
+*/
+ 
 const loginSchema = yup.object({
     identifier: yup.string()
         .required("البريد الإلكتروني / رقم الهاتف مطلوب")
@@ -39,6 +41,9 @@ export default function Login({ navigation }) {
         password: "",
     }
 
+
+
+  
     const client = useContext(ApolloContext);
     const auth = useContext(AuthContext);
 
@@ -52,11 +57,11 @@ export default function Login({ navigation }) {
     const togglePasswordVisibility = useCallback(() => {
         setShowPassword(!showPassword);
     }, [showPassword]);
-    
+
     const forgetPassword = useCallback(() => {
-        navigation.navigate("SubmitEmail") ; 
+        navigation.navigate("SubmitEmail");
     }, []);
-    
+
     const goSignup = useCallback(() => {
         navigation.navigate("Signup");
     }, []);
@@ -110,17 +115,17 @@ export default function Login({ navigation }) {
             variables: values
         }).then(async response => {
 
-            
+
             if (response && response.data) {
-                if (!response.data.Login.user.isValid) { 
-                    navigation.navigate("SendEmailConfirmation" , { 
-                        email : response.data.Login.user.email 
-                    }) ; 
+                if (!response.data.Login.user.isValid) {
+                    navigation.navigate("SendEmailConfirmation", {
+                        email: response.data.Login.user.email
+                    });
 
                 }
                 else if (!response.data.Login.user.disabled) {
                     await auth.logIn(response.data.Login);
-                    
+
                     navigation.navigate("HomeNavigation");
                 }
                 else {
@@ -155,7 +160,7 @@ export default function Login({ navigation }) {
 
             // Sign-in the user with the credential
             var credentials = await firebaseAuth().signInWithCredential(googleCredential);
-            console.log (credentials) ;
+
 
             client.query({
                 query: gql`
@@ -200,19 +205,19 @@ export default function Login({ navigation }) {
             }).then(async response => {
                 if (response && response.data) {
 
-                    if (!response.data.oAuth.user.isValid) { 
-                        navigation.navigate("SendEmailConfirmation" , { 
-                            email : response.data.oAuth.user.email 
-                        }) ; 
-                        
+                    if (!response.data.oAuth.user.isValid) {
+                        navigation.navigate("SendEmailConfirmation", {
+                            email: response.data.oAuth.user.email
+                        });
+
                     }
                     else if (!response.data.oAuth.user.disabled) {
                         await auth.logIn(response.data.oAuth);
-                     
+
                         navigation.navigate("HomeNavigation");
                     }
                     else {
-                       
+
                         navigation.navigate("ActivateAccount", {
                             login: response.data.oAuth
                         });
@@ -231,20 +236,20 @@ export default function Login({ navigation }) {
             })
 
         } catch (error) {
-            console.log (error) ; 
+            console.log(error);
             setLoading(false);
         }
     }
 
 
-    const openTermsAndServices = useCallback( ( ) => { 
-        navigation.navigate("TermsAndServices")  ;
-    } , [navigation]) ; 
+    const openTermsAndServices = useCallback(() => {
+        navigation.navigate("TermsAndServices");
+    }, [navigation]);
 
 
     const openPrivacyPolicy = useCallback(() => {
-        navigation.navigate("PrivacyPolicy") ; 
-    } , [navigation])
+        navigation.navigate("PrivacyPolicy");
+    }, [navigation])
 
     return (
         <View style={styles.container}>
@@ -354,9 +359,9 @@ export default function Login({ navigation }) {
 
 
                     <Text style={[styles.text, styles.footerText]}>
-                        للمتابعة فانك توافق على <Text style={styles.blueClickable} onPress= {openTermsAndServices}>
+                        للمتابعة فانك توافق على <Text style={styles.blueClickable} onPress={openTermsAndServices}>
                             شروط الخدمة الخاصة
-                        </Text > بنا وتقر بانك قرات <Text style={styles.blueClickable} onPress= { openPrivacyPolicy}>
+                        </Text > بنا وتقر بانك قرات <Text style={styles.blueClickable} onPress={openPrivacyPolicy}>
                             سياسة الخصوصية
                         </Text> الخاصة بنا لتتعلم كيف تجمع بياناتك وتستخدمها وتشاركها
                     </Text>

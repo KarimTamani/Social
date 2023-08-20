@@ -43,6 +43,7 @@ import PrivacyPolicy from "../screens/PrivacyPolicy";
 import SendEmailConfirmation from "../screens/sendEmailConfirmation";
 import ForgetPassword from "../screens/forgetPassword";
 import SubmitEmail from "../screens/submitEmail";
+import VerifyAccount from "../screens/settings/VerifyAccount";
 
 const Stack = createStackNavigator();
 
@@ -82,14 +83,15 @@ export default function RootNavigation({ initialRouteName = "AuthRoute" }) {
                 }}
                 initialRouteName={initialRouteName}
             >
-                <Stack.Screen  name="SubmitEmail" component={SubmitEmail} />
-                <Stack.Screen name="ForgetPassword" component={ ForgetPassword} />
-                <Stack.Screen name="SendEmailConfirmation" component={ SendEmailConfirmation} />
-                <Stack.Screen name="PrivacyPolicy" component={ PrivacyPolicy} />
-                <Stack.Screen name="TermsAndServices" component={ TermsAndServices } />
-                <Stack.Screen name="QrScanner" component={ QrScanner} />  
-                <Stack.Screen name="Report" component={Report}/>
-                <Stack.Screen name="ActivateAccount" component={ActivateAccount}/>
+                <Stack.Screen name="VerifyAccount" component={VerifyAccount} />
+                <Stack.Screen name="SubmitEmail" component={SubmitEmail} />
+                <Stack.Screen name="ForgetPassword" component={ForgetPassword} />
+                <Stack.Screen name="SendEmailConfirmation" component={SendEmailConfirmation} />
+                <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
+                <Stack.Screen name="TermsAndServices" component={TermsAndServices} />
+                <Stack.Screen name="QrScanner" component={QrScanner} />
+                <Stack.Screen name="Report" component={Report} />
+                <Stack.Screen name="ActivateAccount" component={ActivateAccount} />
                 <Stack.Screen name="HashTag" component={HashTag} />
                 <Stack.Screen name="EditPost" component={EditPost} />
                 <Stack.Screen name="Favorites" component={Favorites} />
@@ -125,5 +127,8 @@ export default function RootNavigation({ initialRouteName = "AuthRoute" }) {
         </NavigationContainer>
     )
 }
+
+
+
 
 

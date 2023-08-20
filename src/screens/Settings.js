@@ -17,7 +17,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import Confirmation from "../components/Cards/Confirmation";
-
+import { SimpleLineIcons } from '@expo/vector-icons';
 
 const EXIT_TITLE = "خروج";
 const EXIT_MESSAGE = "هل انت متأكد من مغادرة التطبيق ؟";
@@ -57,6 +57,9 @@ export default function Settings({ navigation, route }) {
 
         if (type == "Ionicons")
             return <Ionicons name={name} style={styles.icon} />
+
+        if (type == "SimpleLineIcons") 
+            return <SimpleLineIcons name={name} style={styles.icon}/>
     }, [])
     const routes = [
         {
@@ -87,17 +90,17 @@ export default function Settings({ navigation, route }) {
                 navigation.navigate("")
             } , [navigation])
         },
-      
+        */
         {
             name: "طلب توثيق الحساب",
-            icon: require("../assets/icons/checkmark-fille.png"),
+            icon: {type : "SimpleLineIcons" , name : "badge" },
             onPress: useCallback(() => {
                 navigation.navigate("VertifyAccount")
             }, [navigation])
 
 
         },
-          */
+         
 
         {
             name: "كلمة المرور",

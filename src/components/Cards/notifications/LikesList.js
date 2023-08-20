@@ -113,24 +113,25 @@ export default function LikesList({ navigation, route }) {
             }
         }).then(response => {
 
-            console.log (response)  ;
-
+          
+            
+        
             if (response && response.data) {
 
-                var newLikes = response.data.getLikePostNotification;
-
+                var  newLikes = response.data.getLikePostNotification;
+         
                 if (newLikes.length < LIMIT)
                     setEnd(true);
 
                 setLikes([...likes.filter(like => like.type != "loading"), ...newLikes]);
 
             }
-
+         
             setFirstFetch(false);
             setLoading(false);
 
         }).catch(error => {
-            console.log (error ) ; 
+        
             setFirstFetch(false);
             setLoading(false);
 
@@ -152,8 +153,6 @@ export default function LikesList({ navigation, route }) {
     }, [loading])
 
     useEffect(() => {
-
-
         const onNewLike = (newLike) => {
             const index = likes.findIndex(like => like.like.post.id == newLike.post.id);
             if (index < 0) {
@@ -267,6 +266,7 @@ export default function LikesList({ navigation, route }) {
 
     const renderItem = useCallback(({ item }) => {
 
+        
         if (item.type == "loading")
             return <LoadingActivity style={{ height: 56 }} />
 

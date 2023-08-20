@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Dimensions, ActivityIndicator, Share } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity, Image, Modal, Dimensions, ActivityIndicator, Share, SafeAreaView, StatusBar } from "react-native";
 import { Video } from 'expo-av';
 import { Octicons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
@@ -7,7 +7,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { LinearGradient } from "expo-linear-gradient";
+ 
 import { textFonts } from "../../design-system/font";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import Slider from "./Slider";
@@ -33,14 +33,20 @@ const DELETE_MESSAGE = {
 
 const WIDTH = Dimensions.get("screen").width;
 const HEIGHT = Dimensions.get("screen").height;
+
+const W_HEIGHT = Dimensions.get("window").height ; 
+const STATUS_BAR_HEIGHT = StatusBar.currentHeight || 24; 
+
+
+const  FOOTER_HEIGHT = HEIGHT - W_HEIGHT - STATUS_BAR_HEIGHT ; 
+
 const HASHTAG_REGEX = /#+([ا-يa-zA-Z0-9_]+)/ig;
 
 function Reel(props) {
 
-    var { focus, openProfile, navigation } = props
-
-
-
+    var { focus, openProfile, navigation , extraBottom } = props
+ 
+    
 
     if (!focus)
         focus = false;
@@ -124,6 +130,8 @@ function Reel(props) {
                 setProcessedTitle(processedText);
             }
         }
+
+       
     }, [props])
 
 
@@ -360,10 +368,13 @@ function Reel(props) {
             }
         })()
     }, [reel]);
-
+    const commentDeleted = useCallback(() => {
+        setNumComments(numComments -1 ) ; 
+        event.emit("update-post-comments", reel.id, numComments -1);
+    } , [numComments ,  reel])
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             {
                 showDeleteConfirmation &&
                 <Modal
@@ -381,7 +392,7 @@ function Reel(props) {
                     onRequestClose={toggleComments}
                 >
                     <Slider onClose={toggleComments} percentage={0.1}>
-                        <Comments post={reel} />
+                        <Comments post={reel} commentDeleted = { commentDeleted }/>
                     </Slider>
                 </Modal>
             }
@@ -414,7 +425,7 @@ function Reel(props) {
                 showOptions && <TouchableOpacity style={styles.touchableBackground} onPressIn={toggleOptions}></TouchableOpacity>
             }
 
-            <View style={styles.reelInteraction}>
+            <View style={[styles.reelInteraction , extraBottom && {bottom: FOOTER_HEIGHT + 96  + 56}]}>
                 <TouchableOpacity style={styles.interaction} onPress={likeReel}>
 
                     <LikeHeart
@@ -517,10 +528,8 @@ function Reel(props) {
                     </View>
                 }
             </View>
-            <LinearGradient
-                colors={["#00000000", "#000000"]}
-                locations={[0, 0.8]}
-                style={styles.reelInfo}
+            <View
+                style={[styles.reelInfo , extraBottom &&   {bottom: FOOTER_HEIGHT  + 56} ]}
             >
                 <View style={styles.footer}>
 
@@ -558,7 +567,7 @@ function Reel(props) {
 
                 </View>
                 <Animated.View style={[styles.progess, progressStyle]}></Animated.View>
-            </LinearGradient>
+            </View>
 
             {
                 focus &&
@@ -576,7 +585,9 @@ function Reel(props) {
                     shouldPlay
                     onPlaybackStatusUpdate={handleVideoStatus}
                     onLoadStart={loadState}
-                    onReadyForDisplay={loadingDone} />
+                    onReadyForDisplay={loadingDone} 
+                    
+                    />
             }
             {
                 reel.reel.thumbnail && isLoading &&
@@ -590,7 +601,7 @@ function Reel(props) {
                 </View>
 
             }
-        </View>
+        </SafeAreaView>
     )
 
 
@@ -651,7 +662,7 @@ const postCoparator = (prevProps, nextProps) => {
 export default React.memo(Reel, postCoparator);
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        height : HEIGHT,   
         position: "relative",
 
     },
@@ -663,14 +674,14 @@ const styles = StyleSheet.create({
         minWidth: "100%",
 
         zIndex: 99,
-        bottom: 0,
+        bottom: FOOTER_HEIGHT ,
         right: 0,
-
+    
 
         padding: 16,
         alignItems: "flex-start",
-        height: "25%",
-        zIndex: 99
+        height : 96 , 
+   
 
     },
     hashtag: {
@@ -685,11 +696,12 @@ const styles = StyleSheet.create({
     },
     reelInteraction: {
         position: "absolute",
-        height: "50%",
+   
         width: 56,
         left: 16,
         zIndex: 999,
-        bottom: "15%"
+        bottom: FOOTER_HEIGHT + 96  , 
+        
 
     },
     interaction: {
@@ -810,7 +822,6 @@ const styles = StyleSheet.create({
     userInfo: {
         flexDirection: "row",
         flex: 1,
-
     },
 
 

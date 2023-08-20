@@ -369,11 +369,15 @@ function Post(props) {
         })
     }, [post]);
 
-
     const showUnImportantConfirmation = useCallback(() => {
         setShowImportantConfirmation(true);
         setShowOptions(false);
-    })
+    }) ; 
+
+    const commentDeleted = useCallback(() => {
+        setNumComments(numComments -1 ) ; 
+        event.emit("update-post-comments", post.id, numComments -1);
+    } , [numComments ,  post])
 
 
     return (
@@ -403,7 +407,7 @@ function Post(props) {
                     onRequestClose={toggleComments}
                 >
                     <Slider onClose={toggleComments} percentage={0.1}>
-                        <Comments post={post} />
+                        <Comments post={post} commentDeleted = { commentDeleted } />
                     </Slider>
                 </Modal>
             }
@@ -503,12 +507,9 @@ function Post(props) {
                 <TouchableOpacity style={styles.user} onPress={openProfile}>
                     <View style={{ marginRight: 8 }}>
                         <Text style={styles.username}>
-                            <Text>
-                                {post.user.name} {post.user.lastname}
-
-                            </Text>
+                            <Text>{post.user.name} {post.user.lastname} </Text>
                             {
-                                post.user.validated && <AntDesign name="checkcircle" style={styles.blueIcon} />
+                                post.user.validated &&    <AntDesign name="checkcircle" style={styles.blueIcon} />
 
                             }
                         </Text>
@@ -696,6 +697,7 @@ const lightStyles = StyleSheet.create({
         fontSize: 12,
         fontFamily: textFonts.bold,
         fontWeight: "bold",
+         
 
     },
 
@@ -774,7 +776,8 @@ const lightStyles = StyleSheet.create({
     },
     blueIcon: {
         color: "blue",
-        fontSize: 12
+        fontSize: 12 , 
+        
     },
     shareText: {
 

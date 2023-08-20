@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, TextInput, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, TextInput, ActivityIndicator, Modal } from "react-native";
 import { textFonts } from "../../../design-system/font";
 import PrimaryInput from "../../Inputs/PrimaryInput";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
@@ -18,14 +18,19 @@ import { ReactNativeFile } from "apollo-upload-client";
 import { useEvent } from "../../../providers/EventProvider";
 import LoadingActivity from "../post/loadingActivity";
 import LoadingComment from "../loadings/LoadingComment";
+import { createRNUploadableFile } from "../../../providers/MediaProvider";
+import Confirmation from "../Confirmation";
 
 
 const NO_PERMISSION_ERROR = "يرجى السماح بالميكروفون";
 const LIMIT = 4;
-
+const DELETE_MESSAGE = { 
+    title : "حذف التعليق" , 
+    message : "هل انت متأكد من حذف هاذ التعليق ؟" , 
+}
 const LOADING_COMPONENTS = [{ id: 0, type: "loading" }, { id: 1, type: "loading" }, { id: 2, type: "loading" }, { id: 3, type: "loading" }]
 
-export default function Comments({ post, fetchingQuery, notificationUser, openPost }) {
+export default function Comments({ post, fetchingQuery, notificationUser, openPost , commentDeleted}) {
 
     const [recording, setRecording] = useState(false);
     const [message, setMessage] = useState(null);
@@ -49,6 +54,9 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
     const [firstFetch, setFirstFetch] = useState(true);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showDeleteConfirmation , setShowDeleteConfirmation] = useState(false) ; 
+    const [commentToDelete , setCommentToDelete] = useState( null) ; 
+    const [ isDeleting , setIsDeleting] = useState(false) ; 
 
     const events = useEvent();
 
@@ -113,7 +121,7 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
                     postId: post.id
                 }
             }).then(response => {
- 
+
                 if (response) {
                     setComments([...comments.filter(comment => comment.type != "loading"), ...response.data.getPostComments]);
 
@@ -146,6 +154,7 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
                 const { recording } = await Audio.Recording.createAsync(
                     Audio.RecordingOptionsPresets.HIGH_QUALITY
                 );
+
                 setRecording(recording);
             } else {
                 showError(NO_PERMISSION_ERROR);
@@ -158,6 +167,7 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
     const stopRecording = async () => {
         await recording.stopAndUnloadAsync();
         setRecord(recording.getURI());
+
         setRecording(null);
     }
 
@@ -174,18 +184,26 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
     }
 
     const onSubmit = useCallback(() => {
-        setIsSubmitting(true);
-        var media = null;
-        if (record) {
-            media = new ReactNativeFile({
-                type: "	audio/mp4",
-                name: "record",
-                uri: record
-            });
-        }
+        (async () => {
 
-        client.mutate({
-            mutation: gql`
+
+            setIsSubmitting(true);
+            var media = null;
+            if (record) {
+
+                media = await createRNUploadableFile(record)
+                /*
+                media = new ReactNativeFile({
+                    type: "audio/mp4",
+                    name: "record",
+                    uri: 
+                });
+                */
+                console.log(media);
+            }
+
+            client.mutate({
+                mutation: gql`
                 mutation Mutation($commentInput: CommentInput!) {
                     comment(commentInput: $commentInput) {
                         comment
@@ -196,55 +214,60 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
                         }
                     }
                 }`  ,
-            variables: {
-                commentInput: {
-                    comment: (text && text.trim().length > 0) ? (text.trim()) : (null),
-                    media: media,
-                    postId: post.id
+                variables: {
+                    commentInput: {
+                        comment: (text && text.trim().length > 0) ? (text.trim()) : (null),
+                        media: media,
+                        postId: post.id
+                    }
                 }
-            }
 
-        }).then(response => {
+            }).then(response => {
 
 
-            var comment = response.data.comment;
-            comment.user = user;
-            comment.liked = false;
-            comment.numReplays = 0;
-            comment.replays = [];
-            setComments([comment, ...comments]);
+                var comment = response.data.comment;
+                comment.user = user;
+                comment.liked = false;
+                comment.numReplays = 0;
+                comment.replays = [];
+                setComments([comment, ...comments]);
 
-            events.emit("new-comment");
+                events.emit("new-comment");
 
-            setText(null);
-            setRecord(null);
-            setIsSubmitting(false);
+                setText(null);
+                setRecord(null);
+                setIsSubmitting(false);
 
-        }).catch(error => { 
+            }).catch(error => {
 
-            setIsSubmitting(false);
+                setIsSubmitting(false);
 
-        })
-
+            })
+        })()
     }, [text, record, user, comments]);
 
     const loadComment = useCallback((comment) => {
-
         setCommentForReplay(comment);
     }, []);
 
 
     const detechCommmentForReplay = useCallback(() => {
         setCommentForReplay(null);
-
     }, [])
 
     const renderItem = useCallback(({ item }) => {
         if (item.type == "loading") {
             return <LoadingComment />
         }
-        return <Comment comment={item} loadComment={loadComment} defaultShowReplays={fetchingQuery != null} />
-    }, []);
+        return <Comment
+            comment={item}
+            loadComment={loadComment}
+            defaultShowReplays={fetchingQuery != null}
+            owner={post && (post?.userId == user.id || item.user.id == user.id)}
+            currentUser={user}
+            onDeleteComment={prepareCommentToDelete} />
+    
+        }, [user , prepareCommentToDelete , comments]);
 
     const keyExtractor = useCallback((item, index) => {
         if (item.type == "loading") {
@@ -254,13 +277,14 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
     }, []);
 
 
+
     const onReplay = useCallback(() => {
         var media = null;
 
         setIsSubmitting(true);
         if (record) {
             media = new ReactNativeFile({
-                type: "	audio/mp4",
+                type: "audio/mp4",
                 name: "record",
                 uri: record
             });
@@ -268,11 +292,9 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
         client.mutate({
             mutation: gql`
                 mutation Mutation($replayInput: ReplayInput!) {
-                    
                     replay(replayInput: $replayInput) {
                         replay
                         id
-                        
                         media {
                             id
                             path
@@ -302,32 +324,78 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
 
 
         }).catch(error => {
-        
+
             setIsSubmitting(false);
-
         })
-
-
     }, [text, record, user, comments, commentForReplay]);
 
-
     const reachEnd = useCallback(() => {
-
-
         if (!loading && !end && !firstFetch) {
-
-
             setComments([...comments, { id: 0, type: "loading" }])
             setLoading(true);
+        }
+    }, [loading, comments, end, firstFetch])
 
+
+    const closeConfirmation = useCallback(() => {
+        setShowDeleteConfirmation(false);
+        setCommentToDelete(null);
+    } , []) ; 
+
+    const prepareCommentToDelete = useCallback((id) => {
+        setShowDeleteConfirmation(true);
+        setCommentToDelete(id);
+    }, [])
+
+
+    const deleteComment = useCallback(() => {
+        
+        if (commentToDelete) { 
+            setIsDeleting(true) ; 
+            client.mutate({
+                mutation : gql`
+                mutation DeleteComment($commentId: ID!) {
+                    deleteComment(commentId: $commentId) {
+                      id   
+                    }
+                }` , 
+                variables : { 
+                    commentId : commentToDelete 
+                }
+            }).then( response => {
+                if (response && response.data) { 
+                    const index = comments.findIndex(comment => comment.id == commentToDelete) 
+                    if ( index >= 0) { 
+                        var cloneComments = [...comments] ; 
+                        cloneComments.splice( index , 1) ; 
+                        setComments(cloneComments) ; 
+                        commentDeleted && commentDeleted() 
+                    }
+            
+                    setCommentToDelete(null) ; 
+                    closeConfirmation() ; 
+            
+                }
+                setIsDeleting( false ) ; 
+            }).catch(error => { 
+                setIsDeleting( false ) ; 
+            })
 
         }
-
-
-    }, [loading, comments, end, firstFetch])
+ 
+    }, [comments , post , commentToDelete]) ; 
 
     return (
         <View style={styles.container}>
+             {
+                showDeleteConfirmation &&
+                <Modal
+                    transparent
+                    onRequestClose={closeConfirmation}
+                >
+                    <Confirmation loading={isDeleting} title={DELETE_MESSAGE.title} message={DELETE_MESSAGE.message} onClose={closeConfirmation} onConfirm={deleteComment} />
+                </Modal>
+            }
             {
                 commentForReplay &&
                 <TouchableOpacity style={styles.background} activeOpacity={1} onPress={detechCommmentForReplay}>
@@ -385,7 +453,7 @@ export default function Comments({ post, fetchingQuery, notificationUser, openPo
                             <Feather name="gift" style={styles.buttonIcon} />
                         </TouchableOpacity>
    
-                            */ 
+                            */
 
                         }
                         {
@@ -449,7 +517,7 @@ const lightStyles = StyleSheet.create({
     },
     header: {
         fontFamily: textFonts.bold,
-        fontWeight : "bold" , 
+        fontWeight: "bold",
         fontSize: 16,
         paddingHorizontal: 16
     },
@@ -536,7 +604,7 @@ const lightStyles = StyleSheet.create({
     },
     bold: {
         fontFamily: textFonts.bold,
-        fontWeight : "bold" , 
+        fontWeight: "bold",
     },
     blue: {
         color: "#1A6ED8"
@@ -548,7 +616,7 @@ const darkStyles = {
 
     header: {
         fontFamily: textFonts.bold,
-        fontWeight : "bold" , 
+        fontWeight: "bold",
         fontSize: 16,
         paddingHorizontal: 16,
         color: darkTheme.textColor
@@ -574,7 +642,7 @@ const darkStyles = {
     },
     bold: {
         fontFamily: textFonts.bold,
-        fontWeight : "bold" , 
+        fontWeight: "bold",
         color: darkTheme.textColor
     },
     commentInputContainer: {

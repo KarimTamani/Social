@@ -262,9 +262,7 @@ export default function Profile({ route, navigation }) {
                             user.validated &&
                             <AntDesign name="checkcircle" style={styles.blueIcon} />
                         }
-                        <Text>
-                            {user.name} {user.lastname}
-                        </Text>
+                        <Text> {user.name} {user.lastname} </Text>
                     </Text>
                     <Text style={styles.username}>
                         @{user.username}
@@ -453,7 +451,7 @@ const lightStyles = StyleSheet.create({
 
     blueIcon: {
         color: "blue",
-        fontSize: 18
+        fontSize: 14
     },
     contant: {
         flexDirection: "row",

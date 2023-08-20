@@ -14,6 +14,7 @@ import { useRealTime } from "../../../providers/RealTimeContext";
 import LoadingConversation from "../loadings/LoadingConversation";
 import LoadingActivity from "../post/loadingActivity";
 import { useTiming } from "../../../providers/TimeProvider";
+import { AntDesign } from '@expo/vector-icons';
 
 const LIMIT = 10;
 const LOAD_CONVERSATIONS = gql`
@@ -33,6 +34,7 @@ query Query($query : String , $offset: Int!, $limit: Int!, $asParticipant: Boole
               isActive 
               showState
               lastActiveAt 
+              validated
           }
       }
       simat {
@@ -71,6 +73,7 @@ query Query($offset: Int!, $limit: Int!) {
                 isActive 
                 showState
                 lastActiveAt 
+                validated
             }
         }
         simat {
@@ -179,7 +182,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
 
         }).catch(error => {
 
-            console.log(error);
+        
             setLoading(false);
             setFirstFetch(false);
         })
@@ -470,7 +473,7 @@ export default function ConversationsList({ openConversation, query, asParticipa
                     {
                         !groupName &&
                         <Text style={[styles.username, item.unseenMessages > 0 && styles.unseen]} numberOfLines={1}>
-                            {(item.members[0].user.name + " " + item.members[0].user.lastname)}
+                            {(item.members[0].user.name + " " + item.members[0].user.lastname)} {item.members[0].user.validated && <AntDesign name="checkcircle" style={styles.blueIcon} />}
                         </Text>
                     }
                     {
@@ -727,6 +730,10 @@ const lightStyles = StyleSheet.create({
         justifyContent: "flex-start",
         width: 88,
         overflow: "hidden",
+    } , 
+    blueIcon : {
+        color: "blue",
+        fontSize: 12
     }
 })
 

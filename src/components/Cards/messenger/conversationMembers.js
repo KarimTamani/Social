@@ -4,6 +4,7 @@ import { getMediaUri } from "../../../api";
 import { textFonts } from "../../../design-system/font";
 import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
+import { AntDesign } from '@expo/vector-icons';
 
 const { height } = Dimensions.get("screen");
 
@@ -26,11 +27,13 @@ export default function ConversationMembers({ members }) {
         if (firstThree.length == 1) {
             const reciver = firstThree[0].user;
 
+       
+
             return (
                 <View>
                     <View style={styles.infoContainer}>
                         <Text style={styles.name}>
-                            {reciver.name} {reciver.lastname}
+                        {reciver.validated && <AntDesign name="checkcircle" style={styles.blueIcon} />} {reciver.name} {reciver.lastname} 
                         </Text>
                         <Text style={styles.text}>
                             @{reciver.username}
@@ -79,7 +82,6 @@ export default function ConversationMembers({ members }) {
                 return styles.floatRight;
             if (index == 1)
                 return styles.floatLeft;
-
         }
     }
 
@@ -176,6 +178,10 @@ const lightStyles = StyleSheet.create({
         transform: [{
             translateX: -42 / 2
         }]
+    } , 
+    blueIcon : {
+        color: "blue",
+        fontSize: 14,
     }
 
 })

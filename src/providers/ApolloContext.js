@@ -89,9 +89,12 @@ export const ApolloProvider = ({ children, userAuth }) => {
             const errorLink = onError(({ graphQLErrors, networkError }) => {
                 if (graphQLErrors) {
                     graphQLErrors.forEach(({ extensions, message, locations, path }) => {
+                
+
                         if (extensions.code == 403) {
                             // setError("Token expired loging out in 3 seconds");
                             event.emit("token-expired");
+                          
                         }
                     });
                 }

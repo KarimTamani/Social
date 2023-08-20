@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ActivityIndicator, Modal } from "react-native";
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { textFonts } from "../../../design-system/font";
@@ -13,10 +13,16 @@ import { useEvent } from "../../../providers/EventProvider";
 import LikeHeart from "../post/LikeHeart";
 import { useTiming } from "../../../providers/TimeProvider";
 import { AuthContext } from "../../../providers/AuthContext";
-
+import { Feather } from '@expo/vector-icons';
+import Confirmation from "../Confirmation";
 const LIMIT = 5;
 
-function Comment({ comment, loadComment, replayMode = false, detechCommmentForReplay, isReplay = false, defaultShowReplays = false }) {
+const DELETE_MESSAGE = {
+    title: "حذف الرد",
+    message: "هل انت متأكد من حذف هاذ الرد ؟"
+}
+
+function Comment({ comment, loadComment, replayMode = false, detechCommmentForReplay, isReplay = false, defaultShowReplays = false, owner = false, currentUser, onDeleteComment, onDeleteReplay }) {
 
     const [like, setLike] = useState(comment.liked);
     const [record, setRecord] = useState(null);
@@ -27,12 +33,16 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
     const [firstFetch, setFirstFetch] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
     const client = useContext(ApolloContext);
     const events = useEvent();
 
-    const timing = useTiming(); 
+    const timing = useTiming();
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [replayToDelete, setReplayToDelete] = useState(null);
 
-    
+
 
     const likeComment = useCallback(() => {
         // like a comment or a replay 
@@ -159,14 +169,14 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
             else
                 setIsLoading(false);
 
- 
+
 
             if (response) {
-                console.log("set replayis")
+
                 setReplays([...replays, ...response.data.getCommentReplays]);
             }
         }).catch(error => {
-      
+
             setFirstFetch(false);
         })
 
@@ -175,6 +185,7 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
     useEffect(() => {
 
         if (comment.media && comment.media.path) {
+
             setRecord(getMediaUri(comment.media.path));
         }
 
@@ -197,16 +208,81 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
 
     const keyExtractor = useCallback((item, index) => {
         return item.id;
-    }, []);
+    }, [replays]);
 
     const renderItem = useCallback(({ item }) => {
-        return <Comment comment={item} isReplay={true} />
-    }, []);
+        return <Comment
+            comment={item}
+            isReplay={true}
+            owner={currentUser && (owner || item.user.id == currentUser?.id)}
+            onDeleteReplay={prepareReplayToDelete}
+        />
+    }, [owner, currentUser, replays, prepareReplayToDelete]);
 
 
     const loadMore = useCallback(() => {
         loadReplies();
     }, [replays, comment, firstFetch, isLoading]);
+
+
+    const onDelete = useCallback(() => {
+
+
+        if (!isReplay) {
+            onDeleteComment && onDeleteComment(comment.id);
+        } else {
+            onDeleteReplay && onDeleteReplay(comment.id);
+        }
+    }, [isReplay, onDeleteReplay, onDeleteComment])
+
+
+    const deleteReplay = useCallback(() => {
+
+        if (replayToDelete) { 
+            setIsDeleting( true ) ; 
+            client.mutate({
+                mutation : gql`
+                mutation DeleteReplay($replayId: ID!) {
+                    deleteReplay(replayId: $replayId) {
+                      id
+                    }
+                }` , 
+                variables : { 
+                    replayId : replayToDelete 
+                }
+            }).then( response => { 
+                if ( response && response.data) {
+                    const index = replays.findIndex(replay => replay.id == replayToDelete);
+                    if (index >= 0) {
+                        var cloneReplays = [...replays];
+                        cloneReplays.splice(index, 1);
+                        setReplays(cloneReplays)
+                        setNumReplays(numReplays - 1)
+            
+                    }
+                    closeConfirmation();
+                    setReplayToDelete(null);
+                }
+                setIsDeleting( false ) ; 
+            }).catch(error => {
+                setIsDeleting( false ) ; 
+            }) 
+
+        }
+ 
+
+    }, [replays, numReplays, replayToDelete]);
+
+    const closeConfirmation = useCallback(() => {
+        setShowDeleteConfirmation(false);
+        setReplayToDelete(null);
+    }, [showDeleteConfirmation])
+
+
+    const prepareReplayToDelete = useCallback((id) => {
+        setShowDeleteConfirmation(true);
+        setReplayToDelete(id);
+    }, [])
 
     return (
         <View style={styles.container}>
@@ -252,21 +328,29 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
                 }
 
             </View>
+            <View style={styles.commentSection}>
 
-            <View style={styles.commentContent}>
-                {
 
-                    comment.comment &&
-                    <Text style={styles.commentText}> {comment.comment}</Text>
-                }
-                {
-                    comment.replay &&
-                    <Text style={styles.commentText}> {comment.replay}</Text>
+                <View style={styles.commentContent}>
+                    {
 
-                }
+                        comment.comment &&
+                        <Text style={styles.commentText}> {comment.comment}</Text>
+                    }
+                    {
+                        comment.replay &&
+                        <Text style={styles.commentText}> {comment.replay}</Text>
+                    }
+                    {
+                        record &&
+                        <RecordPlayer uri={record} />
+                    }
+
+                </View>
                 {
-                    record &&
-                    <RecordPlayer uri={record} />
+                    owner &&
+                    <Feather name="trash-2" style={styles.deleteIcon} onPress={onDelete} />
+
                 }
             </View>
             {
@@ -315,6 +399,15 @@ function Comment({ comment, loadComment, replayMode = false, detechCommmentForRe
                 showReplays && !replayMode && replays.length > 0 && replays.length != numReplays && isLoading &&
                 <ActivityIndicator style={styles.footerText} color={"#1A6ED8"} />
 
+            }
+            {
+                showDeleteConfirmation &&
+                <Modal
+                    transparent
+                    onRequestClose={closeConfirmation}
+                >
+                    <Confirmation loading={isDeleting} title={DELETE_MESSAGE.title} message={DELETE_MESSAGE.message} onClose={closeConfirmation} onConfirm={deleteReplay} />
+                </Modal>
             }
 
         </View>
@@ -390,10 +483,7 @@ const lightStyles = StyleSheet.create({
         fontFamily: textFonts.bold,
         fontSize: 12
     },
-    commentContent: {
 
-        marginRight: 52
-    },
     commentText: {
         fontFamily: textFonts.regular,
         fontSize: 12,
@@ -428,6 +518,26 @@ const lightStyles = StyleSheet.create({
         paddingHorizontal: 16,
         borderRightColor: "#eee",
         borderRightWidth: 4
+
+    },
+    commentSection: {
+        flexDirection: "row-reverse",
+        alignItems: "center",
+        marginLeft: 52,
+
+    },
+    commentContent: {
+
+
+        flex: 1,
+
+
+    },
+    deleteIcon: {
+        fontSize: 18,
+        color: "red",
+        paddingRight: 12,
+        paddingVertical: 12,
 
     }
 })

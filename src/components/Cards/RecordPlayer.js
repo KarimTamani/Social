@@ -1,13 +1,14 @@
 import { View, Text, StyleSheet, ImageBackground, TouchableOpacity } from "react-native";
 import { FontAwesome } from '@expo/vector-icons';
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState , memo } from "react";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Audio } from "expo-av"
 import ThemeContext from "../../providers/ThemeContext";
 import darkTheme from "../../design-system/darkTheme";
-export default function RecordPlayer({ uri }) {
 
-
+function RecordPlayer({ uri }) {
+ 
+     
     const [sound, setSound] = useState(null);
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles
@@ -15,24 +16,20 @@ export default function RecordPlayer({ uri }) {
   
 
     const [playing, setPlaying] = useState(false);
-    const [replay, setReplay] = useState(true);
     const [currentPosition, setCurrentPosition] = useState(0);
-
     const [duration, setDuration] = useState(null);
-
 
     const width = useSharedValue(0);
 
-
     useEffect(() => {
-
+ 
         if (sound)
             sound.setOnPlaybackStatusUpdate((soundStatus) => {
 
                 setCurrentPosition(soundStatus.positionMillis);
 
                 if (soundStatus.didJustFinish) {
-                    setReplay(true);
+           
                     setPlaying(false);
                     setCurrentPosition(0);
                     if (sound) {
@@ -85,9 +82,6 @@ export default function RecordPlayer({ uri }) {
             } else {
 
                 const sound = new Audio.Sound();
-
-            
-
                 await sound.loadAsync({
                     uri
                 })
@@ -147,6 +141,7 @@ export default function RecordPlayer({ uri }) {
     )
 }
 
+export default memo(RecordPlayer) ; 
 const lightStyles = StyleSheet.create({
     container: {
         height: 42,

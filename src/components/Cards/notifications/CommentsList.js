@@ -387,6 +387,7 @@ export default function CommentsList({ navigation, route }) {
             id
             liked
             post {
+              userId
               type 
               id 
             }
@@ -442,6 +443,7 @@ export default function CommentsList({ navigation, route }) {
                   id
                   liked
                   post {
+                    userId
                     type 
                     id 
                   }
@@ -543,6 +545,7 @@ export default function CommentsList({ navigation, route }) {
                 numComments
                 likes
                 title
+                userId 
 
                 media { 
                   id path 

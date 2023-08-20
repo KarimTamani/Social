@@ -64,7 +64,6 @@ export default function AccountName({ openProfile }) {
             <View style={styles.userInfo}>
                 <Text style={styles.fullname}>
                     {user.validated && <AntDesign name="checkcircle" style={styles.blueIcon} />}<Text> {user.name} {user.lastname} </Text>
-
                 </Text>
                 <Text style={styles.username}>
                     @{user.username}
