@@ -14,7 +14,7 @@ import { useEvent } from "../providers/EventProvider";
 
 const Tab = createBottomTabNavigator();
 const HEIGHT = Dimensions.get("window").height;
-export default function ProfilePostsRoute({ navigation, userId }) {
+export default function ProfilePostsRoute({ navigation, userId , user }) {
 
     const [selectedPage, setSelectedPage] = useState("ProfileImages");
     const [height, setHeight] = useState(HEIGHT * 0.25)
@@ -22,7 +22,7 @@ export default function ProfilePostsRoute({ navigation, userId }) {
     const event = useEvent();
 
     const updateHeight = (value) => {
-        console.log("update height : ", value);
+    
         if (value == 0)
             setHeight(HEIGHT * 0.25);
         else if (value < HEIGHT * 0.75) {
@@ -43,7 +43,7 @@ export default function ProfilePostsRoute({ navigation, userId }) {
 
     return (
         <View style={{ flex: 1  }}>
-            <ProfileTabNav activePage={selectedPage} navigation={navigation} />
+            <ProfileTabNav activePage={selectedPage} navigation={navigation} user = {user}/>
             <View style={[styles.screensContainer, { height: height }]}>
                 <Tab.Navigator
                     screenOptions={{
@@ -74,8 +74,7 @@ export default function ProfilePostsRoute({ navigation, userId }) {
                             setSelectedPage("ProfileVideos")
                         }
                     }} />
-                    {
-                        /*
+               
                     <Tab.Screen component={WorkAndServices} initialParams={{ userId: userId }} name="WorkAndServices" listeners={{
                         focus: (e) => {
                             setSelectedPage("WorkAndServices")
@@ -86,8 +85,7 @@ export default function ProfilePostsRoute({ navigation, userId }) {
                             setSelectedPage("ProfileCourses")
                         }
                     }} />
-                    */
-                    }
+        
 
                 </Tab.Navigator>
             </View>

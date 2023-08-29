@@ -31,6 +31,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as FileSystem from "expo-file-system";
 import { getFileExtension } from "../../../providers/MediaProvider";
 import * as MediaLibrary from 'expo-media-library';
+import PostWork from "./PostWork";
 const WIDTH = Dimensions.get("screen").width;
 
 
@@ -531,19 +532,25 @@ function Post(props) {
                 </TouchableOpacity>
             </View>
 
-
             <View style={styles.content}>
                 {
-                    (post.type == "note" || post.title) && <PostNote post={post} navigation={navigation} />
+                    (post.type == "note"  || post.title && !(post.type == "work")) && <PostNote post={post} navigation={navigation} />
+                }
+                {
+                    post.type == "work"  && <PostWork post = {post } navigation = {navigation }/>
+                    
                 }
                 {
                     post.type == "image" && <PostImage post={post} navigation={navigation} />
                 }
                 {
-                    post.type == "service" && <PostService post={post} navigation={navigation} />
+                    post.type == "work" && <PostImage post={post} navigation={ navigation } /> 
                 }
                 {
-                    post.type == "payed-content" && <PostPyaedContent post={post} openConversation={openConversation} navigation={navigation} />
+               //     post.type == "service" && <PostService post={post} navigation={navigation} />
+                }
+                {
+                 //   post.type == "payed-content" && <PostPyaedContent post={post} openConversation={openConversation} navigation={navigation} />
                 }
                 {
                     post.type == "reel" && <PostVideo post={post} navigation={navigation} />
@@ -566,22 +573,20 @@ function Post(props) {
                         </TouchableOpacity>
 
                         {
-                            /*
-                            
-                        <TouchableOpacity>
-                            <Feather name="gift" style={styles.interactionIcon} />
-                        </TouchableOpacity>
-                            
-                            
+                            /*                    
+                            <TouchableOpacity>
+                                <Feather name="gift" style={styles.interactionIcon} />
+                            </TouchableOpacity>
                             */ 
                         }
                         {
+                            /*
                             post.type == "service"
                             &&
                             <Text style={styles.rating}>
                                 <AntDesign name="star" size={16} color="#FFD700" /> {post.content.rating}
                             </Text>
-
+                            */
                         }
                     </View>
                     <View style={styles.interactions}>
@@ -597,9 +602,6 @@ function Post(props) {
                             </Text>
                             <FontAwesome name="comment-o" style={styles.interactionIcon} />
                         </AuthButton>
-
-
-
                         <AuthButton style={styles.interaction} onPress={likePost} navigation={navigation}>
                             <Text style={[styles.interactionValue, like && styles.like]}>
                                 {numLikes} سهم
@@ -723,9 +725,6 @@ const lightStyles = StyleSheet.create({
 
         justifyContent: "center",
         alignItems: "center",
-
-
-
     },
     interactionIcon: {
         fontSize: 18,

@@ -7,9 +7,9 @@ import ThemeContext from "../../providers/ThemeContext";
 import DatePicker from '../../libs/react-native-modern-datepicker';
 
 
-export default function FormDatePicker({ onChange, label = "تاريخ", placeholder = "تاريخ", style, onBlur , inputStyle }) {
+export default function FormDatePicker({ onChange, label = "تاريخ", placeholder = "تاريخ", style, onBlur , inputStyle , value = "" }) {
 
-    const [date, setDate] = useState("");
+    const [date, setDate] = useState(value);
     const [showCalendar, setShowCalendar] = useState(false);
 
 

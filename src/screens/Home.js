@@ -271,6 +271,13 @@ export default function Home({ navigation }) {
                         likes  
                         isFavorite 
                         userId
+                        work {
+                            id 
+                            description 
+                            category {
+                                id name
+                            }
+                        }
                         user { 
                             id
                             name 

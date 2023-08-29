@@ -237,10 +237,7 @@ export default function NewPost({ navigation }) {
     const newPost = useCallback(() => {
         (async () => {
 
-
             var hashtags = text.match(HASHTAG_REGEX);
-
-
 
             try {
 

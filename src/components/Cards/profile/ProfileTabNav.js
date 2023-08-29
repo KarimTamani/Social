@@ -9,10 +9,11 @@ import { useContext } from "react";
 import ThemeContext from "../../../providers/ThemeContext";
 import darkTheme from "../../../design-system/darkTheme";
 
-export default function ProfileTabNav({ navigation, activePage }) {
+export default function ProfileTabNav({ navigation, activePage, user }) {
 
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
+
 
     return (
         <View style={styles.container}>
@@ -30,15 +31,17 @@ export default function ProfileTabNav({ navigation, activePage }) {
             </TouchableOpacity>
 
             {
-                /*
+                user.professional &&
                 <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate("WorkAndServices")}>
                     <MaterialIcons name="storefront" style={[styles.tabIcon, activePage == "WorkAndServices" && styles.activeIcon]} />
                 </TouchableOpacity>
+            }{
+                user.professional &&
+
                 <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate("ProfileCourses")}>
-    
+
                     <Ionicons name="ios-eye-off-outline" style={[styles.tabIcon, activePage == "ProfileCourses" && styles.activeIcon]} />
                 </TouchableOpacity>
-                    */
             }
         </View>
     )

@@ -4,6 +4,7 @@ import { TextInput } from "react-native-gesture-handler";
 import darkTheme from "../../design-system/darkTheme";
 import { textFonts } from "../../design-system/font";
 import ThemeContext from "../../providers/ThemeContext";
+import { errorStyle } from "../../design-system/errorStyle";
 
 export default function FormInput({
     value,
@@ -13,7 +14,9 @@ export default function FormInput({
     placeholder = '',
     multiline = false,
     numberOfLines = 1, 
-    style 
+    style , 
+    error , 
+    autoCapitalize = true 
 }) {
     const inputRef = useRef();
 
@@ -35,7 +38,7 @@ export default function FormInput({
             </Text>
             <TextInput
                 placeholder={placeholder}
-                style={styles.input}
+                style={[styles.input , error && errorStyle.errorInput ]}
                 value={value}
                 onChangeText={handleChange}
                 onBlur={handleBlur}
@@ -43,6 +46,7 @@ export default function FormInput({
                 multiline={multiline}
                 numberOfLines={numberOfLines}
                 placeholderTextColor = { styles.placeholderColor }
+                autoCapitalize={(autoCapitalize === false) ? "none" : null}
             />
         </View>
     )

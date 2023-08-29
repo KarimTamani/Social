@@ -84,6 +84,8 @@ export default function Profile({ route, navigation }) {
                   numFollowing
                   numVisits
                   validated
+                  professional
+                  categoryId 
                   socialMedia {
                     facebook
                     twitter
@@ -117,9 +119,6 @@ export default function Profile({ route, navigation }) {
                 // at this level we have an id
                 getUser(userId).then(response => {
                     if (response && response.data.getUserById) {
-
-
-
                         setUser(response.data.getUserById);
                         setFollow(response.data.getUserById.isFollowed);
                         setNumFollowers(response.data.getUserById.numFollowers);
@@ -384,7 +383,7 @@ export default function Profile({ route, navigation }) {
                     {
                         user && (!userId || follow || !user.private) &&
                         <View style={[styles.posts]}>
-                            <ProfilePostsRoute userId={user.id} navigation={navigation} />
+                            <ProfilePostsRoute user = {user} userId={user.id} navigation={navigation} />
                         </View>
                     }
                     {

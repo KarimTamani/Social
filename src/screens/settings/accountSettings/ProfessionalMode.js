@@ -13,6 +13,7 @@ import LoadingActivity from "../../../components/Cards/post/loadingActivity";
 import CategoryPicker from "../../../components/Cards/CategoryPicket";
 import { AuthContext } from "../../../providers/AuthContext";
 import { AntDesign } from '@expo/vector-icons';
+import { useEvent } from "../../../providers/EventProvider";
 export default function ProfessionalMode({ navigation }) {
     const [showWelcom, setShowWelcom] = useState(false);
     const [showCategoryPicker, setShowCategoryPicker] = useState(false);
@@ -26,17 +27,14 @@ export default function ProfessionalMode({ navigation }) {
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles
 
     const client = useContext(ApolloContext);
-
     const auth = useContext(AuthContext);
 
     const [loading, setLoading] = useState(false);
     const [isProfessional, setIsProfessional] = useState(false);
-
+    const event = useEvent()  ; 
+    
     useEffect(() => {
-
-
         (
-
             async () => {
                 setFetching(true);
                 const userAuth = await auth.getUserAuth();
@@ -60,15 +58,11 @@ export default function ProfessionalMode({ navigation }) {
                         setFetching(false);
                         if (response && response.data) {
                             setIsProfessional(response.data.getUserById.professional)
-
                         }
-
                     }).catch(error => {
                         setFetching(false);
                     })
                 }
-
-
             }
         )()
 
@@ -101,7 +95,10 @@ export default function ProfessionalMode({ navigation }) {
 
 
     const showProfile = useCallback(() => {
+        event.emit("edit-profile") ; 
         setShowWelcom(false);
+        navigation.navigate("AccountStack") ; 
+     
     }, [showWelcom]);
 
     const toggleCategoryPicker = useCallback(() => {
@@ -129,12 +126,8 @@ export default function ProfessionalMode({ navigation }) {
         }).then(response => {
             setLoading(false);
         }).catch(error => {
-
             setLoading(false);
         })
-
-
-
     }, [showCategoryPicker])
 
     return (

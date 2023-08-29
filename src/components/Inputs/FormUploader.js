@@ -2,26 +2,36 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "rea
 import { textFonts } from "../../design-system/font";
 import { FontAwesome } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import ThemeContext from "../../providers/ThemeContext";
 import darkTheme from "../../design-system/darkTheme";
 
-export default function FormUploader({ placeholder = "الصور أو الفيديو", style, noDisplay = false, oneImage = false, onChanges }) {
+export default function FormUploader({ placeholder = "الصور أو الفيديو", style, noDisplay = false, oneImage = false, onChanges, mediaType = ["image/*"], defaultImages },) {
 
     const [images, setImages] = useState([]);
     const [video, setVideo] = useState(null);
-
 
     const themeContext = useContext(ThemeContext);
     const styles = themeContext.getTheme() == "light" ? lightStyles : darkStyles;
 
 
+    useEffect(() => {
+
+
+
+        if (defaultImages && defaultImages.length > 0)
+            setImages(defaultImages);
+
+
+    }, [defaultImages])
+
     const pickMedia = useCallback(() => {
 
-        var type = ["image/*"];
+        var type = mediaType;
+        /*
         if (!video)
             type.push("video/mp4");
-
+        */
         (async () => {
             let result = await DocumentPicker.getDocumentAsync({
                 type: type
@@ -40,7 +50,7 @@ export default function FormUploader({ placeholder = "الصور أو الفيد
                 } else if (result.mimeType.startsWith("video")) {
 
                     setVideo(result);
-                    onChanges && onChanges(result) ; 
+                    onChanges && onChanges(result);
                 }
 
             }

@@ -249,7 +249,6 @@ export default function EditPost({ route, navigation }) {
                 if (images[index].id) {
                     media.splice(0, 0, {
                         id: images[index].id
-
                     });
 
                 } else {
@@ -323,7 +322,10 @@ export default function EditPost({ route, navigation }) {
             }
 
             if (compressedFileUrl)
-                video.uri = compressedFileUrl
+                video.uri = compressedFileUrl ; 
+
+
+
             media = [{ file : await createRNUploadableFile(video.uri) }];
         
         }
@@ -390,8 +392,6 @@ export default function EditPost({ route, navigation }) {
         setTimeout(async () => {
             await BackgroundService.stop();
         }, 10000)
-
-
     }
 
 

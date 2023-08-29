@@ -481,7 +481,8 @@ const lightStyles = StyleSheet.create({
     name: {
 
         fontFamily: textFonts.bold,
-        fontSize: 12
+        fontSize: 12 , 
+        textAlign : "right"
     },
 
     commentText: {
@@ -549,7 +550,8 @@ const darkStyles = {
         fontFamily: textFonts.bold,
         color: darkTheme.textColor,
 
-        fontSize: 12
+        fontSize: 12 , 
+        textAlign : "right"
     }
     ,
     commentText: {
